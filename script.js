@@ -1,5 +1,5 @@
 const PROJECTS=[
-{title:"Realistic Ice Render",category:"Product Visualization",year:"2026",images:["images/realistic-ice-image-1.jpg","images/realistic-ice-image-2.jpg"],description:"A realistic ice-focused 3D study built around materials, lighting, transparency, and detailed surface realism.",details:"A material and lighting study focused on believable ice, refraction, highlights, and controlled studio presentation.",tools:["Blender","Cycles","Materials","Lighting"]},
+{title:"Realistic Ice Render",category:"Product Visualization",featured:true,year:"2026",images:["images/realistic-ice-image-1.jpg","images/realistic-ice-image-2.jpg"],description:"A realistic ice-focused 3D study built around materials, lighting, transparency, and detailed surface realism.",details:"A material and lighting study focused on believable ice, refraction, highlights, and controlled studio presentation.",tools:["Blender","Cycles","Materials","Lighting"]},
 {title:"Soap Animation",category:"Product Visualization",year:"2026",images:["images/soap-image-1.jpg","images/soap-image-2.jpg","images/soap-image-3.jpg","images/soap-image-4.jpg"],video:"videos/soap-animation.mp4",description:"Glossy surfaces and rich material realism.",details:"A product animation focused on aloe vera soap, material response, lighting, camera movement, and compositing.",tools:["Blender","Cycles","Compositing"]},
 {title:"Yerba Mate Animation",category:"Product Visualization",year:"2026",images:["images/yerba-mate-image-1.jpg","images/yerba-mate-image-21.jpg"],video:"videos/yerba-mate-animation.mp4",description:"Refreshing beverage hero shot with condensation and motion.",details:"Product-focused beverage visualization with emphasis on materials, condensation, lighting, and motion.",tools:["Blender","Cycles","Product Visualization"]},
 {title:"Asus Product Animation",category:"Product Visualization",year:"2026",images:["images/asus-image.jpg"],video:"videos/asus-animation.mp4",description:"A clean product-focused 3D presentation.",details:"Product modeling, materials, lighting, camera work, and animation.",tools:["Blender","Product Visualization","Motion"]},
@@ -7,41 +7,112 @@ const PROJECTS=[
 {title:"Smartwatch Animation",category:"Product Visualization",year:"2026",images:["images/smart-watch-image.jpg"],video:"videos/watch-animation.mp4",description:"Macro product showcase with crisp studio lighting.",details:"A close-up product animation emphasizing clean forms, controlled lighting, materials, and camera movement.",tools:["Blender","Product Visualization","Motion"]},
 {title:"Nike Shoe Modeling",category:"3D Modeling",year:"2026",images:["images/nike-shoe-image-1.jpg","images/nike-shoe-image-2.jpg","images/nike-shoe-image-3.jpg","images/nike-shoe-image-4.jpg","images/nike-shoe-image-5.jpg","images/nike-shoe-image-6.jpg"],description:"Detailed footwear modeling and presentation.",details:"A modeling study focused on shape, construction, materials, and product presentation.",tools:["Blender","Hard Surface","Product Modeling"]},
 {title:"Interior Room Design",category:"Interior design & architecture",year:"2026",images:["images/interior-image-1.jpg","images/interior-image-2.jpg"],description:"Concrete & Comfort — an interior scene focused on atmosphere and composition.",details:"Interior environment work with attention to materials, lighting, composition, and realistic scene presentation.",tools:["Blender","Cycles","Environment Design","Lighting"]},
-{title:"Booth Design",category:"Interior design & architecture",year:"2026",images:["images/booth-01-image-01.jpg","images/booth-01-image-02.jpg","images/booth-01-image-03.jpg","images/booth-01-image-04.jpg","images/booth-01-image-05.jpg","images/booth-01-image-06.jpg","images/booth-01-image-07.jpg","images/booth-01-image-08.jpg","images/booth-01-image-09.jpg"],description:"A modern exhibition booth design with a warm wooden touch and a luxury feel.",details:"A booth design modeled and rendered in Blender using Cycles, focused on modern architectural form, warm wood materials, lighting, and premium presentation.",tools:["Blender","Cycles","Interior Design","Lighting"]},
+{title:"Booth Design",category:"Interior design & architecture",featured:true,year:"2026",images:["images/booth-01-image-01.jpg","images/booth-01-image-02.jpg","images/booth-01-image-03.jpg","images/booth-01-image-04.jpg","images/booth-01-image-05.jpg","images/booth-01-image-06.jpg","images/booth-01-image-07.jpg","images/booth-01-image-08.jpg","images/booth-01-image-09.jpg"],description:"A modern exhibition booth design with a warm wooden touch and a luxury feel.",details:"A booth design modeled and rendered in Blender using Cycles, focused on modern architectural form, warm wood materials, lighting, and premium presentation.",tools:["Blender","Cycles","Interior Design","Lighting"]},
 {title:"2026 Modes & Looks",category:"3D Art",year:"2026",images:["images/2026-looks.jpg","images/2026-look-1.jpg","images/2026-look-2.jpg","images/2026-look-3.jpg","images/2026-look-4.jpg","images/2026-look-5.jpg","images/2026-look-6.jpg"],description:"A visual exploration of different 3D moods, forms, and looks.",details:"An experimental collection exploring visual direction, lighting, materials, composition, and style.",tools:["Blender","Lighting","Materials","Look Development"]},
 {title:"Folder Inflation",category:"Simulation",year:"2026",images:["images/folder-image-1.jpg","images/folder-image-2.jpg"],video:"videos/folder-animation-1.mp4",description:"A Windows folder icon transformed through soft-body and smoke effects.",details:"A procedural-style experiment combining soft body deformation, procedural shading, and volumetric smoke.",tools:["Blender","Soft Body","Smoke","Procedural Shading"]},
 {title:"Vellum Simulation",category:"Simulation",year:"2026",images:["images/vellum-image.jpg"],video:"videos/vellum-animation-1.mp4",description:"A procedural growth-style simulation study.",details:"A Houdini-inspired simulation experiment recreated with Blender techniques and procedural control.",tools:["Blender","Geometry Nodes","Simulation","Procedural"]},
 {title:"Date Cookies Animation",category:"Product Visualization",year:"2026",images:["images/dates-cookie-image.jpg"],video:"videos/dates-cookie-animation-1.mp4",description:"Food-focused product animation with controlled lighting and presentation.",details:"A product visualization study focused on food form, materials, lighting, and camera movement.",tools:["Blender","Cycles","Product Animation"]},
-{title:"Blue Mall Logo Animation",category:"Motion Design",year:"2026",images:["images/blue-mall-image.jpg"],video:"videos/blue-mall-animation.mp4",description:"A premium 3D logo animation built around glass, light, and motion.",details:"Exploration of glass shaders, material alpha animation, camera movement, keyframes, and textured lighting.",tools:["Blender","Logo Animation","Glass Shaders","Lighting"]},
+{title:"Blue Mall Logo Animation",category:"Motion Design",featured:true,year:"2026",images:["images/blue-mall-image.jpg"],video:"videos/blue-mall-animation.mp4",description:"A premium 3D logo animation built around glass, light, and motion.",details:"Exploration of glass shaders, material alpha animation, camera movement, keyframes, and textured lighting.",tools:["Blender","Logo Animation","Glass Shaders","Lighting"]},
 {title:"Youth Affairs Logo Animation",category:"Motion Design",year:"2026",images:["images/youth-affairs-image-1.jpg","images/youth-affairs-image-2.jpg","images/youth-affairs-image-3.jpg"],video:"videos/youth-affairs-animation.mp4",description:"3D logo animation with final renders and making-of material.",details:"A logo motion project developed through modeling, materials, lighting, animation, and final rendering.",tools:["Blender","Logo Animation","Motion Design"]}
 ];
-const grid=document.getElementById("project-grid"),filters=document.getElementById("filters"),dialog=document.getElementById("project-dialog"),dialogContent=document.getElementById("dialog-content"),dialogClose=document.getElementById("dialog-close"),themeToggle=document.getElementById("theme-toggle"),root=document.documentElement;
-function renderFilters(){const cats=["All",...new Set(PROJECTS.map(p=>p.category))];filters.innerHTML=cats.map(c=>`<button class="filter-btn ${c==="All"?"active":""}" data-filter="${c}">${c}</button>`).join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{filters.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderProjects(b.dataset.filter)})}
-function renderProjects(filter="All"){const list=filter==="All"?PROJECTS:PROJECTS.filter(p=>p.category===filter);grid.innerHTML=list.map((p,i)=>{const idx=PROJECTS.indexOf(p);return `<article class="project-card reveal" data-project="${idx}" tabindex="0" role="button"><div class="project-media"><img src="${p.images[0]}" alt="${p.title}" loading="${i<2?"eager":"lazy"}">${p.video?'<span class="project-video-mark">VIDEO</span>':""}</div><div class="project-meta"><div><h3>${p.title}</h3><p>${p.category}</p></div><span class="project-year">${p.year}</span></div></article>`}).join("");const cards=grid.querySelectorAll(".project-card");cards.forEach(c=>{c.onclick=()=>openProject(+c.dataset.project);c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openProject(+c.dataset.project)}};c.addEventListener("mousemove",handleCardTilt);c.addEventListener("mouseleave",resetCardTilt)});observeReveals(cards)}
-function handleCardTilt(e){if(prefersReducedMotion)return;const card=e.currentTarget,rect=card.getBoundingClientRect();const x=e.clientX-rect.left,y=e.clientY-rect.top;const cx=rect.width/2,cy=rect.height/2;const rotateX=((y-cy)/cy)*-5,rotateY=((x-cx)/cx)*5;card.style.transform=`perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`}
-function resetCardTilt(e){e.currentTarget.style.transform=""}
-function openProject(i){const p=PROJECTS[i];if(!p)return;const video=p.video?`<video class="dialog-video" controls playsinline preload="metadata" poster="${p.images[0]}"><source src="${p.video}" type="video/mp4"></video>`:"";const gallery=p.images.map(x=>`<img src="${x}" alt="${p.title}" loading="lazy">`).join("");dialogContent.innerHTML=`<div class="dialog-inner"><div class="dialog-kicker">${p.category} · ${p.year}</div><h2 class="dialog-title">${p.title}</h2><p class="dialog-description">${p.description}</p>${video}<div class="dialog-gallery">${gallery}</div><div class="dialog-details"><div><div class="dialog-kicker">About the project</div><p class="dialog-description">${p.details}</p></div><div><div class="dialog-kicker">Tools / focus</div><div class="dialog-tools">${p.tools.join("<br>")}</div></div></div></div>`;dialog.showModal()}
-dialogClose.onclick=()=>dialog.close();dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
+const CATS=[...new Set(PROJECTS.map(p=>p.category))];
+function catVar(category){const i=CATS.indexOf(category);return `var(--cat-${i>=0?(i%6)+1:1})`}
+const grid=document.getElementById("project-grid"),filters=document.getElementById("filters"),dialog=document.getElementById("project-dialog"),dialogContent=document.getElementById("dialog-content"),dialogClose=document.getElementById("dialog-close"),themeToggle=document.getElementById("theme-toggle"),heroBento=document.getElementById("hero-bento"),heroSection=document.querySelector(".hero"),root=document.documentElement;
 const prefersReducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");revealObserver.unobserve(entry.target)}})},{threshold:0.15,rootMargin:"0px 0px -60px 0px"});
-function observeReveals(list){if(prefersReducedMotion){list.forEach(el=>el.classList.add("is-visible"));return}list.forEach(el=>revealObserver.observe(el))}
-observeReveals(document.querySelectorAll(".reveal"));
-const scrollProgress=document.getElementById("scroll-progress"),siteHeader=document.querySelector(".site-header"),heroCopy=document.querySelector(".hero-copy"),heroSection=document.querySelector(".hero");
+
+function renderFilters(){
+  const cats=["All",...CATS];
+  filters.innerHTML=cats.map(c=>`<button class="filter-btn ${c==="All"?"active":""}" data-filter="${c}" style="--cat:${c==="All"?"var(--accent)":catVar(c)}">${c}</button>`).join("");
+  filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    filters.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    renderProjects(b.dataset.filter);
+  });
+}
+
+function buildProjectGrid(filter){
+  const list=filter==="All"?PROJECTS:PROJECTS.filter(p=>p.category===filter);
+  grid.classList.toggle("is-bento",filter==="All");
+  grid.innerHTML=list.map((p,i)=>{
+    const idx=PROJECTS.indexOf(p),delay=prefersReducedMotion?0:(i%6)*60;
+    return `<article class="project-card reveal" style="--cat:${catVar(p.category)};transition-delay:${delay}ms" data-project="${idx}" tabindex="0" role="button" aria-label="${p.title}, ${p.category}">
+<div class="project-media"><img src="${p.images[0]}" alt="${p.title}" loading="${i<2?"eager":"lazy"}">${p.video?'<span class="project-video-mark">VIDEO</span>':""}</div>
+<div class="project-overlay"><span class="project-tag">${p.category}</span><h3>${p.title}</h3><span class="project-year">${p.year}</span></div>
+</article>`;
+  }).join("");
+  const cards=grid.querySelectorAll(".project-card");
+  cards.forEach(c=>{
+    c.onclick=()=>openProject(+c.dataset.project);
+    c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openProject(+c.dataset.project)}};
+  });
+  observeReveals(cards);
+}
+function renderProjects(filter="All"){
+  if(prefersReducedMotion){buildProjectGrid(filter);return}
+  grid.classList.add("is-switching");
+  window.setTimeout(()=>{buildProjectGrid(filter);grid.classList.remove("is-switching")},180);
+}
+
+function renderHeroBento(){
+  if(!heroBento)return;
+  const featured=PROJECTS.filter(p=>p.featured);
+  const picks=(featured.length>=3?featured:PROJECTS).slice(0,3);
+  heroBento.innerHTML=picks.map((p,i)=>`<button class="hero-bento-tile${i===0?" is-main":""}" type="button" style="--cat:${catVar(p.category)}" data-project="${PROJECTS.indexOf(p)}" aria-label="View ${p.title} project">
+<img src="${p.images[0]}" alt="" loading="eager">
+<span class="hero-bento-meta"><em>${p.category}</em>${p.title}</span>
+</button>`).join("");
+  heroBento.querySelectorAll(".hero-bento-tile").forEach(btn=>btn.onclick=()=>openProject(+btn.dataset.project));
+}
+
+function openProject(i){
+  const p=PROJECTS[i];if(!p)return;
+  const video=p.video?`<video class="dialog-video" controls playsinline preload="metadata" poster="${p.images[0]}"><source src="${p.video}" type="video/mp4"></video>`:"";
+  const gallery=p.images.map(x=>`<img src="${x}" alt="${p.title}" loading="lazy">`).join("");
+  dialogContent.innerHTML=`<div class="dialog-inner"><div class="dialog-kicker" style="--cat:${catVar(p.category)}">${p.category} · ${p.year}</div><h2 class="dialog-title">${p.title}</h2><p class="dialog-description">${p.description}</p>${video}<div class="dialog-gallery">${gallery}</div><div class="dialog-details"><div><div class="dialog-kicker">About the project</div><p class="dialog-description">${p.details}</p></div><div><div class="dialog-kicker">Tools / focus</div><div class="dialog-tools">${p.tools.join("<br>")}</div></div></div></div>`;
+  dialog.showModal();
+}
+dialogClose.onclick=()=>dialog.close();
+dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
+
+const revealObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");revealObserver.unobserve(entry.target)}});
+},{threshold:0.15,rootMargin:"0px 0px -60px 0px"});
+function observeReveals(list){
+  if(prefersReducedMotion){list.forEach(el=>el.classList.add("is-visible"));return}
+  list.forEach(el=>revealObserver.observe(el));
+}
+
+const scrollProgress=document.getElementById("scroll-progress"),siteHeader=document.querySelector(".site-header");
 let scrollTicking=false;
 function updateScrollEffects(){
   const y=window.scrollY;
   siteHeader.classList.toggle("is-scrolled",y>40);
   const docHeight=document.documentElement.scrollHeight-window.innerHeight;
   scrollProgress.style.width=(docHeight>0?(y/docHeight)*100:0)+"%";
-  if(heroCopy&&heroSection&&!prefersReducedMotion){
-    const heroHeight=heroSection.offsetHeight;
-    const progress=Math.min(Math.max(y/heroHeight,0),1);
-    heroCopy.style.transform=`translateY(${progress*36}px)`;
-    heroCopy.style.opacity=String(1-progress*0.85);
-  }
   scrollTicking=false;
 }
 window.addEventListener("scroll",()=>{if(!scrollTicking){requestAnimationFrame(updateScrollEffects);scrollTicking=true}},{passive:true});
 updateScrollEffects();
-function applyTheme(theme){root.dataset.theme=theme;const light=theme==="light";themeToggle.querySelector(".theme-icon").textContent=light?"☾":"☼";themeToggle.querySelector(".theme-label").textContent=light?"Dark":"Light";themeToggle.setAttribute("aria-label",light?"Switch to dark mode":"Switch to light mode");localStorage.setItem("ahmad-theme",theme);document.querySelector('meta[name="theme-color"]').content=light?"#f4f2ec":"#0b0b0b"}
-applyTheme(localStorage.getItem("ahmad-theme")==="light"?"light":"dark");themeToggle.onclick=()=>applyTheme(root.dataset.theme==="dark"?"light":"dark");renderFilters();renderProjects();
+
+if(heroSection&&!prefersReducedMotion){
+  heroSection.addEventListener("mousemove",e=>{
+    const r=heroSection.getBoundingClientRect();
+    heroSection.style.setProperty("--mx",(e.clientX-r.left)+"px");
+    heroSection.style.setProperty("--my",(e.clientY-r.top)+"px");
+  });
+}
+
+function applyTheme(theme){
+  root.dataset.theme=theme;
+  const light=theme==="light";
+  themeToggle.querySelector(".theme-icon").textContent=light?"☾":"☼";
+  themeToggle.querySelector(".theme-label").textContent=light?"Dark":"Light";
+  themeToggle.setAttribute("aria-label",light?"Switch to dark mode":"Switch to light mode");
+  localStorage.setItem("ahmad-theme",theme);
+  document.querySelector('meta[name="theme-color"]').content=light?"#f4f2ec":"#0b0b0b";
+}
+applyTheme(localStorage.getItem("ahmad-theme")==="light"?"light":"dark");
+themeToggle.onclick=()=>applyTheme(root.dataset.theme==="dark"?"light":"dark");
+renderFilters();
+renderHeroBento();
+renderProjects();
