@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root{
   --bg:#0b0b0b;--surface:#141414;--surface2:#1b1b1b;--surface3:#222222;
@@ -189,4 +188,28 @@ h1 em,h2 em,.dialog-title em{font-family:"Fraunces",serif;font-style:italic;font
   .dialog-gallery{grid-template-columns:1fr}
   .dialog-details{grid-template-columns:1fr}
   .footer{grid-template-columns:1fr}
+}
+
+/* ===== v2: 3D hero, a11y and usability fixes ===== */
+.skip-link{position:absolute;left:1rem;top:-4rem;z-index:100;padding:.7rem 1rem;background:var(--text);color:var(--bg);border-radius:var(--radius-sm);font-size:.78rem;font-weight:800;transition:top .2s}
+.skip-link:focus{top:1rem}
+html{scroll-padding-top:110px}
+body:has(dialog[open]){overflow:hidden}
+
+/* light theme: accent was 3.2:1 with white text, now ~5.6:1 */
+html[data-theme="light"]{--accent:#4d7300;--cat-1:#4d7300;--cat-3:#8f5319}
+.project-tag{background:rgba(0,0,0,.5);color:#fff;border:1px solid var(--cat)}
+.contact-section .eyebrow{opacity:.9}
+
+/* 3D hero */
+.hero-art{touch-action:pan-y}
+.hero-art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero-art.has-3d{cursor:pointer}
+.hero-art.has-3d::after{content:"Move · Click to morph";position:absolute;left:0;bottom:0;font-family:"DM Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);pointer-events:none}
+
+/* mobile navigation: was display:none with no replacement */
+@media(max-width:900px){
+  .site-header{grid-template-columns:1fr auto;grid-template-rows:auto auto;padding-top:.6rem;padding-bottom:.3rem;min-height:0}
+  .site-header .nav{display:flex;grid-column:1/-1;grid-row:2;gap:1.75rem;overflow-x:auto;padding:.45rem 0 .3rem;scrollbar-width:none}
+  .nav a{opacity:.9;padding:.4rem 0}
 }

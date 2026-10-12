@@ -11,7 +11,7 @@ const PROJECTS=[
 {title:"2026 Modes & Looks",category:"3D Art",year:"2026",images:["images/2026-looks.jpg","images/2026-look-1.jpg","images/2026-look-2.jpg","images/2026-look-3.jpg","images/2026-look-4.jpg","images/2026-look-5.jpg","images/2026-look-6.jpg"],description:"A visual exploration of different 3D moods, forms, and looks.",details:"An experimental collection exploring visual direction, lighting, materials, composition, and style.",tools:["Blender","Lighting","Materials","Look Development"]},
 {title:"Folder Inflation",category:"Simulation",year:"2026",images:["images/folder-image-1.jpg","images/folder-image-2.jpg"],video:"videos/folder-animation-1.mp4",description:"A Windows folder icon transformed through soft-body and smoke effects.",details:"A procedural-style experiment combining soft body deformation, procedural shading, and volumetric smoke.",tools:["Blender","Soft Body","Smoke","Procedural Shading"]},
 {title:"Vellum Simulation",category:"Simulation",year:"2026",images:["images/vellum-image.jpg"],video:"videos/vellum-animation-1.mp4",description:"A procedural growth-style simulation study.",details:"A Houdini-inspired simulation experiment recreated with Blender techniques and procedural control.",tools:["Blender","Geometry Nodes","Simulation","Procedural"]},
-{title:"Date Cookies Animation",category:"Product Visualization",year:"2026",images:["images/dates-cookie-image.jpg"],video:"videos/dates-cookie-animation-2.mp4",description:"Food-focused product animation with controlled lighting and presentation.",details:"A product visualization study focused on food form, materials, lighting, and camera movement.",tools:["Blender","Cycles","Product Animation"]},
+{title:"Date Cookies Animation",category:"Product Visualization",year:"2026",images:["images/dates-cookie-image.jpg"],video:"videos/dates-cookie-animation-1.mp4",description:"Food-focused product animation with controlled lighting and presentation.",details:"A product visualization study focused on food form, materials, lighting, and camera movement.",tools:["Blender","Cycles","Product Animation"]},
 {title:"Blue Mall Logo Animation",category:"Motion Design",year:"2026",images:["images/blue-mall-image.jpg"],video:"videos/blue-mall-animation.mp4",description:"A premium 3D logo animation built around glass, light, and motion.",details:"Exploration of glass shaders, material alpha animation, camera movement, keyframes, and textured lighting.",tools:["Blender","Logo Animation","Glass Shaders","Lighting"]},
 {title:"Youth Affairs Logo Animation",category:"Motion Design",year:"2026",images:["images/youth-affairs-image-1.jpg","images/youth-affairs-image-2.jpg","images/youth-affairs-image-3.jpg"],video:"videos/youth-affairs-animation.mp4",description:"3D logo animation with final renders and making-of material.",details:"A logo motion project developed through modeling, materials, lighting, animation, and final rendering.",tools:["Blender","Logo Animation","Motion Design"]}
 ];
@@ -22,10 +22,10 @@ const prefersReducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)")
 
 function renderFilters(){
   const cats=["All",...CATS];
-  filters.innerHTML=cats.map(c=>`<button class="filter-btn ${c==="All"?"active":""}" data-filter="${c}" style="--cat:${c==="All"?"var(--accent)":catVar(c)}">${c}</button>`).join("");
+  filters.innerHTML=cats.map(c=>`<button class="filter-btn ${c==="All"?"active":""}" aria-pressed="${c==="All"}" data-filter="${c}" style="--cat:${c==="All"?"var(--accent)":catVar(c)}">${c}</button>`).join("");
   filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{
-    filters.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
+    filters.querySelectorAll("button").forEach(x=>{x.classList.remove("active");x.setAttribute("aria-pressed","false")});
+    b.classList.add("active");b.setAttribute("aria-pressed","true");
     renderProjects(b.dataset.filter);
   });
 }
@@ -36,7 +36,7 @@ function buildProjectGrid(filter){
   grid.innerHTML=list.map((p,i)=>{
     const idx=PROJECTS.indexOf(p),delay=prefersReducedMotion?0:(i%6)*60;
     return `<article class="project-card reveal" style="--cat:${catVar(p.category)};transition-delay:${delay}ms" data-project="${idx}" tabindex="0" role="button" aria-label="${p.title}, ${p.category}">
-<div class="project-media"><img src="${p.images[0]}" alt="${p.title}" loading="${i<2?"eager":"lazy"}">${p.video?'<span class="project-video-mark">VIDEO</span>':""}</div>
+<div class="project-media"><img src="${p.images[0]}" alt="" loading="${i<2?"eager":"lazy"}">${p.video?'<span class="project-video-mark">VIDEO</span>':""}</div>
 <div class="project-overlay"><span class="project-tag">${p.category}</span><h3>${p.title}</h3><span class="project-year">${p.year}</span></div>
 </article>`;
   }).join("");
@@ -56,11 +56,12 @@ function renderProjects(filter="All"){
 function openProject(i){
   const p=PROJECTS[i];if(!p)return;
   const video=p.video?`<video class="dialog-video" controls playsinline preload="metadata" poster="${p.images[0]}"><source src="${p.video}" type="video/mp4"></video>`:"";
-  const gallery=p.images.map(x=>`<img src="${x}" alt="${p.title}" loading="lazy">`).join("");
+  const gallery=p.images.map((x,n)=>`<img src="${x}" alt="${p.title}, image ${n+1} of ${p.images.length}" loading="lazy">`).join("");
   dialogContent.innerHTML=`<div class="dialog-inner"><div class="dialog-kicker" style="--cat:${catVar(p.category)}">${p.category} · ${p.year}</div><h2 class="dialog-title">${p.title}</h2><p class="dialog-description">${p.description}</p>${video}<div class="dialog-gallery">${gallery}</div><div class="dialog-details"><div><div class="dialog-kicker">About the project</div><p class="dialog-description">${p.details}</p></div><div><div class="dialog-kicker">Tools / focus</div><div class="dialog-tools">${p.tools.join("<br>")}</div></div></div></div>`;
-  dialog.showModal();
+  dialog.setAttribute("aria-label",p.title);dialog.showModal();
 }
 dialogClose.onclick=()=>dialog.close();
+dialog.addEventListener("close",()=>{dialogContent.innerHTML=""});
 dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
 
 const revealObserver=new IntersectionObserver((entries)=>{
@@ -97,10 +98,11 @@ function applyTheme(theme){
   themeToggle.querySelector(".theme-icon").textContent=light?"☾":"☼";
   themeToggle.querySelector(".theme-label").textContent=light?"Dark":"Light";
   themeToggle.setAttribute("aria-label",light?"Switch to dark mode":"Switch to light mode");
-  localStorage.setItem("ahmad-theme",theme);
+  try{localStorage.setItem("ahmad-theme",theme)}catch(e){}
   document.querySelector('meta[name="theme-color"]').content=light?"#f4f2ec":"#0b0b0b";
 }
-applyTheme(localStorage.getItem("ahmad-theme")==="light"?"light":"dark");
+let savedTheme=null;try{savedTheme=localStorage.getItem("ahmad-theme")}catch(e){}
+applyTheme(savedTheme==="light"?"light":"dark");
 themeToggle.onclick=()=>applyTheme(root.dataset.theme==="dark"?"light":"dark");
 renderFilters();
 renderProjects();
