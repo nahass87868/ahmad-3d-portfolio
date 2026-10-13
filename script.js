@@ -15,94 +15,71 @@ const PROJECTS=[
 {title:"Blue Mall Logo Animation",category:"Motion Design",year:"2026",images:["images/blue-mall-image.jpg"],video:"videos/blue-mall-animation.mp4",description:"A premium 3D logo animation built around glass, light, and motion.",details:"Exploration of glass shaders, material alpha animation, camera movement, keyframes, and textured lighting.",tools:["Blender","Logo Animation","Glass Shaders","Lighting"]},
 {title:"Youth Affairs Logo Animation",category:"Motion Design",year:"2026",images:["images/youth-affairs-image-1.jpg","images/youth-affairs-image-2.jpg","images/youth-affairs-image-3.jpg"],video:"videos/youth-affairs-animation.mp4",description:"3D logo animation with final renders and making-of material.",details:"A logo motion project developed through modeling, materials, lighting, animation, and final rendering.",tools:["Blender","Logo Animation","Motion Design"]}
 ];
+
 const CATS=[...new Set(PROJECTS.map(p=>p.category))];
-function catVar(category){const i=CATS.indexOf(category);return `var(--cat-${i>=0?(i%6)+1:1})`}
-const grid=document.getElementById("project-grid"),filters=document.getElementById("filters"),dialog=document.getElementById("project-dialog"),dialogContent=document.getElementById("dialog-content"),dialogClose=document.getElementById("dialog-close"),themeToggle=document.getElementById("theme-toggle"),heroSection=document.querySelector(".hero"),root=document.documentElement;
-const prefersReducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $=s=>document.querySelector(s),root=document.documentElement;
+const grid=$("#project-grid"),filters=$("#filters"),dialog=$("#project-dialog"),dc=$("#dialog-content"),themeBtn=$("#theme-toggle"),bar=$("#scroll-progress"),header=$(".site-header"),menuBtn=$("#menu-btn"),nav=$("#primary-nav"),hx=$("#hx"),hy=$("#hy"),hz=$("#hz");
+const rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const n2=n=>String(n+1).padStart(2,"0"),n4=n=>String(Math.round(n)).padStart(4,"0");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("is-visible");io.unobserve(e.target)}}),{threshold:.12,rootMargin:"0px 0px -40px 0px"});
+const reveal=l=>l.forEach(el=>rm?el.classList.add("is-visible"):io.observe(el));
+reveal(document.querySelectorAll(".section-heading,.about-grid>*,.skills-list>div,.contact-section>*"));
+document.querySelectorAll(".section-heading,.about-grid>*,.skills-list>div,.contact-section>*").forEach(el=>el.classList.add("reveal"));
 
 function renderFilters(){
-  const cats=["All",...CATS];
-  filters.innerHTML=cats.map(c=>`<button class="filter-btn ${c==="All"?"active":""}" aria-pressed="${c==="All"}" data-filter="${c}" style="--cat:${c==="All"?"var(--accent)":catVar(c)}">${c}</button>`).join("");
-  filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{
-    filters.querySelectorAll("button").forEach(x=>{x.classList.remove("active");x.setAttribute("aria-pressed","false")});
-    b.classList.add("active");b.setAttribute("aria-pressed","true");
-    renderProjects(b.dataset.filter);
-  });
+  filters.setAttribute("role","group");filters.setAttribute("aria-label","Filter projects");
+  filters.innerHTML=["All",...CATS].map((c,i)=>{const n=i?PROJECTS.filter(p=>p.category===c).length:PROJECTS.length;return `<button class="filter-btn${i?"":" active"}" aria-pressed="${!i}" data-filter="${esc(c)}">${esc(c)} <sup>${n}</sup></button>`}).join("");
+  filters.onclick=e=>{const b=e.target.closest("button");if(!b)return;filters.querySelectorAll("button").forEach(x=>{const on=x===b;x.classList.toggle("active",on);x.setAttribute("aria-pressed",on)});renderProjects(b.dataset.filter)};
 }
-
-function buildProjectGrid(filter){
-  const list=filter==="All"?PROJECTS:PROJECTS.filter(p=>p.category===filter);
-  grid.classList.toggle("is-bento",filter==="All");
-  grid.innerHTML=list.map((p,i)=>{
-    const idx=PROJECTS.indexOf(p),delay=prefersReducedMotion?0:(i%6)*60;
-    return `<article class="project-card reveal" style="--cat:${catVar(p.category)};transition-delay:${delay}ms" data-project="${idx}" tabindex="0" role="button" aria-label="${p.title}, ${p.category}">
-<div class="project-media"><img src="${p.images[0]}" alt="" loading="${i<2?"eager":"lazy"}">${p.video?'<span class="project-video-mark">VIDEO</span>':""}</div>
-<div class="project-overlay"><span class="project-tag">${p.category}</span><h3>${p.title}</h3><span class="project-year">${p.year}</span></div>
-</article>`;
-  }).join("");
-  const cards=grid.querySelectorAll(".project-card");
-  cards.forEach(c=>{
-    c.onclick=()=>openProject(+c.dataset.project);
-    c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openProject(+c.dataset.project)}};
-  });
-  observeReveals(cards);
+function buildGrid(f){
+  const list=f==="All"?PROJECTS:PROJECTS.filter(p=>p.category===f);
+  grid.classList.toggle("is-bento",f==="All");
+  grid.innerHTML=list.map((p,i)=>{const k=PROJECTS.indexOf(p);return `<article class="project-card reveal" style="transition-delay:${rm?0:(i%3)*70}ms" data-project="${k}" tabindex="0" role="button" aria-label="${esc(p.title)}, ${esc(p.category)}"><div class="project-media"><img src="${p.images[0]}" alt="" width="800" height="600" decoding="async" loading="${i<3?"eager":"lazy"}">${p.video?'<span class="project-video-mark">Video</span>':""}</div><div class="project-info"><div><span class="project-tag">${n2(k)} / ${esc(p.category)}</span><h3>${esc(p.title)}</h3></div><span class="project-year">${p.year}</span></div></article>`}).join("");
+  reveal(grid.querySelectorAll(".project-card"));
 }
-function renderProjects(filter="All"){
-  if(prefersReducedMotion){buildProjectGrid(filter);return}
+function renderProjects(f){
+  if(rm){buildGrid(f);return}
   grid.classList.add("is-switching");
-  window.setTimeout(()=>{buildProjectGrid(filter);grid.classList.remove("is-switching")},180);
+  setTimeout(()=>{buildGrid(f);grid.classList.remove("is-switching")},170);
 }
+grid.onclick=e=>{const c=e.target.closest(".project-card");if(c)openProject(+c.dataset.project)};
+grid.onkeydown=e=>{const c=e.target.closest(".project-card");if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openProject(+c.dataset.project)}};
 
 function openProject(i){
   const p=PROJECTS[i];if(!p)return;
-  const video=p.video?`<video class="dialog-video" controls playsinline preload="metadata" poster="${p.images[0]}"><source src="${p.video}" type="video/mp4"></video>`:"";
-  const gallery=p.images.map((x,n)=>`<img src="${x}" alt="${p.title}, image ${n+1} of ${p.images.length}" loading="lazy">`).join("");
-  dialogContent.innerHTML=`<div class="dialog-inner"><div class="dialog-kicker" style="--cat:${catVar(p.category)}">${p.category} · ${p.year}</div><h2 class="dialog-title">${p.title}</h2><p class="dialog-description">${p.description}</p>${video}<div class="dialog-gallery">${gallery}</div><div class="dialog-details"><div><div class="dialog-kicker">About the project</div><p class="dialog-description">${p.details}</p></div><div><div class="dialog-kicker">Tools / focus</div><div class="dialog-tools">${p.tools.join("<br>")}</div></div></div></div>`;
+  const video=p.video?`<video class="dialog-video" controls playsinline preload="none" poster="${p.images[0]}"><source src="${p.video}" type="video/mp4"></video>`:"";
+  const gallery=p.images.map((x,n)=>`<img src="${x}" alt="${esc(p.title)}, image ${n+1} of ${p.images.length}" width="1200" height="900" loading="lazy" decoding="async">`).join("");
+  dc.innerHTML=`<div class="dialog-inner"><div class="dialog-kicker">${n2(i)} / ${esc(p.category)} / ${p.year}</div><h2 class="dialog-title">${esc(p.title)}</h2><p class="dialog-description">${esc(p.description)}</p>${video}<div class="dialog-gallery">${gallery}</div><div class="dialog-details"><div><div class="dialog-kicker">About the project</div><p class="dialog-description">${esc(p.details)}</p></div><div><div class="dialog-kicker">Tools / focus</div><div class="dialog-tools">${p.tools.map(esc).join("<br>")}</div></div></div></div>`;
   dialog.setAttribute("aria-label",p.title);dialog.showModal();
 }
-dialogClose.onclick=()=>dialog.close();
-dialog.addEventListener("close",()=>{dialogContent.innerHTML=""});
+$("#dialog-close").onclick=()=>dialog.close();
 dialog.onclick=e=>{if(e.target===dialog)dialog.close()};
+dialog.addEventListener("close",()=>{dc.innerHTML=""});
 
-const revealObserver=new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");revealObserver.unobserve(entry.target)}});
-},{threshold:0.15,rootMargin:"0px 0px -60px 0px"});
-function observeReveals(list){
-  if(prefersReducedMotion){list.forEach(el=>el.classList.add("is-visible"));return}
-  list.forEach(el=>revealObserver.observe(el));
-}
+let tk=0;
+function tick(){tk=0;const y=scrollY,h=root.scrollHeight-innerHeight;bar.style.transform=`scaleX(${h>0?y/h:0})`;header.classList.toggle("is-scrolled",y>40);hz.textContent=n4(y)}
+addEventListener("scroll",()=>{if(!tk)tk=requestAnimationFrame(tick)},{passive:true});
+let hq=0,px=0,py=0;
+if(matchMedia("(hover:hover)").matches)addEventListener("pointermove",e=>{px=e.clientX;py=e.clientY;if(!hq)hq=requestAnimationFrame(()=>{hq=0;hx.textContent=n4(px);hy.textContent=n4(py)})},{passive:true});
 
-const scrollProgress=document.getElementById("scroll-progress"),siteHeader=document.querySelector(".site-header");
-let scrollTicking=false;
-function updateScrollEffects(){
-  const y=window.scrollY;
-  siteHeader.classList.toggle("is-scrolled",y>40);
-  const docHeight=document.documentElement.scrollHeight-window.innerHeight;
-  scrollProgress.style.width=(docHeight>0?(y/docHeight)*100:0)+"%";
-  scrollTicking=false;
-}
-window.addEventListener("scroll",()=>{if(!scrollTicking){requestAnimationFrame(updateScrollEffects);scrollTicking=true}},{passive:true});
-updateScrollEffects();
+const setMenu=o=>{nav.classList.toggle("open",o);menuBtn.setAttribute("aria-expanded",o);menuBtn.textContent=o?"Close":"Menu"};
+menuBtn.onclick=()=>setMenu(!nav.classList.contains("open"));
+nav.onclick=e=>{if(e.target.closest("a"))setMenu(false)};
+addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});
+matchMedia("(min-width:901px)").addEventListener("change",e=>{if(e.matches)setMenu(false)});
 
-if(heroSection&&!prefersReducedMotion){
-  heroSection.addEventListener("mousemove",e=>{
-    const r=heroSection.getBoundingClientRect();
-    heroSection.style.setProperty("--mx",(e.clientX-r.left)+"px");
-    heroSection.style.setProperty("--my",(e.clientY-r.top)+"px");
-  });
+function applyTheme(t){
+  root.dataset.theme=t;const l=t==="light";
+  themeBtn.querySelector(".theme-label").textContent=l?"Dark":"Light";
+  themeBtn.setAttribute("aria-label",l?"Switch to dark mode":"Switch to light mode");
+  try{localStorage.setItem("ahmad-theme",t)}catch(e){}
+  $('meta[name="theme-color"]').content=l?"#f3f2ee":"#08090a";
 }
+let st=null;try{st=localStorage.getItem("ahmad-theme")}catch(e){}
+applyTheme(st==="light"?"light":"dark");
+themeBtn.onclick=()=>applyTheme(root.dataset.theme==="dark"?"light":"dark");
 
-function applyTheme(theme){
-  root.dataset.theme=theme;
-  const light=theme==="light";
-  themeToggle.querySelector(".theme-icon").textContent=light?"☾":"☼";
-  themeToggle.querySelector(".theme-label").textContent=light?"Dark":"Light";
-  themeToggle.setAttribute("aria-label",light?"Switch to dark mode":"Switch to light mode");
-  try{localStorage.setItem("ahmad-theme",theme)}catch(e){}
-  document.querySelector('meta[name="theme-color"]').content=light?"#f4f2ec":"#0b0b0b";
-}
-let savedTheme=null;try{savedTheme=localStorage.getItem("ahmad-theme")}catch(e){}
-applyTheme(savedTheme==="light"?"light":"dark");
-themeToggle.onclick=()=>applyTheme(root.dataset.theme==="dark"?"light":"dark");
-renderFilters();
-renderProjects();
+renderFilters();buildGrid("All");tick();
+requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add("is-in")));
