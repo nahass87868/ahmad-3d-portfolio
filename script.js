@@ -1,7 +1,7 @@
 const PROJECTS=[
 {title:"Realistic Ice Render",category:"Product Visualization",year:"2026",images:["images/realistic-ice-image-1.jpg","images/realistic-ice-image-2.jpg"],description:"A realistic ice-focused 3D study built around materials, lighting, transparency, and detailed surface realism.",details:"A material and lighting study focused on believable ice, refraction, highlights, and controlled studio presentation.",tools:["Blender","Cycles","Materials","Lighting"]},
 {title:"Soap Animation",category:"Product Visualization",year:"2026",images:["images/soap-image-1.jpg","images/soap-image-2.jpg","images/soap-image-3.jpg","images/soap-image-4.jpg"],video:"videos/soap-animation.mp4",description:"Glossy surfaces and rich material realism.",details:"A product animation focused on aloe vera soap, material response, lighting, camera movement, and compositing.",tools:["Blender","Cycles","Compositing"]},
-{title:"Yerba Mate Animation",category:"Product Visualization",year:"2026",images:["images/yerba-mate-image-1.jpg","images/yerba-mate-image-21.jpg"],video:"videos/yerba-mate-animation.mp4",description:"Refreshing beverage hero shot with condensation and motion.",details:"Product-focused beverage visualization with emphasis on materials, condensation, lighting, and motion.",tools:["Blender","Cycles","Product Visualization"]},
+{title:"Yerba Mate Animation",category:"Product Visualization",year:"2026",images:["images/yerba-mate-image-1.jpg","images/yerba-mate-image-2.jpg"],video:"videos/yerba-mate-animation.mp4",description:"Refreshing beverage hero shot with condensation and motion.",details:"Product-focused beverage visualization with emphasis on materials, condensation, lighting, and motion.",tools:["Blender","Cycles","Product Visualization"]},
 {title:"Asus Product Animation",category:"Product Visualization",year:"2026",images:["images/asus-image.jpg"],video:"videos/asus-animation.mp4",description:"A clean product-focused 3D presentation.",details:"Product modeling, materials, lighting, camera work, and animation.",tools:["Blender","Product Visualization","Motion"]},
 {title:"Realistic Water Glass Render",category:"Product Visualization",year:"2026",images:["images/real-water-glass-image-1.jpg","images/real-water-glass-image-2.jpg"],description:"A realistic study of transparent glass and water.",details:"Focused on believable transparency, refraction, liquid shading, lighting, and studio composition.",tools:["Blender","Cycles","Materials","Lighting"]},
 {title:"Smartwatch Animation",category:"Product Visualization",year:"2026",images:["images/smart-watch-image.jpg"],video:"videos/watch-animation.mp4",description:"Macro product showcase with crisp studio lighting.",details:"A close-up product animation emphasizing clean forms, controlled lighting, materials, and camera movement.",tools:["Blender","Product Visualization","Motion"]},
@@ -80,6 +80,11 @@ function applyTheme(t){
 let st=null;try{st=localStorage.getItem("ahmad-theme")}catch(e){}
 applyTheme(st==="light"?"light":"dark");
 themeBtn.onclick=()=>applyTheme(root.dataset.theme==="dark"?"light":"dark");
+
+const edge=$("#edge-cta");let pastHero=false,atContact=false;
+const edgeUpdate=()=>edge.classList.toggle("is-on",pastHero&&!atContact);
+new IntersectionObserver(([e])=>{pastHero=!e.isIntersecting;edgeUpdate()}).observe($(".hero"));
+new IntersectionObserver(([e])=>{atContact=e.isIntersecting;edgeUpdate()},{rootMargin:"0px 0px -30% 0px"}).observe($("#contact"));
 
 renderFilters();buildGrid("All");tick();
 requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.add("is-in")));

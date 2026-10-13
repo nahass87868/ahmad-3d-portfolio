@@ -105,14 +105,20 @@ h1 em,h2 em{font-style:normal;color:var(--acc)}
 .skills-list>div:hover strong{transform:translateX(10px);color:var(--acc)}
 @media(min-width:900px){.skills-list>div{grid-template-columns:3fr 5fr 4fr;align-items:baseline}.skills-list p{grid-column:auto}.skills-list span{padding:0}}
 
-.contact-mail{display:inline-block;margin:2.5rem 0 2rem;font-size:clamp(1.4rem,6vw,5.5rem);font-weight:800;letter-spacing:-.045em;line-height:1.05;overflow-wrap:anywhere;border-bottom:3px solid var(--acc);transition:color .25s,transform .4s var(--snap)}
-.contact-mail:hover{color:var(--acc);transform:translateX(8px)}
+.contact-mail{display:inline-flex;align-items:center;gap:clamp(1rem,3vw,2.5rem);margin:2.5rem 0 2rem;padding:clamp(1.1rem,2.6vw,2rem) clamp(1.5rem,4vw,3.5rem);background:var(--acc);color:var(--ink);font-size:clamp(1.6rem,6vw,4.5rem);font-weight:800;letter-spacing:-.045em;line-height:1;transition:background-color .25s,color .25s,transform .35s var(--snap)}
+.contact-mail span{display:inline-block;transition:transform .35s var(--snap)}
+.contact-mail:hover{background:var(--fg);color:var(--bg)}
+.contact-mail:hover span{transform:translate(.15em,-.15em)}
+.contact-mail:active{transform:scale(.97)}
 .contact-links{display:flex;flex-wrap:wrap;gap:.5rem 2rem;font:500 .75rem var(--mono);text-transform:uppercase;letter-spacing:.08em}
 .contact-links a{padding:.6rem 0;border-bottom:1px solid var(--line);transition:border-color .25s,color .25s}
 .contact-links a:hover{color:var(--acc);border-color:var(--acc)}
 .footer{display:grid;gap:.5rem;padding:1.5rem var(--pad) 4rem;border-top:1px solid var(--line);color:var(--mut);font:400 .66rem var(--mono);text-transform:uppercase;letter-spacing:.08em}
 @media(min-width:640px){.footer{grid-template-columns:1fr 1fr auto}}
 
+.edge-cta{position:fixed;top:50%;right:0;z-index:45;padding:1.1rem .8rem;background:var(--acc);color:var(--ink);writing-mode:vertical-rl;font:500 .72rem var(--mono);text-transform:uppercase;letter-spacing:.1em;transform:translate(100%,-50%);opacity:0;visibility:hidden;transition:transform .5s var(--snap),opacity .3s,visibility 0s .5s}
+.edge-cta.is-on{transform:translate(12px,-50%);opacity:1;visibility:visible;transition:transform .5s var(--snap),opacity .3s,visibility 0s}
+.edge-cta.is-on:hover,.edge-cta.is-on:focus-visible{transform:translate(0,-50%)}
 .hud{position:fixed;left:var(--pad);bottom:max(.75rem,env(safe-area-inset-bottom));z-index:40;display:flex;gap:1rem;padding:.4rem .6rem;background:color-mix(in srgb,var(--bg) 85%,transparent);border:1px solid var(--line);font:400 .62rem var(--mono);letter-spacing:.08em;color:var(--mut);pointer-events:none}
 .hud b{font-weight:400;color:var(--fg)}
 .hud i{font-style:normal}
