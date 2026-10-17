@@ -150,3 +150,10 @@ body.custom-cursor-active .cursor.is-pressed{transform:translate(-50%,-50%) scal
 .case-gallery-real .case-video-item video{background:#08090a}
 .media-empty{grid-column:1/-1;padding:2rem;border:1px solid #343631;color:#ecebe6}
 @media(max-width:640px){.case-gallery-real{grid-template-columns:1fr}.case-gallery-real .case-media-item:first-child{aspect-ratio:4/3}.project-thumb-video{display:none}}
+
+/* V12: the floating Work preview uses the selected project's real first image. */
+.preview-art{background:#111}
+.preview-art .preview-project-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
+.preview-art>span{z-index:3;padding:5px 6px;background:rgba(8,9,10,.58);max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview-art>i{display:none}
+.preview-art.preview-image-failed>i{display:block}
