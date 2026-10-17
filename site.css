@@ -131,3 +131,22 @@ body.custom-cursor-active .cursor.is-pressed{transform:translate(-50%,-50%) scal
 /* V9 cursor stability: preserve the custom cursor, prevent blend-mode artifacts. */
 .cursor,.cursor *{font-variation-settings:normal!important;letter-spacing:normal!important;text-transform:none!important;white-space:nowrap!important;mix-blend-mode:normal!important;filter:none!important;clip-path:none!important}
 .cursor{border-radius:50%!important;overflow:visible!important}
+
+
+/* V11: render actual portfolio media instead of CSS-only stand-ins */
+.work-media-stack{position:absolute;inset:0;overflow:hidden;background:#111}
+.project-thumb,.project-thumb-video{display:block;width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1),opacity .35s ease}
+.project-thumb-video{position:absolute;inset:0;opacity:0;pointer-events:none}
+.work-card:hover .project-thumb{transform:scale(1.035)}
+.work-card:hover .project-thumb-video{opacity:1}
+.project-thumb.media-missing{display:none}
+.work-card-media.media-fallback:after{content:"MEDIA PATH CHECK";position:absolute;z-index:2;inset:auto 12px 12px auto;font:10px/1 monospace;letter-spacing:.08em;color:#b9ff39}
+.case-gallery-real{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(10px,2vw,24px);height:auto!important}
+.case-gallery-real .case-media-item{position:relative;min-width:0;margin:0;overflow:hidden;background:#111;aspect-ratio:4/3}
+.case-gallery-real .case-media-item:first-child{grid-column:1/-1;aspect-ratio:16/9}
+.case-gallery-real .case-media-item img,.case-gallery-real .case-media-item video{display:block;width:100%;height:100%;object-fit:cover}
+.case-gallery-real .case-media-item figcaption{position:absolute;left:12px;bottom:12px;padding:7px 9px;background:rgba(8,9,10,.78);color:#ecebe6;font:10px/1.2 monospace;letter-spacing:.08em}
+.case-gallery-real .case-media-item.media-missing{display:none}
+.case-gallery-real .case-video-item video{background:#08090a}
+.media-empty{grid-column:1/-1;padding:2rem;border:1px solid #343631;color:#ecebe6}
+@media(max-width:640px){.case-gallery-real{grid-template-columns:1fr}.case-gallery-real .case-media-item:first-child{aspect-ratio:4/3}.project-thumb-video{display:none}}

@@ -148,11 +148,16 @@ const grid=$('#work-grid'),filterBox=$('#filters'),layout=$('#work-layout'),prev
 if(grid&&filterBox&&layout){
  const categories=['All',...new Set(projects.map(p=>p.category))];let active='All';
  filterBox.innerHTML=categories.map(c=>`<button type="button" class="filter-btn${c==='All'?' active':''}" data-filter="${safe(c)}" aria-pressed="${c==='All'}">${safe(c)}</button>`).join('');
- const art=(i)=>`<div class="card-art ${visuals[i%visuals.length]}"><span class="art-stamp">AN / ${String(i+1).padStart(2,'0')}</span><i class="art-form"></i><i class="art-form-secondary"></i><i class="art-orbit"></i></div>`;
+ const art=(p,i)=>{
+  const image=Array.isArray(p.images)&&p.images.length?p.images[0]:'';
+  const media=image?`<img class="project-thumb" src="${safe(image)}" alt="${safe(p.title)} render" loading="lazy" decoding="async" onerror="this.classList.add('media-missing');this.closest('.work-card-media').classList.add('media-fallback')">`:`<div class="card-art ${visuals[i%visuals.length]}"><span class="art-stamp">AN / ${String(i+1).padStart(2,'0')}</span><i class="art-form"></i><i class="art-form-secondary"></i><i class="art-orbit"></i></div>`;
+  const video=p.video?`<video class="project-thumb-video" muted playsinline loop preload="none" aria-hidden="true"><source src="${safe(p.video)}" type="video/mp4"></video>`:'';
+  return `<div class="work-media-stack">${media}${video}</div>`;
+ };
  const render=()=>{
   const list=projects.map((p,i)=>({...p,i})).filter(p=>active==='All'||p.category===active);
   $('#project-count').textContent=String(list.length).padStart(2,'0')+' PROJECTS';
-  grid.innerHTML=list.map(p=>`<a class="work-card" href="${projectSlug(p.i)}" data-index="${p.i}" aria-label="View ${safe(p.title)}"><span class="work-card-index">${String(p.i+1).padStart(2,'0')}</span><div class="work-card-media">${art(p.i)}</div><div class="work-card-meta"><span>${safe(p.category)}</span><span>${safe(p.year||'2026')}</span></div><h2><span>${safe(p.title)}</span><b>↗</b></h2></a>`).join('');
+  grid.innerHTML=list.map(p=>`<a class="work-card" href="${projectSlug(p.i)}" data-index="${p.i}" aria-label="View ${safe(p.title)}"><span class="work-card-index">${String(p.i+1).padStart(2,'0')}</span><div class="work-card-media">${art(p,p.i)}</div><div class="work-card-meta"><span>${safe(p.category)}</span><span>${safe(p.year||'2026')}</span></div><h2><span>${safe(p.title)}</span><b>↗</b></h2></a>`).join('');
   if(preview){preview.classList.remove('is-visible')}
  };
  filterBox.addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;active=b.dataset.filter;$$('.filter-btn',filterBox).forEach(x=>{const yes=x===b;x.classList.toggle('active',yes);x.setAttribute('aria-pressed',String(yes))});render()});
@@ -162,6 +167,23 @@ if(grid&&filterBox&&layout){
  grid.addEventListener('pointerout',e=>{if(e.target.closest('.work-card')&&!e.relatedTarget?.closest('.work-card'))preview?.classList.remove('is-visible')});
  render();
 
+}
+
+// Populate project case studies with the real image/video paths defined in projects-data.js.
+const caseGallery=$('.case-gallery');
+if(caseGallery && projects.length){
+ const file=(location.pathname.split('/').pop()||'index.html').replace(/\.html?$/i,'');
+ const slug=file.replace(/^project-/,'');
+ const projectIndex=slugs.indexOf(slug);
+ const project=projects[projectIndex];
+ if(project){
+  const imgs=(project.images||[]).filter(Boolean);
+  const video=project.video;
+  const mediaItem=(src,i)=>`<figure class="case-media-item"><img src="${safe(src)}" alt="${safe(project.title)} — frame ${i+1}" loading="${i===0?'eager':'lazy'}" decoding="async" onerror="this.closest('figure').classList.add('media-missing');this.alt='Media unavailable: '+${JSON.stringify(src)}"><figcaption>${String(i+1).padStart(2,'0')} / ${i===0?'FINAL FRAME':'DETAIL'}</figcaption></figure>`;
+  const videoItem=video?`<figure class="case-media-item case-video-item"><video controls playsinline preload="metadata" poster="${safe(imgs[0]||'')}" aria-label="${safe(project.title)} animation"><source src="${safe(video)}" type="video/mp4">Your browser does not support video.</video><figcaption>MOTION / PLAY</figcaption></figure>`:'';
+  caseGallery.innerHTML=[...imgs.map(mediaItem),videoItem].filter(Boolean).join('')||'<p class="media-empty">Project media will appear here when available.</p>';
+  caseGallery.classList.add('case-gallery-real');
+ }
 }
 
 // Enter content gently, but keep it visible for reduced-motion users.
