@@ -1,0 +1,112 @@
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  scroll-behavior: smooth;
+  scroll-padding-top: 60px;
+  transition:
+    background-color 0.5s,
+    color 0.5s;
+  /* touch: no grey flash on tap, no font inflation in landscape */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;
+  font: 400 17px/1.55 var(--font-sans);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--acc);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+main {
+  transition: opacity 0.16s ease;
+}
+main:focus {
+  outline: none;
+}
+main.leaving {
+  opacity: 0;
+}
+
+.mono {
+  font: 11px/1.45 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* visually hidden, still read by assistive tech */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.ico {
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: -1px;
+}
+
+/* An image that failed to load: the .miss hatch pattern shows instead (see cards.css) */
+.missing img {
+  visibility: hidden;
+}
+
+/* ── touch ─────────────────────────────────────────────────────────────── */
+a,
+button {
+  touch-action: manipulation; /* no double-tap-zoom delay */
+}
+
+/* Controls aren't content: no text selection / callout on long-press. Body text stays selectable. */
+.btn,
+.chip,
+.sw,
+.md,
+.skip,
+.skipnav,
+.nav a {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Press feedback for plain text links — touch loses the browser's tap highlight, so give it back. */
+.nav a,
+.foot a,
+.clinks a,
+.crumbs a,
+.pn a {
+  transition: opacity 100ms var(--ease-out);
+}
+.nav a:active,
+.foot a:active,
+.clinks a:active,
+.crumbs a:active,
+.pn a:active {
+  opacity: 0.6;
+}

@@ -1,0 +1,91 @@
+/* ── display headings (.px) ───────────────────────────────────────────────
+ * Every heading is split into per-letter spans by features/headings. Letters morph along
+ * the font's weight/width axes near the pointer, and reveal as stroke → fill (.st).        */
+.px {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.px .w {
+  display: inline-block;
+  white-space: nowrap;
+}
+.px .l {
+  display: inline-block;
+  font-variation-settings:
+    'wght' var(--w0, 860),
+    'wdth' var(--d0, 68);
+}
+
+/* engine B: letters are absolutely positioned from a precomputed width table */
+.px.bm .w {
+  display: block;
+  position: relative;
+  height: 0.86em;
+}
+.px.bm .l {
+  position: absolute;
+  left: 0;
+  top: 0;
+  contain: layout style;
+  will-change: transform;
+}
+
+/* ── stroke → fill reveal ─────────────────────────────────────────────────
+ * 1. .stroke  outline draws in (colour fades from transparent), staggered by --d
+ * 2. .on      ink wipes up through the outline (background-size 0 → 100%), staggered by --f
+ * 3. once the wipe has finished, the fill colour takes over and the outline is dropped so the
+ *    glyph doesn't look heavier than its neighbours                                          */
+.st .l {
+  color: transparent;
+  background: linear-gradient(var(--ink), var(--ink)) 0 100% / 100% 0% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 1.4px transparent;
+  transition:
+    background-size 0.85s var(--ease-in-out) var(--f, 0s),
+    -webkit-text-stroke-color 0.8s ease var(--d, 0s),
+    color 0s linear calc(var(--f, 0s) + 0.85s),
+    -webkit-text-stroke-width 0.01s linear calc(var(--f, 0s) + 0.9s);
+}
+.st.stroke .l {
+  -webkit-text-stroke-color: var(--ink);
+}
+.st.on .l {
+  color: var(--ink);
+  background-size: 100% 100%;
+  -webkit-text-stroke-width: 0;
+}
+.snap .l {
+  transition: none !important;
+}
+
+/* ── hero tagline: typed in after the name fills ──────────────────────── */
+.tagw {
+  display: grid;
+}
+.tagw .ghost,
+.tagw .typed {
+  grid-area: 1 / 1;
+}
+.tagw .ghost {
+  visibility: hidden; /* reserves the final width so typing doesn't reflow */
+}
+.typed:after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  background: var(--acc);
+  margin-left: 3px;
+  vertical-align: -0.2em;
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,31 @@
+/* Performance HUD (Shift+D, five taps on the logo, or ?debug=1) — loaded code lives in features/hud.ts */
+#hud {
+  position: fixed;
+  left: 10px;
+  top: calc(62px + env(safe-area-inset-top, 0px));
+  z-index: 8;
+  max-width: calc(100vw - 20px);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  font:
+    10px/1.5 'Space Mono',
+    ui-monospace,
+    monospace;
+  color: var(--ink);
+}
+#hud pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+#hud button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  margin: 6px 4px 0 0;
+  min-height: 32px;
+  cursor: pointer;
+}

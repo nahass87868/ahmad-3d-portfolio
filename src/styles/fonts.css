@@ -1,0 +1,40 @@
+/* Archivo is a variable font: weight 100–900, width 62–125%. The headings animate both axes. */
+@font-face {
+  font-family: Archivo;
+  src: url('/fonts/archivo-variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Mono';
+  src: url('/fonts/space-mono-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* Metric-matched fallbacks: the page doesn't reflow when the web fonts arrive. */
+@font-face {
+  font-family: 'Archivo Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 101.07%;
+  ascent-override: 86.87%;
+  descent-override: 20.78%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Archivo Display Fallback';
+  src: local('Arial Bold'), local('Liberation Sans Bold'), local('Arimo Bold');
+  size-adjust: 77.68%;
+  ascent-override: 113.03%;
+  descent-override: 27.04%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Space Mono Fallback';
+  src: local('Courier New'), local('Liberation Mono'), local('Cousine');
+  size-adjust: 101.98%;
+  ascent-override: 109.82%;
+  descent-override: 35.4%;
+  line-gap-override: 0%;
+}

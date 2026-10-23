@@ -1,0 +1,118 @@
+/* Buttons, filter chips and the colour switches. */
+
+/* shared press feedback: scale on :active, snappy and eased out */
+.btn,
+.chip,
+.sw,
+.md {
+  transition: transform var(--press);
+}
+.btn:active,
+.chip:active,
+.sw:active,
+.md:active {
+  transform: scale(0.97);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 30px;
+  border-radius: 999px;
+  font: 600 18px/1 var(--font-sans);
+  text-decoration: none;
+  background: var(--ink);
+  color: var(--bg);
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  transition:
+    transform var(--press),
+    filter 0.2s,
+    border-color 0.2s;
+}
+.btn.ghost {
+  background: none;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+.chips[hidden] {
+  display: none;
+}
+.chip {
+  font: 11px/1 var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 14px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.chip i {
+  font-style: normal;
+  opacity: 0.7;
+  margin-left: 6px;
+}
+.chip[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.sw,
+.md {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 14px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.sw span,
+.md span {
+  margin-left: 4px;
+}
+.sw i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: background 0.4s;
+}
+.sw i:nth-of-type(1) {
+  background: var(--ink);
+}
+.sw i:nth-of-type(2) {
+  background: var(--acc);
+}
+.md i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: linear-gradient(90deg, var(--ink) 50%, transparent 50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    filter: brightness(1.1);
+  }
+  .btn.ghost:hover {
+    border-color: var(--ink);
+    filter: none;
+  }
+}
