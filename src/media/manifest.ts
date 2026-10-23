@@ -69,13 +69,13 @@ export const images: Record<string, ImageAsset> = {
  * Until you add them, project pages show the poster and hover previews are skipped.
  */
 export const videos: Record<string, VideoAsset> = {
-  'soap-animation': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'yerba-mate-animation': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'asus-animation': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'watch-animation': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'folder-animation-1': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'vellum-animation-1': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'dates-cookie-animation-1': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'blue-mall-animation': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
-  'youth-affairs-animation': { w: 1280, h: 720, dur: 8, full: [], preview: [] },
+  'soap-animation': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'yerba-mate-animation': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'asus-animation': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'watch-animation': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'folder-animation-1': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'vellum-animation-1': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'dates-cookie-animation-1': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'blue-mall-animation': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
+  'youth-affairs-animation': { w: 1280, h: 720, dur: 8, full: ['mp4'], preview: [] },
 };
