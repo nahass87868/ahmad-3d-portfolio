@@ -16,11 +16,18 @@
     <meta name="twitter:card" content="summary" />
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Ahmad Nahass","jobTitle":"3D Artist","description":"3D artist creating product visualization, motion, environments, and simulations.","sameAs":["https://www.instagram.com/nahass.3d.vision/","https://t.me/nahass3dvision"]}</script>
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMDAwMDAwIi8+PHBhdGggZD0iTTEyIDQ4IDI2IDE2aDZsMTQgMzJoLTdsLTMtOEgyMmwtMyA4Wm0xMi0xNGgxMGwtNS0xMloiIGZpbGw9IiNGNUVCRTEiLz48cmVjdCB4PSI0OCIgeT0iNDAiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNGRjY0MDAiLz48L3N2Zz4K" type="image/svg+xml" />
+    <!-- Fonts load as files (cached separately from the CSS). crossorigin is required for font preloads, even same-origin. -->
+    <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/space-mono.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="style.css" />
     <!-- Blocking on purpose: it sets the colour theme before the first paint (no flash). The page itself is built after DOMContentLoaded. -->
     <script src="script.js"></script>
     <!-- Optional add-ons (nav highlight, filter glide, progress line…). Delete this line, or set EXTRAS.enabled = false inside it, to switch them all off. -->
     <script src="extras.js" defer></script>
+    <!-- Isolated fixes (panel focus). Delete this line, or set FIXES.enabled = false inside it, to switch them off. -->
+    <script src="fixes.js" defer></script>
+    <!-- About-section portrait (images/ahmad-photo.jpg). Delete this line, or set ABOUT_PHOTO.enabled = false inside it, to switch it off. -->
+    <script src="about-photo.js" defer></script>
   </head>
   <body>
     <!-- Intro curtain: shown from the very first paint, driven by script.js -->
