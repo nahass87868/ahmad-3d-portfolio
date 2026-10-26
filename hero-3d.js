@@ -3,7 +3,7 @@
  * It only ADDS: one <style>, one <div> inside the hero (canvas + ghost text), and one ring <div>. Nothing existing is renamed or removed.
  *
  * Look and behaviour follow your prototype (portfolio-3d.html): clay letters in two rows, collision physics,
- * a pull toward the cursor, and a glowing ring that reveals the mesh inside it.
+ * a pull toward the cursor, and a ring that reveals the mesh inside it.
  *
  * Switch it all off with ONE flag: HERO3D.enabled = false (or delete the <script src="hero-3d.js"> line in index.html).
  * Flag off, no WebGL, Data Saver on, or the 3D files failing to load: none of the new CSS is applied,
@@ -55,9 +55,9 @@
 
     // ── ring ──
     OPEN_DIST: 0.42, OPEN_HOLD: 300, // ring opens within this distance of a letter (world units) and stays open this long (ms)
-    RING_IDLE: 20, RING_OPEN_MAX: 150, // radius in px when idle and when open (open scales down in small regions)
+    RING_IDLE: 20, RING_OPEN_MAX: 120, // radius in px when idle and when open (open scales down in small regions)
     RING_FOLLOW: 0.22, RING_EASE: 0.12, // how the ring follows the cursor and opens
-    WIRE_INSET: 22, // the mesh circle sits this many px inside the ring line
+    WIRE_INSET: 1, // the mesh circle sits this many px inside the ring line (1 = flush, no gap)
 
     // ── colours (clay, from your prototype) ──
     CLAY_DARK: '#a8a8a8', CLAY_LIGHT: '#8f8f8d', // letter colour in dark and light mode
@@ -70,7 +70,7 @@
     HOLD_MS: 380, HOLD_SLOP_PX: 10, // press this long, without moving more than this, to start the ring
     TOUCH_OFFSET_PX: 80, // the ring sits this far above the finger
 
-    DPR_MAX: 2, DPR_MAX_TOUCH: 1.5, FOV: 30,
+    DPR_MAX: 2, DPR_MAX_TOUCH: 1.25, FOV: 30,
   };
 
   /* Each letter, from your prototype. p: px in the 1200x900 reference image · s: scale · r: rotation in degrees (x, y, z) ·
@@ -180,10 +180,9 @@ html .hero .px .w:last-of-type { text-align: center; }
   white-space: nowrap; pointer-events: none; display: none; transition: opacity .3s; z-index: 2; }
 @media (pointer: coarse) { .x-h3d-hint { display: block; } }
 .x-h3d-hint.x-hide { opacity: 0; }
-/* the ring: white line, soft glow in your accent colour */
+/* the ring: a plain thin line, no glow */
 .x-ring { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; box-sizing: border-box; border-radius: 50%;
-  border: 1.5px solid var(--ink); opacity: 0; transition: opacity .25s ease;
-  box-shadow: 0 0 30px var(--x-glow, rgba(110,231,255,.35)), inset 0 0 40px var(--x-glow, rgba(110,231,255,.35)); }
+  border: 1.5px solid var(--ink); opacity: 0; transition: opacity .25s ease; }
 /* while the ring is on screen the X/Y read-out would sit inside it */
 #cur.x-portal #cx { opacity: 0; }
 `;
@@ -331,8 +330,9 @@ html .hero .px .w:last-of-type { text-align: center; }
     /* ── 2D collision physics in the screen plane (circle colliders), straight from the prototype ── */
     const circ = (p) => { const c = Math.cos(p.ry); return p.k.map((k) => [p.pos.x + k[0] * p.s * c, p.pos.y + k[1] * p.s, k[2] * p.s]); };
     function collide(vel) {
+      const C = P.map(circ); // circles built once per pass (no per-pair allocation, which caused stutter on phones)
       for (let a = 0; a < P.length; a++) for (let b = a + 1; b < P.length; b++) {
-        const A = P[a], B = P[b], ca = circ(A), cb = circ(B);
+        const A = P[a], B = P[b], ca = C[a], cb = C[b];
         for (const u of ca) for (const v of cb) {
           let dx = v[0] - u[0], dy = v[1] - u[1], d = Math.hypot(dx, dy);
           const m = u[2] + v[2] + 0.006;
@@ -365,7 +365,6 @@ html .hero .px .w:last-of-type { text-align: center; }
       clayTarget.set(light ? T.CLAY_LIGHT : T.CLAY_DARK).lerp(tmp.set(acc), T.CLAY_TINT);
       tmp.set(acc);
       region.style.setProperty('--x-ghost', light ? 'rgba(20,19,16,' + T.GHOST_ALPHA + ')' : 'rgba(255,255,255,' + T.GHOST_ALPHA + ')');
-      ringEl.style.setProperty('--x-glow', 'rgba(' + Math.round(tmp.r * 255) + ',' + Math.round(tmp.g * 255) + ',' + Math.round(tmp.b * 255) + ',.38)');
       wake();
     }
     clay.color.copy(clayTarget.set(root.dataset.theme === 'light' ? T.CLAY_LIGHT : T.CLAY_DARK)); // first paint; readTheme tints it
@@ -377,8 +376,8 @@ html .hero .px .w:last-of-type { text-align: center; }
     const S = { w: 1, h: 1, dpr: Math.min(devicePixelRatio || 1, TOUCH ? T.DPR_MAX_TOUCH : T.DPR_MAX), vW: 3.2, vH: 2.4, inView: true, hidden: false,
       raf: 0, last: 0, acc: 0, ema: 16, slow: 0 };
     // pointer in region pixels (mx,my = -999 means "no pointer"); cx,cy = the ring's smoothed position; rr/tr = ring radius and its target
-    const I = { mx: -999, my: -999, wx: 0, wy: 0, cx: -999, cy: -999, rr: T.RING_IDLE, openT: -1e9, inside: false };
-    const ringOpenR = () => clamp(S.h * 0.34, 70, T.RING_OPEN_MAX);
+    const I = { px: -999, py: -999, mx: -999, my: -999, wx: 0, wy: 0, cx: -999, cy: -999, rr: T.RING_IDLE, openT: -1e9, inside: false };
+    const ringOpenR = () => clamp(S.h * 0.3, 60, T.RING_OPEN_MAX);
     let rect = region.getBoundingClientRect();
 
     function resize() {
@@ -396,13 +395,18 @@ html .hero .px .w:last-of-type { text-align: center; }
       wake();
     }
     function setPointer(clientX, clientY) {
-      I.mx = clientX - rect.left; I.my = clientY - rect.top;
+      I.px = clientX; I.py = clientY;
+      if (I.cx < -900) { I.cx = clientX; I.cy = clientY; }
+    }
+    function derivePointer() { // region coordinates from the stored client position: stays right when the page scrolls under a still pointer
+      if (I.px < -900) { I.mx = I.my = -999; I.inside = false; return; }
+      I.mx = I.px - rect.left; I.my = I.py - rect.top;
       I.wx = camera.position.x + (I.mx / S.w * 2 - 1) * S.vW / 2;
       I.wy = camera.position.y - (I.my / S.h * 2 - 1) * S.vH / 2;
-      if (I.cx < -900) { I.cx = clientX; I.cy = clientY; }
       I.inside = I.mx >= 0 && I.my >= 0 && I.mx <= S.w && I.my <= S.h;
     }
-    const clearPointer = () => { I.mx = I.my = -999; I.inside = false; wake(); };
+    const hideUi = () => { ringEl.style.opacity = 0; if (cur) cur.classList.remove('x-portal'); }; // gives the site's cursor label back
+    const clearPointer = () => { I.px = I.py = -999; I.mx = I.my = -999; I.inside = false; hideUi(); wake(); };
     const frozen = () => root.classList.contains('vp-off') || root.classList.contains('panel-open');
 
     /* ── input ── */
@@ -468,9 +472,10 @@ html .hero .px .w:last-of-type { text-align: center; }
     }
     function tick(now) {
       rect = region.getBoundingClientRect(); // read fresh: the hero can shift when the web font arrives
+      derivePointer();
       const t = now / 1000, off = frozen();
       const gap = S.last ? now - S.last : 16; // ms since the last frame
-      S.acc += Math.min(gap / 1000, 1 / 20); S.last = now;
+      S.acc += Math.min(gap / 1000, 3 / 120); S.last = now; // never more than 3 physics steps in one frame
       if (!off) while (S.acc >= 1 / 120) { step(1 / 120); S.acc -= 1 / 120; }
       else S.acc = 0;
 
@@ -515,8 +520,8 @@ html .hero .px .w:last-of-type { text-align: center; }
     }
     /* ── life-cycle ── */
     readTheme();
-    new IntersectionObserver((en) => { S.inView = en[0].isIntersecting; if (S.inView) { S.last = 0; wake(); } }).observe(region);
-    document.addEventListener('visibilitychange', () => { S.hidden = document.hidden; if (!S.hidden) { S.last = 0; wake(); } });
+    new IntersectionObserver((en) => { S.inView = en[0].isIntersecting; if (S.inView) { S.last = 0; wake(); } else hideUi(); }).observe(region);
+    document.addEventListener('visibilitychange', () => { S.hidden = document.hidden; if (!S.hidden) { S.last = 0; wake(); } else hideUi(); });
     new ResizeObserver(resize).observe(region);
     canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); teardown('WebGL context was lost'); });
     new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['class'] }); // shading modes / project panel
