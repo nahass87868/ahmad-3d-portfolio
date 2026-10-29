@@ -28,7 +28,7 @@
   const T = {
     PHONE: 720, // px: at and below = phone layout. Same value your own phone styles use.
     DESKTOP: 900, // px: at and above = desktop grid (same as your work grid)
-    FEATURED: ['realistic-ice', 'booth-design', 'youth-affairs-logo-animation', 'asus-product-animation', 'vellum-simulation'],
+    FEATURED: ['realistic-ice', 'real-estate-exhibition-booth', 'booth-design', 'youth-affairs-logo-animation', 'asus-product-animation', 'vellum-simulation'], // an even number keeps every row a big + small pair
     RISE_PX: 12, // scroll motion: how far an item rises while fading in
     ZOOM: 0.06, // desktop image zoom over the card's trip through the screen (0.06 = 6%)
     LIFT_PX: 6, // desktop hover lift
@@ -168,8 +168,10 @@ html.x-menu-open { overflow: hidden; }
     const bySlug = new Map($$('.tile', grid).map((t) => { const a = $('a[href^="#work/"]', t); return [a ? a.getAttribute('href').slice(6) : '', t]; }));
     T.FEATURED.slice().reverse().forEach((slug) => { const t = bySlug.get(slug); if (t) grid.insertBefore(t, grid.firstChild); });
     T.FEATURED.forEach((slug, i) => { const t = bySlug.get(slug); if (t) t.classList.add('x-f', 'x-f' + (i + 1)); });
-    const partner = $$('.tile', grid).find((t) => !t.classList.contains('x-f')); // the 5th featured card needs a neighbour: the next project
-    if (partner) partner.classList.add('x-f', 'x-f6');
+    if (T.FEATURED.length % 2) { // an odd number of featured cards needs a neighbour for the last one: the next project
+      const partner = $$('.tile', grid).find((t) => !t.classList.contains('x-f'));
+      if (partner) partner.classList.add('x-f', 'x-f' + (T.FEATURED.length + 1));
+    }
     // while a category filter is on, an even grid is calmer than featured spans
     const chips = $('#chips');
     if (chips) chips.addEventListener('click', () => requestAnimationFrame(() => {
