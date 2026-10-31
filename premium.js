@@ -344,6 +344,12 @@
     const refresh = () => ST && ST.refresh();
     if (document.fonts) document.fonts.ready.then(refresh);
     addEventListener('load', refresh);
-    new MutationObserver(() => { if (!root.classList.contains('pre')) refresh(); }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    // refresh only when the class string really changed: re-adding an existing class still fires a mutation (once per mouse move)
+    let lastCls = root.className;
+    new MutationObserver(() => {
+      if (root.className === lastCls) return;
+      lastCls = root.className;
+      if (!root.classList.contains('pre')) refresh();
+    }).observe(root, { attributes: true, attributeFilter: ['class'] });
   });
 })();

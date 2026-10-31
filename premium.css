@@ -88,3 +88,9 @@ html:not(.panel-open) .x-cnt { opacity: 0; }
 .x-next img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.9s var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .x-next:hover img { transform: scale(1.04); } }
 @media (max-width: 720px) { .x-next .im { aspect-ratio: 4 / 3; } }
+
+/* ═════════ phones: keep the Grid / Index toggle where it can be seen ═════════ */
+.x-view { flex: 0 0 auto; }
+@media (max-width: 720px) { .x-view { order: -1; margin-left: 0; } }
+/* touch: the button looks 36px; the invisible extension makes the tap target 44px without changing the row height */
+@media (pointer: coarse) { .x-view button { position: relative; } .x-view button:after { content: ''; position: absolute; inset: -4px 0; } }

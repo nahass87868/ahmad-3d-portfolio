@@ -883,8 +883,8 @@
         if (holder) holder.classList.add('missing');
         console.warn('Missing image:', img.getAttribute('src'));
       };
+      img.addEventListener('error', fail); // always listen: the thumb -> full-size fallback must be able to fail too
       if (img.complete && img.naturalWidth === 0 && img.currentSrc) fail();
-      else img.addEventListener('error', fail);
     });
     $$('video source', scope).forEach((source) => {
       source.addEventListener('error', () => {

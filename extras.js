@@ -319,7 +319,7 @@ html.x-badge .th:before, html.x-badge .mot { background: rgba(12, 12, 11, .72); 
   function initToolbarTips() {
     const tip = document.createElement('div');
     tip.className = 'x-tip';
-    tip.setAttribute('role', 'tooltip');
+    tip.setAttribute('aria-hidden', 'true'); // a visual copy of the buttons' aria-labels; an empty role=tooltip is an axe failure
     document.body.appendChild(tip);
 
     const adopt = () =>

@@ -9,7 +9,7 @@
  * Flag off, no WebGL, Data Saver on, or the 3D files failing to load: none of the new CSS is applied,
  * so the hero is exactly the hero you had before. Every one of those cases says why in the console.
  *
- * Files it uses: vendor/three.min.js (three r128) and hero-3d-model.js (your portfolio.glb as base64 text,
+ * Files it uses: vendor/three.min.js (three r128) and hero-3d-model.js (your portfolio.glb, baked by tools/build-hero-model.py, as base64 text,
  * so it also works when you open index.html straight from disk).
  */
 (() => {
@@ -50,7 +50,8 @@
     K: 60, C: 8.5, // spring stiffness and damping of the letters
     LIFT: 0.22, TILT: 0.75, EASE: 0.07, // forward lift, turn toward the cursor, and how smoothly both follow
     FLOAT_Y: 0.012, FLOAT_ROLL: 0.03, // idle float
-    THICK: 1.8, // letters are made this much thicker (chunkier, like the reference)
+    THICK: 1, // thickness multiplier. 1 = the modelled depth (the 2026 model is already chunky). 0.7 gives the old, slimmer look
+    IDLE_FPS: 30, // when only the slow idle float is moving, draw this many frames per second. The float drifts ~2 px, so 30 looks identical to 60 at half the GPU cost. 60 = no throttle
     RELAX_PASSES: 300, // on load, overlapping letters are pushed until they just touch
 
     // ── ring ──
@@ -324,18 +325,19 @@ html .hero .px .w:last-of-type { text-align: center; }
       grp.rotation.set(f.r[0] * d2r, f.r[1] * d2r, f.r[2] * d2r, 'YXZ');
       scene.add(grp);
       P.push({ g: grp, pos: new THREE.Vector2(x, y), home: new THREE.Vector2(x, y), vel: new THREE.Vector2(), r: grp.rotation.clone(),
-        ry: f.r[1] * d2r, s: f.s, k: f.k, inf: 0, ro: new THREE.Vector3(), z: 0 });
+        ry: f.r[1] * d2r, s: f.s, k: f.k, cc: new Float64Array(f.k.length * 3), inf: 0, ro: new THREE.Vector3(), z: 0 });
     });
 
     /* ── 2D collision physics in the screen plane (circle colliders), straight from the prototype ── */
-    const circ = (p) => { const c = Math.cos(p.ry); return p.k.map((k) => [p.pos.x + k[0] * p.s * c, p.pos.y + k[1] * p.s, k[2] * p.s]); };
+    // circles are written in place as flat [x, y, r, x, y, r, ...] (no allocation: arrays built per pass caused GC stutter on phones)
+    const circ = (p) => { const c = Math.cos(p.ry), o = p.cc; for (let i = 0; i < p.k.length; i++) { const k = p.k[i]; o[i * 3] = p.pos.x + k[0] * p.s * c; o[i * 3 + 1] = p.pos.y + k[1] * p.s; o[i * 3 + 2] = k[2] * p.s; } return o; };
     function collide(vel) {
-      const C = P.map(circ); // circles built once per pass (no per-pair allocation, which caused stutter on phones)
+      for (let i = 0; i < P.length; i++) circ(P[i]); // circles built once per pass
       for (let a = 0; a < P.length; a++) for (let b = a + 1; b < P.length; b++) {
-        const A = P[a], B = P[b], ca = C[a], cb = C[b];
-        for (const u of ca) for (const v of cb) {
-          let dx = v[0] - u[0], dy = v[1] - u[1], d = Math.hypot(dx, dy);
-          const m = u[2] + v[2] + 0.006;
+        const A = P[a], B = P[b], ca = A.cc, cb = B.cc;
+        for (let ui = 0; ui < ca.length; ui += 3) for (let vi = 0; vi < cb.length; vi += 3) {
+          let dx = cb[vi] - ca[ui], dy = cb[vi + 1] - ca[ui + 1], d = Math.hypot(dx, dy);
+          const m = ca[ui + 2] + cb[vi + 2] + 0.006;
           if (d < m) {
             if (d < 1e-6) { dx = 1; dy = 0; d = 1; }
             const nx = dx / d, ny = dy / d, o = (m - d) / 2;
@@ -353,7 +355,7 @@ html .hero .px .w:last-of-type { text-align: center; }
 
     // bounds of the settled cluster (from the colliders), used to fit the camera to any region shape
     let bx0 = 1e9, bx1 = -1e9, by0 = 1e9, by1 = -1e9;
-    P.forEach((p) => circ(p).forEach(([x, y, r]) => { bx0 = Math.min(bx0, x - r); bx1 = Math.max(bx1, x + r); by0 = Math.min(by0, y - r); by1 = Math.max(by1, y + r); }));
+    P.forEach((p) => { const c = circ(p); for (let i = 0; i < c.length; i += 3) { const x = c[i], y = c[i + 1], r = c[i + 2]; bx0 = Math.min(bx0, x - r); bx1 = Math.max(bx1, x + r); by0 = Math.min(by0, y - r); by1 = Math.max(by1, y + r); } });
     const cw = bx1 - bx0, ch = by1 - by0, ccx = (bx0 + bx1) / 2, ccy = (by0 + by1) / 2;
 
     /* ── colours follow your mode + scheme: clay picks up a little of the accent ── */
@@ -365,6 +367,7 @@ html .hero .px .w:last-of-type { text-align: center; }
       clayTarget.set(light ? T.CLAY_LIGHT : T.CLAY_DARK).lerp(tmp.set(acc), T.CLAY_TINT);
       tmp.set(acc);
       region.style.setProperty('--x-ghost', light ? 'rgba(20,19,16,' + T.GHOST_ALPHA + ')' : 'rgba(255,255,255,' + T.GHOST_ALPHA + ')');
+      S.force = true;
       wake();
     }
     clay.color.copy(clayTarget.set(root.dataset.theme === 'light' ? T.CLAY_LIGHT : T.CLAY_DARK)); // first paint; readTheme tints it
@@ -374,7 +377,7 @@ html .hero .px .w:last-of-type { text-align: center; }
 
     /* ── state ── */
     const S = { w: 1, h: 1, dpr: Math.min(devicePixelRatio || 1, TOUCH ? T.DPR_MAX_TOUCH : T.DPR_MAX), vW: 3.2, vH: 2.4, inView: true, hidden: false,
-      raf: 0, last: 0, acc: 0, ema: 16, slow: 0 };
+      raf: 0, last: 0, acc: 0, ema: 16, slow: 0, drawn: 0, calm: false, force: false };
     // pointer in region pixels (mx,my = -999 means "no pointer"); cx,cy = the ring's smoothed position; rr/tr = ring radius and its target
     const I = { px: -999, py: -999, mx: -999, my: -999, wx: 0, wy: 0, cx: -999, cy: -999, rr: T.RING_IDLE, openT: -1e9, inside: false };
     const ringOpenR = () => clamp(S.h * 0.3, 60, T.RING_OPEN_MAX);
@@ -392,6 +395,7 @@ html .hero .px .w:last-of-type { text-align: center; }
       camera.updateProjectionMatrix();
       const fs = Math.min(S.h * 0.5, (S.w * 0.9) / 3.1);
       ghost.style.fontSize = fs + 'px';
+      S.force = true;
       wake();
     }
     function setPointer(clientX, clientY) {
@@ -468,9 +472,16 @@ html .hero .px .w:last-of-type { text-align: center; }
     function wake() { if (!S.raf && S.inView && !S.hidden) S.raf = requestAnimationFrame(frame); }
     function frame(now) {
       S.raf = 0;
+      // calm = only the idle float is moving: skip frames until 1/IDLE_FPS has passed (3 ms slack for rAF jitter)
+      if (S.calm && !S.force && now - S.drawn < 1000 / T.IDLE_FPS - 3) { wake(); return; }
       try { tick(now); } catch (err) { teardown('runtime error: ' + (err && err.message)); }
     }
     function tick(now) {
+      // frozen (project panel open, or motion off): nothing visible changes, so draw nothing and do not reschedule.
+      // The root-class observer wakes the loop when that ends; a theme/size change forces one repaint.
+      if (frozen() && !S.force) { ringEl.style.opacity = 0; if (cur) cur.classList.remove('x-portal'); S.acc = 0; S.last = 0; return; }
+      S.force = false; S.drawn = now;
+      const wasCalm = S.calm;
       rect = region.getBoundingClientRect(); // read fresh: the hero can shift when the web font arrives
       derivePointer();
       const t = now / 1000, off = frozen();
@@ -480,7 +491,8 @@ html .hero .px .w:last-of-type { text-align: center; }
       else S.acc = 0;
 
       // theme: clay eases toward the current colour
-      if (Math.abs(clay.color.r - clayTarget.r) + Math.abs(clay.color.g - clayTarget.g) + Math.abs(clay.color.b - clayTarget.b) > 0.003) clay.color.lerp(clayTarget, 0.12);
+      const colourBusy = Math.abs(clay.color.r - clayTarget.r) + Math.abs(clay.color.g - clayTarget.g) + Math.abs(clay.color.b - clayTarget.b) > 0.003;
+      if (colourBusy) clay.color.lerp(clayTarget, 0.12);
       else clay.color.copy(clayTarget);
 
       // the ring opens while the cursor is near any letter (covers holes and gaps) and stays open a moment after leaving
@@ -513,9 +525,10 @@ html .hero .px .w:last-of-type { text-align: center; }
       renderer.render(scene, camera);
 
       // adaptive quality: sustained slow frames step the pixel ratio down toward 1
-      S.ema += (Math.min(60, gap) - S.ema) * 0.05; S.slow = S.ema > 26 ? S.slow + 1 : 0;
+      if (!wasCalm) { S.ema += (Math.min(60, gap) - S.ema) * 0.05; S.slow = S.ema > 26 ? S.slow + 1 : 0; } // calm frames are slow on purpose
       if (S.slow > 90 && S.dpr > 1) { S.dpr = Math.max(1, S.dpr - 0.25); S.slow = 0; resize(); }
       const moving = P.some((p) => Math.abs(p.vel.x) + Math.abs(p.vel.y) > 0.002 || p.inf > 0.001 || Math.abs(p.z) > 0.001);
+      S.calm = !moving && !near && !showRing && !hold.on && !colourBusy && Math.abs(I.rr - target) <= 0.3;
       if (!reduced || moving || near || Math.abs(I.rr - target) > 0.3) wake();
     }
     /* ── life-cycle ── */
