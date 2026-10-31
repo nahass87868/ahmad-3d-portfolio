@@ -13,7 +13,8 @@
   const ABOUT_PHOTO = {
     enabled: true, // MASTER SWITCH. false = this file does nothing at all.
 
-    src: 'images/ahmad-photo.jpg', // must match the file name exactly (GitHub Pages is case-sensitive)
+    src: 'images/ahmad-photo.webp', // must match the file name exactly (GitHub Pages is case-sensitive)
+    fallback: 'images/ahmad-photo.jpg', // used only if the .webp is missing
     alt: 'Portrait of Ahmad Nahass', // read by screen readers; describe the photo if you like
 
     aspect: '4 / 5', // frame shape (width / height). '1 / 1' square, '3 / 4' taller, '4 / 3' wider.
@@ -109,6 +110,7 @@
     img.decoding = 'async';
     // If the file is missing or misnamed, remove the empty frame instead of showing a broken image.
     img.addEventListener('error', () => {
+      if (ABOUT_PHOTO.fallback && img.getAttribute('src') !== ABOUT_PHOTO.fallback) { img.src = ABOUT_PHOTO.fallback; return; } // try the old .jpg once
       console.warn('[about-photo] Image not found:', ABOUT_PHOTO.src);
       figure.remove();
     });

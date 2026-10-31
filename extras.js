@@ -208,6 +208,7 @@ html.x-badge .th:before, html.x-badge .mot { background: rgba(12, 12, 11, .72); 
             const a = before.get(t);
             if (!a || t.hidden) return;
             const b = t.getBoundingClientRect();
+            if (!a.width || !b.width) return; // a tile that is not laid out (grid hidden by the Index view) has nothing to glide
             const dx = a.left - b.left;
             const dy = a.top - b.top;
             const sx = a.width / b.width;

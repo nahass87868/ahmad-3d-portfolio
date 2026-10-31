@@ -20,13 +20,19 @@
     <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="fonts/space-mono.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="style.css" />
+    <!-- Premium layer styles (curtain, index view, project gallery). Loaded early so the curtain is styled from the first paint. -->
+    <link rel="stylesheet" href="premium.css" />
     <!-- Blocking on purpose: it sets the colour theme before the first paint (no flash). The page itself is built after DOMContentLoaded. -->
+    <!-- GSAP (3.13.0, self-hosted). Deferred: it runs before the page is built, without blocking the first paint. -->
+    <script src="vendor/gsap.min.js" defer></script>
+    <script src="vendor/ScrollTrigger.min.js" defer></script>
+    <script src="premium.js" defer></script>
     <script src="script.js"></script>
     <!-- Optional add-ons (nav highlight, filter glide, progress line…). Delete this line, or set EXTRAS.enabled = false inside it, to switch them all off. -->
     <script src="extras.js" defer></script>
     <!-- Isolated fixes (panel focus). Delete this line, or set FIXES.enabled = false inside it, to switch them off. -->
     <script src="fixes.js" defer></script>
-    <!-- About-section portrait (images/ahmad-photo.jpg). Delete this line, or set ABOUT_PHOTO.enabled = false inside it, to switch it off. -->
+    <!-- About-section portrait (images/ahmad-photo.webp, falls back to .jpg). Delete this line, or set ABOUT_PHOTO.enabled = false inside it, to switch it off. -->
     <script src="about-photo.js" defer></script>
     <!-- 3D hero (name layout + floating PORTFOLIO). Delete this line, or set HERO3D.enabled = false inside it, to switch it off. -->
     <script src="hero-3d.js" defer></script>
@@ -39,7 +45,9 @@
       <div class="pc l2"></div>
       <div class="pc l1">
         <span class="mono pt">rendering<b>...</b></span><span class="mono pa">AN</span>
-        <div class="pn mono" id="pn">000</div>
+        <div class="pname" aria-hidden="true"><span class="pnw">Ahmad</span><span class="pnw">Nahass</span></div>
+        <p class="mono pline" aria-hidden="true">Ideas, shaped into visuals.</p>
+        <div class="pcount mono" id="pn">000</div>
         <div class="pbar"><i id="pb"></i></div>
       </div>
     </div>

@@ -540,9 +540,12 @@ html .hero .px .w:last-of-type { text-align: center; }
   /* ══════════════════════════════════════════════════════════════════════════
      start
      ══════════════════════════════════════════════════════════════════════════ */
+  // premium.js waits on this (capped) so the curtain lifts when the 3D is ready, not before
+  let ready3d;
+  window.__hero3dReady = new Promise((r) => { ready3d = r; });
   whenReady('.hero .hmeta', () => {
     const hero = q('.hero');
-    if (!hero) return;
+    if (!hero) { ready3d(); return; }
     mountDom(hero); // layout is in place before the intro curtain lifts, so nothing jumps
     watchName(hero);
     loadScript(HERO3D.three)
@@ -555,9 +558,11 @@ html .hero .px .w:last-of-type { text-align: center; }
         } catch (err) {
           teardown('startup error: ' + (err && err.message));
         }
+        ready3d();
       })
       .catch((err) => {
         teardown('files did not load (' + (err && err.message) + '). Check that vendor/three.min.js and hero-3d-model.js are uploaded');
+        ready3d();
       });
   });
 })();
