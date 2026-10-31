@@ -22,8 +22,8 @@
    1. CONTENT  —  everything you would edit lives in this section.
    ════════════════════════════════════════════════════════════════════════════
    Media files (all paths are relative to this page):
-     images/<name>.jpg              full image            (project pages)
-     images/thumbs/<thumb>.webp     grid thumbnail        (one per project; falls back to the .jpg)
+     images/<name>.webp             full image            (project pages; falls back to <name>.jpg if only that exists)
+     images/thumbs/<thumb>.webp     grid thumbnail        (one per project; falls back to the full .webp)
      videos/<name>.mp4              video
    A project needs: slug (used in the URL #work/<slug>), thumb, images[], optional videos[].
    ════════════════════════════════════════════════════════════════════════════ */
@@ -623,7 +623,8 @@
     const size = IMAGE_SIZES[id];
     const dims = size ? ` width="${size[0]}" height="${size[1]}"` : '';
     const loading = eager ? 'loading="eager" decoding="async" fetchpriority="high"' : 'loading="lazy" decoding="async"';
-    return `<img class="${cls}" src="images/${id}.jpg"${dims} alt="${esc(alt)}" ${loading}>`;
+    // .webp first; if a file is missing, initMedia retries the old .jpg (data-full) before showing "Media missing"
+    return `<img class="${cls}" src="images/${id}.webp" data-full="images/${id}.jpg"${dims} alt="${esc(alt)}" ${loading}>`;
   };
 
   const video = (id, label) =>
@@ -675,7 +676,7 @@
       `<article class="tile" data-sa data-cat="${esc(w.category)}"${hasVideo ? ` data-video="${esc(w.videos[0])}"` : ''}>` +
       `<a href="#work/${w.slug}" data-panel data-cur="View"><div class="th">` +
       // grid thumbnail; if it is missing the full image is used instead (see initMediaFallback)
-      `<img class="cov" src="images/thumbs/${w.thumb}.webp" data-full="images/${w.images[0]}.jpg" width="480" height="600" alt="" loading="lazy" decoding="async">` +
+      `<img class="cov" src="images/thumbs/${w.thumb}.webp" data-full="images/${w.images[0]}.webp" width="480" height="600" alt="" loading="lazy" decoding="async">` +
       `${hasVideo ? '<span class="mono mot">Motion</span>' : ''}<span class="mono miss">Media missing</span></div>` +
       `<h3>${esc(w.title)}</h3><p class="mono">${esc(w.category)} · ${esc(w.year)}</p></a></article>`
     );
@@ -797,6 +798,8 @@
     const curtain = $('#pre');
     const counter = $('#pn');
     const bar = $('#pb');
+    // premium.js (GSAP) drives the curtain when it is available; the code below stays as the fallback
+    if (window.PREMIUM_INTRO && window.gsap && curtain && counter && bar) return window.PREMIUM_INTRO(curtain, counter, bar, INTRO);
     return new Promise((resolve) => {
       if (!curtain || !counter || !bar) {
         root.classList.remove('pre');
@@ -865,7 +868,7 @@
   }
 
   /* ── media fallbacks ──
-     • a missing grid thumbnail falls back to the full .jpg
+     • a missing grid thumbnail falls back to the full .webp (a missing full .webp falls back to its .jpg)
      • anything still missing shows the hatched "Media missing" tile and logs the file name */
   function initMedia(scope) {
     $$('img', scope).forEach((img) => {
