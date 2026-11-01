@@ -1101,6 +1101,7 @@
         const l = document.createElement('span');
         l.className = 'l';
         l.textContent = ch;
+        l.dataset.c = ch; // the stroke → fill reveal draws the ink as a copy of this glyph (::after)
         l.style.setProperty('--d', (n * MOTION.STROKE_STAGGER) / 1000 + 's'); // stroke stagger
         l.style.setProperty('--f', (n * MOTION.FILL_STAGGER) / 1000 + 's'); // fill stagger
         n++;
@@ -1163,6 +1164,11 @@
         { rootMargin: '120px' },
       )
     : null;
+
+  // once a letter's ink copy (::after) has faded out, drop it, so finished headings carry no duplicate text to lay out while they morph
+  document.addEventListener('transitionend', (e) => {
+    if (e.pseudoElement === '::after' && e.propertyName === 'opacity' && e.target.classList && e.target.classList.contains('l')) e.target.classList.add('d');
+  });
 
   // stroke → fill reveal the first time a heading scrolls into view
   const revealObserver = new IntersectionObserver(

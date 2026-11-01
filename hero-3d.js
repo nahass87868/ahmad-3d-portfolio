@@ -42,7 +42,7 @@
     // ── region the 3D lives in (under the name) ──
     REGION_H_WIDE: 'clamp(300px, 50svh, 540px)',
     REGION_H_NARROW: 'clamp(230px, 34svh, 330px)',
-    FILL_W: 0.86, FILL_H: 0.74, // how much of the region the cluster may use (the rest is room for tilt and pull)
+    FILL_W: 0.86, FILL_H: 0.80, // how much of the region the cluster may use (the rest is room for tilt and pull). The camera now frames the real silhouettes, so 0.80 gives the same on-screen size the old 0.74 did
 
     // ── motion: values from your prototype ──
     PULL: 0.3, // how far a letter is pulled toward the cursor (share of the distance). Higher = stronger.
@@ -51,8 +51,16 @@
     LIFT: 0.22, TILT: 0.75, EASE: 0.07, // forward lift, turn toward the cursor, and how smoothly both follow
     FLOAT_Y: 0.012, FLOAT_ROLL: 0.03, // idle float
     THICK: 1, // thickness multiplier. 1 = the modelled depth (the 2026 model is already chunky). 0.7 gives the old, slimmer look
+    // ── colliders: built from each letter's real silhouette, so any model collides with its true shape ──
+    COLLIDER_CELL: 0.012, // size of one silhouette sample, in world units (0.012 = 4.5 px on the 1200 px reference). Smaller = more exact but slower to build (0.008 is ~1.5x the time)
+    COLLIDER_GROW: 1.08, // 1 = circles sit exactly inside the letter (corners can poke out a little); >1 pads them so corners are covered too. Below 1 lets letters visibly sink into each other
+    COLLIDER_COVER: 0.97, // stop adding circles once this share of the letter's area is covered
+    COLLIDER_MAX: 12, // at most this many circles per letter
+    COLLIDER_MIN_R: 0.022, // never make a circle smaller than this (world units)
     IDLE_FPS: 30, // when only the slow idle float is moving, draw this many frames per second. The float drifts ~2 px, so 30 looks identical to 60 at half the GPU cost. 60 = no throttle
     RELAX_PASSES: 300, // on load, overlapping letters are pushed until they just touch
+    RELAX_HOME: 0.02, // while pushing, each letter is also pulled this share of the way back to the position you composed, every pass. Keeps the layout the nearest non-overlapping one to yours. 0 = push only
+    RELAX_FINISH: 80, // the last passes are pure collision (no pull-back), so the settled layout never overlaps
 
     // ── ring ──
     OPEN_DIST: 0.42, OPEN_HOLD: 300, // ring opens within this distance of a letter (world units) and stays open this long (ms)
@@ -312,6 +320,84 @@ html .hero .px .w:last-of-type { text-align: center; }
 
     const d2r = Math.PI / 180;
     const P = [], wires = [];
+
+    /* Colliders from the letter's real shape. The letter is projected onto the screen plane in its rest pose (same
+       rotation order and scale as the scene), filled into a grid, holes closed (nothing slots into a counter), and covered
+       with the largest inscribed circles first (medial-axis cover). Returns circles as [x, y, r] in the units circ() expects,
+       plus the silhouette's bounding box. */
+    function fitColliders(geo, f) {
+      const pos = geo.attributes.position.array, idx = geo.index.array;
+      const el = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(f.r[0] * d2r, f.r[1] * d2r, f.r[2] * d2r, 'YXZ')).elements;
+      const n = pos.length / 3, X = new Float32Array(n), Y = new Float32Array(n);
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (let i = 0; i < n; i++) {
+        const vx = pos[i * 3], vy = pos[i * 3 + 1], vz = pos[i * 3 + 2];
+        X[i] = f.s * (el[0] * vx + el[4] * vy + el[8] * vz); Y[i] = f.s * (el[1] * vx + el[5] * vy + el[9] * vz);
+        x0 = Math.min(x0, X[i]); x1 = Math.max(x1, X[i]); y0 = Math.min(y0, Y[i]); y1 = Math.max(y1, Y[i]);
+      }
+      const cell = T.COLLIDER_CELL, gw = Math.ceil((x1 - x0) / cell) + 4, gh = Math.ceil((y1 - y0) / cell) + 4;
+      const u = (x) => (x - x0) / cell + 2, v = (y) => (y - y0) / cell + 2; // grid coordinates, 2 cells of padding
+      const grid = new Uint8Array(gw * gh);
+      for (let t = 0; t < idx.length; t += 3) { // fill the projected front faces (a closed mesh's silhouette is the union of them; side walls a tilt reveals are front faces too)
+        const a = idx[t], b = idx[t + 1], c = idx[t + 2];
+        const ax = u(X[a]), ay = v(Y[a]), bx = u(X[b]), by = v(Y[b]), cx = u(X[c]), cy = v(Y[c]);
+        const den = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
+        if (den < -1e-9) continue; // back face
+        const i0 = Math.max(0, Math.floor(Math.min(ax, bx, cx))), i1 = Math.min(gw - 1, Math.ceil(Math.max(ax, bx, cx)));
+        const j0 = Math.max(0, Math.floor(Math.min(ay, by, cy))), j1 = Math.min(gh - 1, Math.ceil(Math.max(ay, by, cy)));
+        if (den < 1e-9) { for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) grid[j * gw + i] = 1; continue; } // edge-on sliver: mark its cells
+        const a1 = (by - cy) / den, b1 = (cx - bx) / den, c1 = -(a1 * cx + b1 * cy); // barycentric weights are linear in the cell centre
+        const a2 = (cy - ay) / den, b2 = (ax - cx) / den, c2 = -(a2 * cx + b2 * cy);
+        for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+          const px = i + 0.5, py = j + 0.5, w1 = a1 * px + b1 * py + c1, w2 = a2 * px + b2 * py + c2;
+          if (w1 >= -0.05 && w2 >= -0.05 && 1 - w1 - w2 >= -0.05) grid[j * gw + i] = 1; // a little slack so thin walls never leave gaps
+        }
+      }
+      // close holes: whatever the outside cannot reach is part of the letter. (The grid has 2 cells of padding, so cell 0 is outside.)
+      const N = gw * gh, out = new Uint8Array(N), stack = new Int32Array(N);
+      let sp = 0; stack[sp++] = 0; out[0] = 1;
+      while (sp) {
+        const q = stack[--sp], qi = q % gw;
+        if (qi > 0 && !out[q - 1] && !grid[q - 1]) { out[q - 1] = 1; stack[sp++] = q - 1; }
+        if (qi < gw - 1 && !out[q + 1] && !grid[q + 1]) { out[q + 1] = 1; stack[sp++] = q + 1; }
+        if (q >= gw && !out[q - gw] && !grid[q - gw]) { out[q - gw] = 1; stack[sp++] = q - gw; }
+        if (q < N - gw && !out[q + gw] && !grid[q + gw]) { out[q + gw] = 1; stack[sp++] = q + gw; }
+      }
+      let area = 0;
+      const shape = [];
+      for (let q = 0; q < N; q++) if (!out[q]) { grid[q] = 1; area++; shape.push(q); }
+      // distance to the outside (two-pass chamfer, in cells). Border cells are outside, so the loops can skip them.
+      const dt = new Float32Array(N);
+      for (let q = 0; q < N; q++) dt[q] = grid[q] ? 1e6 : 0;
+      const D = 1.4142;
+      for (let j = 1; j < gh - 1; j++) for (let i = 1; i < gw - 1; i++) {
+        const q = j * gw + i;
+        if (dt[q]) dt[q] = Math.min(dt[q], dt[q - 1] + 1, dt[q - gw] + 1, dt[q - gw - 1] + D, dt[q - gw + 1] + D);
+      }
+      for (let j = gh - 2; j >= 1; j--) for (let i = gw - 2; i >= 1; i--) {
+        const q = j * gw + i;
+        if (dt[q]) dt[q] = Math.min(dt[q], dt[q + 1] + 1, dt[q + gw] + 1, dt[q + gw + 1] + D, dt[q + gw - 1] + D);
+      }
+      // largest circle first; each one covers the cells inside it; stop when enough of the letter is covered
+      shape.sort((m, n) => dt[n] - dt[m]); // candidate centres, deepest first (one sort, then a single pass over the list)
+      const covered = new Uint8Array(N), c = Math.max(0.2, Math.abs(Math.cos(f.r[1] * d2r)));
+      const k = []; let left = area, next = 0;
+      while (k.length < T.COLLIDER_MAX && left > area * (1 - T.COLLIDER_COVER)) {
+        while (next < shape.length && covered[shape[next]]) next++;
+        if (next >= shape.length) break;
+        const best = shape[next], bd = dt[best], r = (bd - 0.5) * cell * T.COLLIDER_GROW;
+        if (r < T.COLLIDER_MIN_R) break;
+        const bi = best % gw, bj = (best - bi) / gw, rc = r / cell + 0.5;
+        for (let j = Math.max(0, Math.floor(bj - rc)); j <= Math.min(gh - 1, Math.ceil(bj + rc)); j++) for (let i = Math.max(0, Math.floor(bi - rc)); i <= Math.min(gw - 1, Math.ceil(bi + rc)); i++) {
+          const q = j * gw + i;
+          if (!covered[q] && (i - bi) * (i - bi) + (j - bj) * (j - bj) <= rc * rc) { covered[q] = 1; if (grid[q]) left--; }
+        }
+        const wx = x0 + (bi - 2 + 0.5) * cell, wy = y0 + (bj - 2 + 0.5) * cell;
+        k.push([wx / (f.s * c), wy / f.s, r / f.s]); // back into the "letter units" circ() multiplies by scale and cos(ry)
+      }
+      if (!k.length) throw new Error('no circles');
+      return { k, bb: [x0, x1, y0, y1] };
+    }
     LETTERS.forEach((f, i) => {
       const geo = geos[i];
       geo.scale(1, T.THICK, 1); geo.rotateX(Math.PI / 2); geo.center(); // chunkier, stand upright (letter up was -Z), pivot at its centre
@@ -320,21 +406,36 @@ html .hero .px .w:last-of-type { text-align: center; }
       wire.renderOrder = 1; wires.push(wire);
       const grp = new THREE.Group();
       grp.add(solid, wire);
+      let fit = null;
+      try { fit = fitColliders(geo, f); } catch (err) { console.warn('[hero-3d] colliders for letter ' + i + ' fell back to the table:', err.message); }
+      const kk = fit ? fit.k : f.k;
       const x = (f.p[0] - 600) / REF_SCALE, y = (450 - f.p[1]) / REF_SCALE;
       grp.scale.setScalar(f.s);
       grp.rotation.set(f.r[0] * d2r, f.r[1] * d2r, f.r[2] * d2r, 'YXZ');
       scene.add(grp);
       P.push({ g: grp, pos: new THREE.Vector2(x, y), home: new THREE.Vector2(x, y), vel: new THREE.Vector2(), r: grp.rotation.clone(),
-        ry: f.r[1] * d2r, s: f.s, k: f.k, cc: new Float64Array(f.k.length * 3), inf: 0, ro: new THREE.Vector3(), z: 0 });
+        ry: f.r[1] * d2r, s: f.s, k: kk, cc: new Float64Array(kk.length * 3), bb: fit ? fit.bb : null, inf: 0, ro: new THREE.Vector3(), z: 0 });
     });
 
     /* ── 2D collision physics in the screen plane (circle colliders), straight from the prototype ── */
     // circles are written in place as flat [x, y, r, x, y, r, ...] (no allocation: arrays built per pass caused GC stutter on phones)
-    const circ = (p) => { const c = Math.cos(p.ry), o = p.cc; for (let i = 0; i < p.k.length; i++) { const k = p.k[i]; o[i * 3] = p.pos.x + k[0] * p.s * c; o[i * 3 + 1] = p.pos.y + k[1] * p.s; o[i * 3 + 2] = k[2] * p.s; } return o; };
+    // it also records the letter's reach (br) from where it stood when the circles were built (cx, cy): collide() skips pairs too far apart to touch
+    const circ = (p) => {
+      const c = Math.cos(p.ry), o = p.cc; let br = 0;
+      for (let i = 0; i < p.k.length; i++) {
+        const k = p.k[i], ox = k[0] * p.s * c, oy = k[1] * p.s, r = k[2] * p.s;
+        o[i * 3] = p.pos.x + ox; o[i * 3 + 1] = p.pos.y + oy; o[i * 3 + 2] = r;
+        br = Math.max(br, Math.sqrt(ox * ox + oy * oy) + r);
+      }
+      p.br = br; p.cx = p.pos.x; p.cy = p.pos.y;
+      return o;
+    };
     function collide(vel) {
       for (let i = 0; i < P.length; i++) circ(P[i]); // circles built once per pass
       for (let a = 0; a < P.length; a++) for (let b = a + 1; b < P.length; b++) {
         const A = P[a], B = P[b], ca = A.cc, cb = B.cc;
+        const px = B.cx - A.cx, py = B.cy - A.cy, reach = A.br + B.br + 0.006;
+        if (px * px + py * py > reach * reach) continue; // too far apart for any of their circles to touch
         for (let ui = 0; ui < ca.length; ui += 3) for (let vi = 0; vi < cb.length; vi += 3) {
           let dx = cb[vi] - ca[ui], dy = cb[vi + 1] - ca[ui + 1], d = Math.hypot(dx, dy);
           const m = ca[ui + 2] + cb[vi + 2] + 0.006;
@@ -350,12 +451,21 @@ html .hero .px .w:last-of-type { text-align: center; }
         }
       }
     }
-    for (let i = 0; i < T.RELAX_PASSES; i++) collide(false); // overlaps from the reference image become "just touching"
+    // overlaps from the reference image are pushed apart until letters just touch; the weak pull-back keeps every letter as close to its composed position as it can be
+    const ref = P.map((p) => p.pos.clone());
+    for (let i = 0; i < T.RELAX_PASSES; i++) {
+      collide(false);
+      if (i < T.RELAX_PASSES - T.RELAX_FINISH) P.forEach((p, n) => { p.pos.x += (ref[n].x - p.pos.x) * T.RELAX_HOME; p.pos.y += (ref[n].y - p.pos.y) * T.RELAX_HOME; });
+    }
     P.forEach((p) => p.home.copy(p.pos));
 
     // bounds of the settled cluster (from the colliders), used to fit the camera to any region shape
     let bx0 = 1e9, bx1 = -1e9, by0 = 1e9, by1 = -1e9;
-    P.forEach((p) => { const c = circ(p); for (let i = 0; i < c.length; i += 3) { const x = c[i], y = c[i + 1], r = c[i + 2]; bx0 = Math.min(bx0, x - r); bx1 = Math.max(bx1, x + r); by0 = Math.min(by0, y - r); by1 = Math.max(by1, y + r); } });
+    P.forEach((p) => {
+      const c = circ(p);
+      for (let i = 0; i < c.length; i += 3) { const x = c[i], y = c[i + 1], r = c[i + 2]; bx0 = Math.min(bx0, x - r); bx1 = Math.max(bx1, x + r); by0 = Math.min(by0, y - r); by1 = Math.max(by1, y + r); }
+      if (p.bb) { bx0 = Math.min(bx0, p.pos.x + p.bb[0]); bx1 = Math.max(bx1, p.pos.x + p.bb[1]); by0 = Math.min(by0, p.pos.y + p.bb[2]); by1 = Math.max(by1, p.pos.y + p.bb[3]); }
+    });
     const cw = bx1 - bx0, ch = by1 - by0, ccx = (bx0 + bx1) / 2, ccy = (by0 + by1) / 2;
 
     /* ── colours follow your mode + scheme: clay picks up a little of the accent ── */

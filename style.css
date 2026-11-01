@@ -231,32 +231,56 @@ button {
 }
 
 /* ── stroke → fill reveal ─────────────────────────────────────────────────
- * 1. .stroke  outline draws in (colour fades from transparent), staggered by --d
- * 2. .on      ink wipes up through the outline (background-size 0 → 100%), staggered by --f
- * 3. once the wipe has finished, the fill colour takes over and the outline is dropped so the
- *    glyph doesn't look heavier than its neighbours                                          */
+ * 1. .stroke  the outline fades in (stroke COLOUR only: its width never changes), staggered by --d
+ * 2. .on      ink rises INSIDE the outline. The ink is a copy of the glyph (::after, its text comes from data-c) revealed from
+ *             the bottom with a clip-path wipe, staggered by --f. The outline stays visible the whole time: nothing disappears.
+ * 3. when a letter's wipe ends the real glyph takes the ink colour (instantly, exactly under the copy), the copy is hidden
+ *    50 ms later, and the outline fades out: it only existed to draw the shape.
+ * No background-clip:text and no stroke-width change anywhere: the first repainted every letter on every frame of the wipe,
+ * and Chrome does not transition the second, which is what used to make the text vanish between outline and fill.        */
 .st .l {
+  position: relative;
   color: transparent;
-  background: linear-gradient(var(--ink), var(--ink)) 0 100% / 100% 0% no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-stroke: 1.4px transparent;
+  transition: -webkit-text-stroke-color 0.8s ease var(--d, 0s);
+}
+.st .l:after {
+  content: attr(data-c);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--ink);
+  white-space: nowrap;
+  pointer-events: none;
+  /* nothing visible: the top edge starts at the bottom of the box. Bottom/side margins leave room for the glyph's overshoot */
+  clip-path: inset(100% -0.3em 0 -0.3em);
   transition:
-    background-size 0.85s var(--ease-in-out) var(--f, 0s),
-    -webkit-text-stroke-color 0.8s ease var(--d, 0s),
-    color 0s linear calc(var(--f, 0s) + 0.85s),
-    -webkit-text-stroke-width 0.01s linear calc(var(--f, 0s) + 0.9s);
+    clip-path 0.85s var(--ease-in-out) var(--f, 0s),
+    opacity 0.01s linear calc(var(--f, 0s) + 0.9s);
 }
 .st.stroke .l {
   -webkit-text-stroke-color: var(--ink);
 }
 .st.on .l {
   color: var(--ink);
-  background-size: 100% 100%;
-  -webkit-text-stroke-width: 0;
+  -webkit-text-stroke-color: transparent;
+  transition:
+    color 0s linear calc(var(--f, 0s) + 0.85s),
+    -webkit-text-stroke-color 0.4s ease calc(var(--f, 0s) + 0.85s);
 }
-.snap .l {
+.st.on .l:after {
+  clip-path: inset(0 -0.3em -0.3em -0.3em);
+  opacity: 0;
+}
+.st .l.d:after {
+  display: none; /* set by script.js once the copy has faded: a finished heading carries no extra text */
+}
+.snap .l,
+.snap .l:after {
   transition: none !important;
+}
+.snap .l:after {
+  display: none; /* skipped/instant: the glyph is already final, so the ink copy is not needed */
 }
 
 /* ── hero tagline: typed in after the name fills ──────────────────────── */
@@ -1747,6 +1771,9 @@ html.panel-open #cl {
     transition-duration: 0.2s !important;
     transition-delay: 0s !important;
   }
+  html:not(.mfull) .st .l:after {
+    display: none; /* reduced motion: no wipe, the glyph just takes its colour */
+  }
 }
 
 /* ═══════════ a11y ═══════════ */
@@ -1763,6 +1790,9 @@ html.panel-open #cl {
   .st .l {
     color: CanvasText !important;
     -webkit-text-stroke: 0 !important;
+  }
+  .st .l:after {
+    display: none !important;
   }
 }
 
@@ -1902,6 +1932,10 @@ html:not([data-vp='ren']) .vph {
 .vp-off .st .l {
   color: var(--ink) !important;
   -webkit-text-stroke-width: 0 !important;
+}
+.vp-off .st .l:after,
+html[data-vp='wire'] .st .l:after {
+  display: none !important;
 }
 .vp-off .hero .px:before,
 .vp-off .hero .px:after {
