@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /*
  * hero-3d.js — isolated add-on. It never edits script.js, style.css, extras.js, fixes.js or about-photo.js.
  * It only ADDS: one <style>, one <div> inside the hero (canvas + ghost text), and one ring <div>. Nothing existing is renamed or removed.
@@ -9,7 +10,7 @@
  * Flag off, no WebGL, Data Saver on, or the 3D files failing to load: none of the new CSS is applied,
  * so the hero is exactly the hero you had before. Every one of those cases says why in the console.
  *
- * Files it uses: vendor/three.min.js (three r128) and hero-3d-model.js (your portfolio.glb, baked by tools/build-hero-model.py, as base64 text,
+ * Files it uses: hero-3d-model.js (your portfolio.glb, baked by tools/build-hero-model.py, as base64 text,
  * so it also works when you open index.html straight from disk).
  */
 (() => {
@@ -18,13 +19,16 @@
   /* ══════════════════════════════════════════════════════════════════════════
      FLAGS
      ══════════════════════════════════════════════════════════════════════════ */
+  // main.js creates window.__hero3dReady before this module loads, so the loading curtain can wait for the 3D.
+  // Every path that ends WITHOUT a running scene must resolve it too, or the curtain would wait for its full time cap.
+  const resolveReady = window.__hero3dResolve || (() => {});
+
   const HERO3D = {
     enabled: true, // MASTER SWITCH. false = this file does nothing at all.
     layout: true, // name on one line, hairlines hidden, 3D cluster under the name. false = 3D only, hero layout untouched.
     pull: true, // desktop: the cluster is pulled toward the cursor
     portal: true, // the ring that reveals the mesh
     touchHold: true, // phones: press and hold on the 3D area, then drag, to move the ring
-    three: 'vendor/three.min.js',
     model: 'hero-3d-model.js',
   };
 
@@ -50,6 +54,8 @@
     K: 60, C: 8.5, // spring stiffness and damping of the letters
     LIFT: 0.22, TILT: 0.75, EASE: 0.07, // forward lift, turn toward the cursor, and how smoothly both follow
     FLOAT_Y: 0.012, FLOAT_ROLL: 0.03, // idle float
+    // ── lights and exposure: fitted so three 0.186 (physical light units) renders the same as the old r128 look. Scale together to brighten or darken ──
+    LIGHT_HEMI: 1.283, LIGHT_KEY: 2.923, LIGHT_RIM: 1.011, EXPOSURE: 1.513,
     THICK: 1, // thickness multiplier. 1 = the modelled depth (the 2026 model is already chunky). 0.7 gives the old, slimmer look
     // ── colliders: built from each letter's real silhouette, so any model collides with its true shape ──
     COLLIDER_CELL: 0.012, // size of one silhouette sample, in world units (0.012 = 4.5 px on the 1200 px reference). Smaller = more exact but slower to build (0.008 is ~1.5x the time)
@@ -97,7 +103,7 @@
   ];
   const REF_SCALE = 375; // reference px per world unit (the 1200x900 image is 3.2 x 2.4 units)
 
-  if (!HERO3D.enabled) return;
+  if (!HERO3D.enabled) { resolveReady(); return; }
   const debug = new URLSearchParams(location.search).get('debug') === '1';
   const status = { state: 'starting', reason: '' };
   window.__hero3d = status;
@@ -127,12 +133,12 @@
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   /* Bail out before touching anything if the 3D cannot work: the site stays exactly as it was. */
-  if (navigator.connection && navigator.connection.saveData) { note('skipped', 'Data Saver is on'); return; }
+  if (navigator.connection && navigator.connection.saveData) { note('skipped', 'Data Saver is on'); resolveReady(); return; }
   try {
     const c = document.createElement('canvas');
-    if (!c.getContext('webgl')) { note('skipped', 'WebGL is not available in this browser'); return; }
+    if (!c.getContext('webgl')) { note('skipped', 'WebGL is not available in this browser'); resolveReady(); return; }
   } catch (e) {
-    note('skipped', 'WebGL check threw: ' + e.message);
+    note('skipped', 'WebGL check threw: ' + e.message); resolveReady();
     return;
   }
 
@@ -277,16 +283,17 @@ html .hero .px .w:last-of-type { text-align: center; }
     const hint = q('.x-h3d-hint', region);
     const cur = q('#cur');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    THREE.ColorManagement.enabled = false; // keeps r128-style colour so the hero looks exactly as before (set before any colour is made)
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = T.EXPOSURE;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(T.FOV, 1, 0.1, 50);
 
     // lights exactly as in the prototype
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x303040, 0.6));
-    const key = new THREE.DirectionalLight(0xffffff, 1.2); key.position.set(-2, 3, 4); scene.add(key);
-    const rim = new THREE.DirectionalLight(0xffffff, 0.4); rim.position.set(3, -1, 2); scene.add(rim);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x303040, T.LIGHT_HEMI));
+    const key = new THREE.DirectionalLight(0xffffff, T.LIGHT_KEY); key.position.set(-2, 3, 4); scene.add(key);
+    const rim = new THREE.DirectionalLight(0xffffff, T.LIGHT_RIM); rim.position.set(3, -1, 2); scene.add(rim);
 
     /* ── read the model: plain positions + normals + indices, so no loader library is needed ── */
     function parseGLB(buf) {
@@ -664,19 +671,17 @@ html .hero .px .w:last-of-type { text-align: center; }
      start
      ══════════════════════════════════════════════════════════════════════════ */
   // premium.js waits on this (capped) so the curtain lifts when the 3D is ready, not before
-  let ready3d;
-  window.__hero3dReady = new Promise((r) => { ready3d = r; });
+    const ready3d = resolveReady;
   whenReady('.hero .hmeta', () => {
     const hero = q('.hero');
     if (!hero) { ready3d(); return; }
     mountDom(hero); // layout is in place before the intro curtain lifts, so nothing jumps
     watchName(hero);
-    loadScript(HERO3D.three)
-      .then(() => loadScript(HERO3D.model))
+    loadScript(HERO3D.model)
       .then(() => {
-        if (!window.THREE || !window.__HERO3D_GLB__) throw new Error('3D files missing');
+        if (!window.__HERO3D_GLB__) throw new Error('3D files missing');
         try {
-          run(window.THREE);
+          run(THREE);
           note('running', '');
         } catch (err) {
           teardown('startup error: ' + (err && err.message));
@@ -684,7 +689,7 @@ html .hero .px .w:last-of-type { text-align: center; }
         ready3d();
       })
       .catch((err) => {
-        teardown('files did not load (' + (err && err.message) + '). Check that vendor/three.min.js and hero-3d-model.js are uploaded');
+        teardown('files did not load (' + (err && err.message) + '). Check that hero-3d-model.js is uploaded');
         ready3d();
       });
   });
