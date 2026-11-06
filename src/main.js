@@ -2,7 +2,7 @@
  * The modern layer. Features are written here as ES modules (three, GSAP, Lenis ... imported from npm) and loaded lazily,
  * so the page's first load does not grow. Type  __BUILD__  in the browser console to see which build you are looking at.
  */
-window.__BUILD__ = { tool: 'vite', phase: 2 };
+window.__BUILD__ = { tool: 'vite', phase: 3 };
 
 // The loading curtain (premium.js) waits on this while the 3D loads. It must exist BEFORE the hero chunk arrives, and it is
 // resolved by the hero when the scene runs or when it decides to skip (no WebGL, Data Saver, ...).
