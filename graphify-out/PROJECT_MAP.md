@@ -10,24 +10,25 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
-| `index.html` | 5 KB | 62 |
+| `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 21 |
 | `polish.js` | 20 KB | 322 |
 | `premium.css` | 6 KB | 96 |
 | `premium.js` | 21 KB | 355 |
-| `script.js` | 95 KB | 2412 |
+| `script.js` | 85 KB | 2183 |
 | `style.css` | 48 KB | 2151 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 41 |
+| `content/works.js` | 10 KB | 235 |
 | `src/main.js` | 1 KB | 18 |
 | `src/hero/hero-3d.js` | 45 KB | 697 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
-| `tools/build-site.mjs` | 4 KB | 53 |
+| `tools/build-site.mjs` | 7 KB | 77 |
 | `tools/graph-map.py` | 11 KB | 142 |
 
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
 
-Published folders (copied byte for byte, never graphed): `images/` (142 files, 79.1 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (3 files, 720 KB)
+Published folders (copied byte for byte, never graphed): `images/` (142 files, 77.3 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (3 files, 720 KB)
 Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modules/`, `graphify-out/`.
 
 ## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)
@@ -37,12 +38,13 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 3. `vendor/gsap.min.js`  (defer)
 4. `vendor/ScrollTrigger.min.js`  (defer)
 5. `premium.js`  (defer)
-6. `script.js`  (blocking)
-7. `extras.js`  (defer)
-8. `fixes.js`  (defer)
-9. `about-photo.js`  (defer)
-10. `polish.js`  (defer)
-11. `src/main.js`  (module)
+6. `content/works.js`  (blocking)
+7. `script.js`  (blocking)
+8. `extras.js`  (defer)
+9. `fixes.js`  (defer)
+10. `about-photo.js`  (defer)
+11. `polish.js`  (defer)
+12. `src/main.js`  (module)
 
 ## window.* globals between scripts (a curtain/hero bug hid here once: check before changing any of these)
 
@@ -50,11 +52,12 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 |---|---|---|
 | `window.__BUILD__` | src/main.js:5 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:316, src/hero/hero-3d.js:682 |
+| `window.__WORKS__` | content/works.js:6 | script.js:124, tools/build-site.mjs:37 |
 | `window.__hero3d` | src/hero/hero-3d.js:109 | - |
 | `window.__hero3dReady` | src/main.js:10 | premium.js:103, premium.js:106, src/hero/hero-3d.js:22 |
 | `window.__hero3dResolve` | src/main.js:11 | src/hero/hero-3d.js:24 |
 
-## Projects (source of truth: `WORKS` in script.js)
+## Projects (source of truth: `content/works.js`, read by script.js and by the build)
 
 | # | slug | title | category | images | videos | breakdown trio | model in models-src (name match) |
 |---|---|---|---|---|---|---|---|
@@ -87,5 +90,5 @@ Model file names do not equal slugs (e.g. `asus.glb`): the match above is by con
 
 ## Build
 
-`npm run build` -> `tools/build-site.mjs`: Vite builds `src/main.js` (+ lazy chunks, e.g. three.js) into `.build/modules`; the legacy files are copied to `dist/` and verified byte-identical; `.github/workflows/deploy.yml` publishes `dist/` to GitHub Pages on push to main.
+`npm run build` -> `tools/build-site.mjs`: Vite builds `src/main.js` (+ lazy chunks, e.g. three.js) into `.build/modules`; the legacy files are copied to `dist/` and verified byte-identical; the build also writes one share-card page per project (`work/<slug>/`) and a no-JS project list into `index.html`, reading `content/works.js`; `og/<slug>.jpg` are their preview images; `.jpg` masters in `images/` are not published. `.github/workflows/deploy.yml` publishes `dist/` to GitHub Pages on push to main.
 Rollback options: Pages source -> branch `legacy`; or GitHub Desktop: History -> Revert this commit.

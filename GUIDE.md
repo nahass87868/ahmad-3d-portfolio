@@ -1,37 +1,30 @@
-# Phase 2 guide: modern three.js (no visible change)
+# Phase 3 guide: project data file, share cards, no-JS list
 
-**What this does:** the 3D hero now runs on a current three.js (0.186.1, pinned) instead of the 2021 version. It looks the same and behaves the same.
-It is the foundation for every later phase (live work planes, turntable, smooth scroll), which all need one modern three.js.
-The hero code now lives in `src/hero/`; three.js loads as its own lazy file so it never delays the page.
+**What changes for visitors:** nothing visible on the site. Links you share now show each project's own preview, and visitors without JavaScript (and search engines) see a real project list.
+**What changes for you:** the project list now lives in one file, `content/works.js`. The published site is also smaller (145 MB to 87 MB) because the `.jpg` masters are no longer published. They stay in your repo.
 
 ## Step 1: copy the files in
-1. Unzip `phase2.zip` and copy everything inside it into your clone folder (`D:\my prtflio\git-clone\ahmad-3d-portfolio`). Choose **Replace** when asked.
-2. **Delete two files** from the clone folder (they are replaced and no longer used):
-   - `hero-3d.js` (in the main folder: it moved to `src\hero\hero-3d.js`)
-   - `vendor\three.min.js` (the old three.js, 603 KB)
+Unzip `phase3.zip` and copy everything into your clone folder. Choose **Replace** for `index.html` and `script.js`. No new `npm install` is needed.
 
-## Step 2: check it on your PC
+## Step 2: check it
 In Git Bash, in the clone folder:
 ```
-npm install
 npm run build
 npm run preview
 ```
-- `npm install` downloads three.js (once).
-- `npm run build` must end with a line starting **OK** (it should say 167 files).
-- `npm run preview` prints an address like `http://localhost:4173/`. Open it: the hero should look exactly as before. Press `Ctrl+C` to stop.
+`npm run build` must end with **OK**, saying about **131 files** and **16 share-card pages**. Open the preview address and check the site looks and works as before.
 
 ## Step 3: commit and push
-GitHub Desktop should show 8 changed files and 2 deleted files. Summary: `Phase 2: modern three.js`. **Commit to main**, then **Push origin**. Watch **Actions** for the green tick.
+GitHub Desktop: summary `Phase 3: project data file, share cards, no-JS list` -> **Commit to main** -> **Push origin**. Watch **Actions** for the green tick.
 
-## Step 4: check the live site
-1. `Ctrl+F5`, then in the console (`F12`) type `__BUILD__`: it should show `phase: 2`.
-2. Compare the hero with how it looked before: shading, the letters, the ring when you hover.
-3. Check your phone. If you can, also try Safari on any Apple device and tell me how the hero looks.
+## Step 4: check it live
+1. The site looks the same. Open a project, then close it.
+2. Open `https://nahass87868.github.io/ahmad-3d-portfolio/work/realistic-ice/`: it should send you straight to that project.
+3. Share that same link on Telegram: it should show the project's title and image. Telegram caches old previews. If it shows the generic card, ask the bot `@WebpageBot` to refresh the link.
+4. No-JS check: in the browser press `F12`, open the three-dot menu, then Settings and "Disable JavaScript", and reload: you should see your name and a list of the 16 projects.
+
+## Adding or editing a project later
+Edit `content/works.js`. For a new project, also add a 1200x630 preview image named `og/<slug>.jpg` (without it the build still works, with a warning, and that project shares without an image).
 
 ## If anything goes wrong
-- **Quickest:** GitHub Desktop → **History** → right-click the Phase 2 commit → **Revert this commit** → **Push origin**. That restores Phase 1.
-- **Or:** Settings → Pages → Source: **Deploy from a branch** → `legacy` → `/ (root)`.
-
-## Tuning
-All hero numbers are at the top of `src/hero/hero-3d.js`. The lights and exposure are `LIGHT_HEMI`, `LIGHT_KEY`, `LIGHT_RIM` and `EXPOSURE`. They were fitted to match the old look, so scale them together to brighten or darken.
+GitHub Desktop -> **History** -> right-click the Phase 3 commit -> **Revert this commit** -> **Push origin**. That restores Phase 2.

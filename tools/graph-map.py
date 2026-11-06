@@ -121,11 +121,11 @@ for e in sorted([e for e in edges if e['relation'] == 'loads'], key=lambda e: e[
 M += ['', '## window.* globals between scripts (a curtain/hero bug hid here once: check before changing any of these)', '', '| global | set in | read in |', '|---|---|---|']
 for g, d in sorted(W.items()): M.append(f"| `window.{g}` | {', '.join(sorted({f'{p}:{i}' for p, i in d['set']})) or '-'} | {', '.join(sorted({f'{p}:{i}' for p, i in d['read']})) or '-'} |")
 # project table
-sj = open('script.js', encoding='utf8').read(); works = sj[sj.index('const WORKS = ['):sj.index('const PRIVACY')]
+works = open('content/works.js', encoding='utf8').read()
 bd = set(os.listdir('images/projects-breakdown')) if os.path.isdir('images/projects-breakdown') else set()
 mods = sorted(os.listdir('models-src')) if os.path.isdir('models-src') else []
 ALIAS = {'2026-looks.glb': '2026-modes-looks'}  # model files whose names do not contain the slug (confirmed by the owner's naming)
-M += ['', '## Projects (source of truth: `WORKS` in script.js)', '', '| # | slug | title | category | images | videos | breakdown trio | model in models-src (name match) |', '|---|---|---|---|---|---|---|---|']
+M += ['', '## Projects (source of truth: `content/works.js`, read by script.js and by the build)', '', '| # | slug | title | category | images | videos | breakdown trio | model in models-src (name match) |', '|---|---|---|---|---|---|---|---|']
 for k, b in enumerate([x for x in re.split(r"(?=slug: ')", works) if x.startswith("slug: '")], 1):
     s = re.match(r"slug: '([^']+)'", b).group(1); g = lambda r: (re.search(r, b) or [None, '?'])[1]
     ni = len(re.findall(r"'[^']+'", (re.search(r"images: \[(.*?)\]", b, re.S) or [0, ''])[1])); nv = len(re.findall(r"'[^']+'", (re.search(r"videos: \[(.*?)\]", b, re.S) or [0, ''])[1]))
@@ -137,6 +137,6 @@ M += ['## Tunables (top of each module)', '']
 for p in ('src/hero/hero-3d.js', 'script.js', 'extras.js', 'polish.js', 'premium.js'):
     t = re.search(r"(?:const|let) (?:T|MOTION|TUNE|POLISH|EXTRAS|PREMIUM)\s*=\s*\{(.*?)\n\s*\};", open(p, encoding='utf8').read(), re.S)
     if t: M.append(f"- `{p}`: " + ', '.join(sorted(set(re.findall(r"\n\s+([A-Z][A-Z0-9_]+):", t.group(0))))[:40]))
-M += ['', '## Build', '', '`npm run build` -> `tools/build-site.mjs`: Vite builds `src/main.js` (+ lazy chunks, e.g. three.js) into `.build/modules`; the legacy files are copied to `dist/` and verified byte-identical; `.github/workflows/deploy.yml` publishes `dist/` to GitHub Pages on push to main.',
+M += ['', '## Build', '', '`npm run build` -> `tools/build-site.mjs`: Vite builds `src/main.js` (+ lazy chunks, e.g. three.js) into `.build/modules`; the legacy files are copied to `dist/` and verified byte-identical; the build also writes one share-card page per project (`work/<slug>/`) and a no-JS project list into `index.html`, reading `content/works.js`; `og/<slug>.jpg` are their preview images; `.jpg` masters in `images/` are not published. `.github/workflows/deploy.yml` publishes `dist/` to GitHub Pages on push to main.',
       'Rollback options: Pages source -> branch `legacy`; or GitHub Desktop: History -> Revert this commit.']
 (OUT / 'PROJECT_MAP.md').write_text('\n'.join(M) + '\n', encoding='utf-8'); print('wrote graphify-out/PROJECT_MAP.md')
