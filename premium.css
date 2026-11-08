@@ -30,7 +30,7 @@ html:not(.js) #pre { display: none; }
 /* ═════════ Grid / Index toggle ═════════ */
 .x-view { margin-left: auto; display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
 .x-view button {
-  appearance: none; border: 0; background: none; color: var(--ink); cursor: pointer; touch-action: manipulation;
+  appearance: none; border: 0; background: none; color: var(--ink); cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   font: 500 13px/1 var(--font-sans); min-height: 36px; padding: 0 16px; border-radius: 999px;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.16s var(--ease-out);
 }
@@ -94,3 +94,15 @@ html:not(.panel-open) .x-cnt { opacity: 0; }
 @media (max-width: 720px) { .x-view { order: -1; margin-left: 0; } }
 /* touch: the button looks 36px; the invisible extension makes the tap target 44px without changing the row height */
 @media (pointer: coarse) { .x-view button { position: relative; } .x-view button:after { content: ''; position: absolute; inset: -4px 0; } }
+
+/* ═════════ landscape on a notched phone: keep the page and its fixed controls out of the notch and rounded corners ═════════
+   The 18px edge gutter would sit under the notch. These rules ADD the side inset to what is already there.
+   env() is 0 on every device without a cutout, so portrait, tablets and desktop are not changed by any of it. */
+html { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+header.nav { left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px); }
+#panel { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.skip, #pre .pt, #pre .pbar { margin-left: env(safe-area-inset-left, 0px); }
+.dock, #pre .pa, #pre .pbar { margin-right: env(safe-area-inset-right, 0px); }
+
+/* a downward pull at the top of the page must not trigger the browser's pull-to-refresh: it would reload and replay the intro */
+html { overscroll-behavior-y: contain; }

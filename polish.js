@@ -136,8 +136,8 @@ html #grid .tile .th img.cov { scale: var(--x-z, 1); }
   background: none; color: var(--ink); font: 400 16px/1 var(--font-sans); cursor: pointer; touch-action: manipulation; }
 .x-pop button:active { background: var(--line); }
 .x-pop button span { color: var(--mut); }
-.x-sheet { position: fixed; inset: 0; z-index: 58; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg);
-  padding: calc(46px + env(safe-area-inset-top, 0px) + 28px) 24px calc(28px + env(safe-area-inset-bottom, 0px));
+.x-sheet { position: fixed; inset: 0; z-index: 58; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg); overflow-y: auto; overscroll-behavior: contain;
+  padding: calc(46px + env(safe-area-inset-top, 0px) + 28px) max(24px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px));
   opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s .3s; }
 .x-sheet.open { opacity: 1; visibility: visible; transition: opacity .3s ease; }
 .x-sheet nav a { display: block; padding: 10px 0; font: 600 40px/1.15 var(--font-sans); letter-spacing: -.02em; text-decoration: none;
