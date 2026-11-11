@@ -538,6 +538,7 @@ html:not(.js) .dock {
 /* ═══════════ hero ═══════════ */
 .hero {
   position: relative;
+  min-height: 100vh; /* fallback for browsers without svh */
   min-height: 100svh; /* svh: the hero never overflows under the mobile URL bar */
   display: flex;
   flex-direction: column;

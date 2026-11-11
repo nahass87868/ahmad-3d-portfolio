@@ -300,6 +300,7 @@ html.x-menu-open { overflow: hidden; }
       sheet.classList.toggle('open', on); sheet.setAttribute('aria-hidden', String(!on)); root.classList.toggle('x-menu-open', on);
       menu.textContent = on ? 'Close' : 'Menu'; menu.setAttribute('aria-expanded', String(on));
       if (on) { setPop(false); const f = $('nav a', sheet); if (f) f.focus({ preventScroll: true }); }
+      else if (sheet.contains(document.activeElement)) menu.focus({ preventScroll: true }); // don't leave focus on a hidden link
     };
     app.addEventListener('click', () => { setMenu(false); setPop(!pop.classList.contains('open')); });
     menu.addEventListener('click', () => setMenu(!sheet.classList.contains('open')));

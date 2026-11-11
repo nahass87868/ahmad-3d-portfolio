@@ -149,58 +149,58 @@
 
   /** Source pixel size of each full image [width, height] — reserves space so the gallery doesn't jump while loading. */
   const IMAGE_SIZES = {
-    'realistic-ice-image-1': [1600, 1200],
-    'realistic-ice-image-2': [1600, 1200],
-    'soap-image-1': [1600, 1200],
-    'soap-image-2': [1600, 1200],
-    'soap-image-3': [1600, 900],
-    'soap-image-4': [1600, 1200],
-    'yerba-mate-image-1': [1600, 1200],
-    'yerba-mate-image-2': [1600, 1200],
-    'asus-image': [1600, 1200],
-    'real-water-glass-image-1': [1600, 1200],
-    'real-water-glass-image-2': [1600, 1200],
-    'smart-watch-image': [1600, 1200],
-    'nike-shoe-image-1': [1600, 1200],
-    'nike-shoe-image-2': [1600, 1200],
-    'nike-shoe-image-3': [1600, 900],
-    'nike-shoe-image-4': [1600, 1200],
-    'nike-shoe-image-5': [1600, 1200],
-    'nike-shoe-image-6': [1600, 900],
-    'interior-image-1': [1600, 1200],
-    'interior-image-2': [1600, 1200],
-    'booth-01-image-01': [1600, 1200],
-    'booth-01-image-02': [1600, 1200],
-    'booth-01-image-03': [1600, 900],
-    'booth-01-image-04': [1600, 1200],
-    'booth-01-image-05': [1600, 1200],
-    'booth-01-image-06': [1600, 900],
-    'booth-01-image-07': [1600, 1200],
-    'booth-01-image-08': [1600, 1200],
-    'booth-01-image-09': [1600, 900],
-    'boooth-02-image-01': [1600, 1200],
-    'boooth-02-image-02': [1600, 1200],
-    'boooth-02-image-03': [1600, 1200],
-    'boooth-02-image-04': [1600, 1200],
-    'boooth-02-image-05': [1600, 1200],
-    'boooth-02-image-06': [1600, 1200],
-    'boooth-02-image-07': [1600, 1200],
-    'boooth-02-image-08': [1600, 1200],
-    '2026-looks': [1600, 1200],
-    '2026-look-1': [1600, 1200],
-    '2026-look-2': [1600, 900],
-    '2026-look-3': [1600, 1200],
-    '2026-look-4': [1600, 1200],
-    '2026-look-5': [1600, 900],
-    '2026-look-6': [1600, 1200],
-    'folder-image-1': [1600, 1200],
-    'folder-image-2': [1600, 1200],
-    'vellum-image': [1600, 1200],
-    'dates-cookie-image': [1600, 1200],
-    'blue-mall-image': [1600, 1200],
-    'youth-affairs-image-1': [1600, 1200],
-    'youth-affairs-image-2': [1600, 1200],
-    'youth-affairs-image-3': [1600, 900],
+    'realistic-ice-image-1': [2560, 1440],
+    'realistic-ice-image-2': [2560, 1440],
+    'soap-image-1': [1440, 2560],
+    'soap-image-2': [1440, 2560],
+    'soap-image-3': [1440, 2560],
+    'soap-image-4': [1440, 2560],
+    'yerba-mate-image-1': [2048, 2048],
+    'yerba-mate-image-2': [2048, 2048],
+    'asus-image': [2048, 1080],
+    'real-water-glass-image-1': [1080, 1440],
+    'real-water-glass-image-2': [1080, 1440],
+    'smart-watch-image': [1920, 1080],
+    'nike-shoe-image-1': [2560, 1440],
+    'nike-shoe-image-2': [2560, 1440],
+    'nike-shoe-image-3': [2560, 1440],
+    'nike-shoe-image-4': [2560, 1440],
+    'nike-shoe-image-5': [2560, 1440],
+    'nike-shoe-image-6': [2560, 1440],
+    'interior-image-1': [1920, 1080],
+    'interior-image-2': [1920, 1080],
+    'booth-01-image-01': [2560, 1440],
+    'booth-01-image-02': [2560, 1440],
+    'booth-01-image-03': [2560, 1440],
+    'booth-01-image-04': [2560, 1440],
+    'booth-01-image-05': [2560, 1440],
+    'booth-01-image-06': [2560, 1440],
+    'booth-01-image-07': [2560, 1440],
+    'booth-01-image-08': [1920, 1050],
+    'booth-01-image-09': [1920, 1050],
+    'boooth-02-image-01': [2560, 1440],
+    'boooth-02-image-02': [2560, 1440],
+    'boooth-02-image-03': [2560, 1440],
+    'boooth-02-image-04': [2560, 1440],
+    'boooth-02-image-05': [2560, 1440],
+    'boooth-02-image-06': [2560, 1440],
+    'boooth-02-image-07': [2560, 1440],
+    'boooth-02-image-08': [2560, 1440],
+    '2026-looks': [3240, 2700],
+    '2026-look-1': [2048, 2048],
+    '2026-look-2': [2048, 2048],
+    '2026-look-3': [2048, 2048],
+    '2026-look-4': [2048, 2048],
+    '2026-look-5': [2048, 2048],
+    '2026-look-6': [2048, 2048],
+    'folder-image-1': [2048, 2048],
+    'folder-image-2': [2048, 2048],
+    'vellum-image': [1080, 1920],
+    'dates-cookie-image': [3840, 2160],
+    'blue-mall-image': [1080, 1080],
+    'youth-affairs-image-1': [1024, 1024],
+    'youth-affairs-image-2': [1024, 1024],
+    'youth-affairs-image-3': [1024, 1024],
   };
 
   /* ════════════════════════════════════════════════════════════════════════════
@@ -394,8 +394,8 @@
     const size = IMAGE_SIZES[id];
     const dims = size ? ` width="${size[0]}" height="${size[1]}"` : '';
     const loading = eager ? 'loading="eager" decoding="async" fetchpriority="high"' : 'loading="lazy" decoding="async"';
-    // .webp first; if a file is missing, initMedia retries the old .jpg (data-full) before showing "Media missing"
-    return `<img class="${cls}" src="images/${id}.webp" data-full="images/${id}.jpg"${dims} alt="${esc(alt)}" ${loading}>`;
+    // .webp only: the .jpg masters are not published (tools/build-site.mjs), so a retry could never succeed; a missing file shows "Media missing"
+    return `<img class="${cls}" src="images/${id}.webp"${dims} alt="${esc(alt)}" ${loading}>`;
   };
 
   const video = (id, label) =>
@@ -1203,7 +1203,7 @@
   }; // test hook: the hero sequence has finished
   const hideSkip = () => {
     const s = $('#skip');
-    if (s) s.classList.add('gone');
+    if (s) { s.classList.add('gone'); s.tabIndex = -1; }
   };
 
   function showTagline() {

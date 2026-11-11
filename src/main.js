@@ -12,7 +12,16 @@ window.__hero3dResolve = done;
 
 // three.js and the hero load as their own chunk, in parallel with the page and never in front of it.
 // If that chunk fails to load, the curtain must not wait for it.
-import('./hero/hero-3d.js').catch((err) => {
-  console.warn('[hero-3d] could not load:', err);
+// Same eligibility checks the hero makes (Data Saver, WebGL), done here so an ineligible device never downloads the chunk.
+let eligible = !(navigator.connection && navigator.connection.saveData);
+if (eligible) {
+  try { eligible = !!document.createElement('canvas').getContext('webgl'); } catch (e) { eligible = false; }
+}
+if (eligible) {
+  import('./hero/hero-3d.js').catch((err) => {
+    console.warn('[hero-3d] could not load:', err);
+    done();
+  });
+} else {
   done();
-});
+}

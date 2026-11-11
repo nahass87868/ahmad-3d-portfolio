@@ -14,7 +14,7 @@
     enabled: true, // MASTER SWITCH. false = this file does nothing at all.
 
     src: 'images/ahmad-photo.webp', // must match the file name exactly (GitHub Pages is case-sensitive)
-    fallback: 'images/ahmad-photo.jpg', // used only if the .webp is missing
+    fallback: '', // the .jpg master is not published; if the .webp is missing the empty frame is removed
     alt: 'Portrait of Ahmad Nahass', // read by screen readers; describe the photo if you like
 
     aspect: '4 / 5', // frame shape (width / height). '1 / 1' square, '3 / 4' taller, '4 / 3' wider.

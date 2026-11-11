@@ -6,21 +6,21 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 1 KB | 26 |
+| `GUIDE.md` | 2 KB | 32 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 21 |
-| `polish.js` | 22 KB | 353 |
+| `polish.js` | 22 KB | 354 |
 | `premium.css` | 7 KB | 108 |
 | `premium.js` | 21 KB | 355 |
 | `script.js` | 85 KB | 2183 |
-| `style.css` | 48 KB | 2151 |
+| `style.css` | 48 KB | 2152 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 41 |
 | `content/works.js` | 10 KB | 235 |
-| `src/main.js` | 1 KB | 18 |
+| `src/main.js` | 1 KB | 27 |
 | `src/hero/hero-3d.js` | 45 KB | 697 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
 | `tools/build-site.mjs` | 7 KB | 77 |
