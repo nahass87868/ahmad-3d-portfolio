@@ -202,7 +202,17 @@ html.x-menu-open { overflow: hidden; }
     function update() {
       queued = false;
       const vh = innerHeight;
-      vis.forEach((t) => { const r = t.getBoundingClientRect(); const p = clamp((vh - r.top) / (vh + r.height), 0, 1); t.style.setProperty('--x-z', (1 + T.ZOOM * p).toFixed(4)); });
+      const updates = [];
+      // Read every tile's geometry before writing styles to avoid read/write layout thrashing.
+      vis.forEach((t) => {
+        const r = t.getBoundingClientRect();
+        const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
+        updates.push([t, (1 + T.ZOOM * p).toFixed(4)]);
+      });
+      // Skip identical values: they cannot change the rendered scale.
+      updates.forEach(([tile, scale]) => {
+        if (tile.style.getPropertyValue('--x-z') !== scale) tile.style.setProperty('--x-z', scale);
+      });
     }
     addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
   }
