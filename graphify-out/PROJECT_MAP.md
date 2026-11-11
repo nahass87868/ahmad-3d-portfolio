@@ -6,14 +6,14 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 32 |
+| `GUIDE.md` | 2 KB | 35 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 21 |
 | `polish.js` | 22 KB | 354 |
-| `premium.css` | 7 KB | 108 |
+| `premium.css` | 8 KB | 108 |
 | `premium.js` | 21 KB | 355 |
 | `script.js` | 85 KB | 2183 |
 | `style.css` | 48 KB | 2152 |

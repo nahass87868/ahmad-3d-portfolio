@@ -12,7 +12,7 @@
   line-height: 0.86; letter-spacing: -0.01em; text-transform: uppercase;
   opacity: 0; /* shown by premium.js once the letters are in place; the curtain is hidden by the failsafe if the script never runs */
 }
-#pre .pnw { display: block; }
+#pre .pnw { display: block; white-space: nowrap; } /* the letters start wide (wdth 125): without this a word wraps, the name grows a line, then shrinks back (CLS 0.36 twice) */
 #pre .po { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.02em 0 0.05em; }
 #pre .pi { display: inline-block; font-variation-settings: 'wdth' var(--wd, 68), 'wght' 860; will-change: transform; }
 #pre .pline {
