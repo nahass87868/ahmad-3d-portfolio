@@ -105,7 +105,8 @@ html #grid .tile .th img.cov { scale: var(--x-z, 1); }
   if (POLISH.cardLift && POLISH.cards) css += `
 @media (hover: hover) and (pointer: fine) {
   html #grid .tile > a { transition: transform .4s var(--ease-out), translate .5s var(--ease-out); }
-  html #grid .tile > a:hover { translate: 0 -${T.LIFT_PX}px; }
+  html #grid .tile > a:hover,
+  html #grid .tile > a:focus-visible { translate: 0 -${T.LIFT_PX}px; }
 }`;
 
   if (POLISH.scrollMotion) css += `
@@ -124,7 +125,7 @@ html #grid .tile .th img.cov { scale: var(--x-z, 1); }
 .x-hdr { display: none; align-items: center; gap: 8px; margin-left: auto; }
 .x-b { position: relative; appearance: none; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; cursor: pointer;
   font: 500 15px/1 var(--font-sans); color: var(--ink); background: none; border: 1px solid var(--line); border-radius: 999px; touch-action: manipulation;
-  -webkit-user-select: none; user-select: none; }
+  -webkit-user-select: none; user-select: none; transition: opacity .16s var(--ease-out); }
 .x-b:after { content: ''; position: absolute; inset: -4px; }
 .x-b:active { opacity: .6; }
 .x-b i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--ink); background: linear-gradient(90deg, var(--ink) 50%, transparent 50%); }
@@ -153,6 +154,15 @@ html.x-menu-open { overflow: hidden; }
   .x-hdr { display: flex; }
 }
 @media (min-width: ${P + 1}px) { .x-pop, .x-sheet { display: none; } }`;
+
+  /* Fix 03: keep pointer and keyboard feedback equally clear. */
+  css += `
+@media (hover: hover) and (pointer: fine) {
+  .x-index:hover li:not(:hover):focus-within a { opacity: 1; }
+  .x-view button:not([aria-pressed='true']):hover { background: var(--surface); }
+}
+.x-next:focus-visible img { transform: scale(1.04); }
+`;
 
   const style = document.createElement('style');
   style.id = 'polish-css';
