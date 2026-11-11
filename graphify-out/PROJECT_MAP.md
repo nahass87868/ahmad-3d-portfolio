@@ -6,13 +6,13 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 30 |
+| `GUIDE.md` | 1 KB | 26 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 21 |
-| `polish.js` | 20 KB | 322 |
+| `polish.js` | 22 KB | 353 |
 | `premium.css` | 7 KB | 108 |
 | `premium.js` | 21 KB | 355 |
 | `script.js` | 85 KB | 2183 |
@@ -28,7 +28,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
 
-Published folders (copied byte for byte, never graphed): `images/` (142 files, 77.3 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (3 files, 720 KB)
+Published folders (copied byte for byte, never graphed): `images/` (142 files, 77.3 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (2 files, 117 KB)
 Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modules/`, `graphify-out/`.
 
 ## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)

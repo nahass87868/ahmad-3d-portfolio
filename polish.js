@@ -164,6 +164,17 @@ html.x-menu-open { overflow: hidden; }
 .x-next:focus-visible img { transform: scale(1.04); }
 `;
 
+  /* Fix 03b: filter chips and colour switches had press feedback but no hover, and the chip state change snapped. */
+  css += `
+.chip { transition: transform var(--press), background-color .2s ease, color .2s ease, border-color .2s ease; }
+.sw, .md { transition: transform var(--press), border-color .2s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .chip:not([aria-pressed='true']):hover, .sw:hover, .md:hover { border-color: var(--ink); }
+}
+.pn a:focus-visible b { text-decoration: underline; text-decoration-color: var(--acc); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.x-pop button { transition: background-color .16s var(--ease-out); }
+`;
+
   const style = document.createElement('style');
   style.id = 'polish-css';
   style.textContent = css;
