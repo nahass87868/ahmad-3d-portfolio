@@ -106,3 +106,8 @@ header.nav { left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-ri
 
 /* a downward pull at the top of the page must not trigger the browser's pull-to-refresh: it would reload and replay the intro */
 html { overscroll-behavior-y: contain; }
+
+/* Fix 04e: the plain hero (shown when the 3D can't run or arrives late) now looks like the designed one: name centred, no hairlines.
+   hero-3d.js applies the same two rules plus its own sizing when it runs, so nothing changes there. */
+html .hero .px:before, html .hero .px:after { display: none; }
+html .hero #heroName, html .hero .px .w:last-of-type { text-align: center; }
