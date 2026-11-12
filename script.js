@@ -1144,6 +1144,8 @@
 
   /** Per frame (mouse devices only). */
   function stepHeadings() {
+    // Reduced motion keeps the heading at its resting font variation; pointer proximity must not animate it.
+    if (REDUCED) return { writes: 0, active: false };
     const queueA = [];
     let writes = 0;
     let active = false;

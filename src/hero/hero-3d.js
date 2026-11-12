@@ -185,19 +185,19 @@ html .hero .px .w:last-of-type { text-align: center; }
 .x-h3d { position: relative; flex: 0 0 auto; height: ${T.REGION_H_NARROW}; margin-bottom: auto;
   -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 @media (min-width: ${T.BREAKPOINT}px) { .x-h3d { height: ${T.REGION_H_WIDE}; } }
-.x-h3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+.x-h3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; }
 .x-h3d.x-on canvas, .x-h3d.x-on .x-ghost { opacity: 1; }
 /* faint PORT / FOLIO behind the letters, as in the prototype */
-.x-ghost { opacity: 0; transition: opacity .8s ease; position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
+.x-ghost { opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
   font-family: var(--font-display); font-weight: 900; line-height: .82; letter-spacing: -.04em; white-space: nowrap; text-transform: uppercase;
   color: var(--x-ghost, rgba(255,255,255,.045)); pointer-events: none; }
 .x-h3d-hint { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); margin: 0; color: var(--mut);
   white-space: nowrap; pointer-events: none; display: none; transition: opacity .3s; z-index: 2; }
-@media (pointer: coarse) { .x-h3d-hint { display: block; } }
+@media (pointer: coarse) { .x-h3d-hint { display: ${reduced ? 'none' : 'block'}; } }
 .x-h3d-hint.x-hide { opacity: 0; }
 /* the ring: a plain thin line, no glow */
 .x-ring { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; box-sizing: border-box; border-radius: 50%;
-  border: 1.5px solid var(--ink); opacity: 0; transition: opacity .25s ease; }
+  border: 1.5px solid var(--ink); opacity: 0; transition: ${reduced ? 'none' : 'opacity .25s ease'}; }
 /* while the ring is on screen the X/Y read-out would sit inside it */
 #cur.x-portal #cx { opacity: 0; }
 `;
@@ -531,13 +531,13 @@ html .hero .px .w:last-of-type { text-align: center; }
     const frozen = () => root.classList.contains('vp-off') || root.classList.contains('panel-open');
 
     /* ── input ── */
-    if (FINE) {
+    if (FINE && !reduced) {
       addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; setPointer(e.clientX, e.clientY); wake(); }, { passive: true });
       addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') setPointer(e.clientX, e.clientY); }, { passive: true });
       root.addEventListener('mouseleave', clearPointer);
     }
     const hold = { timer: 0, on: false, id: -1, sx: 0, sy: 0 };
-    if (TOUCH && HERO3D.touchHold) {
+    if (TOUCH && HERO3D.touchHold && !reduced) {
       let used = false;
       try { used = sessionStorage.getItem('hero3d_hint') === '1'; } catch (e) { /* private mode */ }
       if (used) hint.classList.add('x-hide');
@@ -576,7 +576,7 @@ html .hero .px .w:last-of-type { text-align: center; }
     function step(dt) {
       P.forEach((p) => {
         const dx = I.wx - p.home.x, dy = I.wy - p.home.y;
-        const inf = !HERO3D.pull || I.mx < -900 || !(FINE || hold.on) ? 0 : Math.exp(-(dx * dx + dy * dy) / T.FALLOFF);
+        const inf = reduced || !HERO3D.pull || I.mx < -900 || !(FINE || hold.on) ? 0 : Math.exp(-(dx * dx + dy * dy) / T.FALLOFF);
         p.inf = inf;
         const tx = p.home.x + dx * T.PULL * inf, ty = p.home.y + dy * T.PULL * inf;
         p.vel.x += (T.K * (tx - p.pos.x) - T.C * p.vel.x) * dt; p.vel.y += (T.K * (ty - p.pos.y) - T.C * p.vel.y) * dt;
@@ -604,22 +604,22 @@ html .hero .px .w:last-of-type { text-align: center; }
       const t = now / 1000, off = frozen();
       const gap = S.last ? now - S.last : 16; // ms since the last frame
       S.acc += Math.min(gap / 1000, 3 / 120); S.last = now; // never more than 3 physics steps in one frame
-      if (!off) while (S.acc >= 1 / 120) { step(1 / 120); S.acc -= 1 / 120; }
+      if (!off && !reduced) while (S.acc >= 1 / 120) { step(1 / 120); S.acc -= 1 / 120; }
       else S.acc = 0;
 
       // theme: clay eases toward the current colour
       const colourBusy = Math.abs(clay.color.r - clayTarget.r) + Math.abs(clay.color.g - clayTarget.g) + Math.abs(clay.color.b - clayTarget.b) > 0.003;
-      if (colourBusy) clay.color.lerp(clayTarget, 0.12);
+      if (colourBusy && !reduced) clay.color.lerp(clayTarget, 0.12);
       else clay.color.copy(clayTarget);
 
       // the ring opens while the cursor is near any letter (covers holes and gaps) and stays open a moment after leaving
-      const near = I.mx > -900 && P.some((p) => Math.hypot(I.wx - p.pos.x, I.wy - p.pos.y) < T.OPEN_DIST);
+      const near = !reduced && I.mx > -900 && P.some((p) => Math.hypot(I.wx - p.pos.x, I.wy - p.pos.y) < T.OPEN_DIST);
       if (near && HERO3D.portal && !off) I.openT = now;
       const target = now - I.openT < T.OPEN_HOLD ? ringOpenR() : T.RING_IDLE;
       I.rr += (target - I.rr) * T.RING_EASE;
       const px = I.mx + rect.left, py = I.my + rect.top;
       if (I.mx > -900) { I.cx += (px - I.cx) * T.RING_FOLLOW; I.cy += (py - I.cy) * T.RING_FOLLOW; }
-      const showRing = HERO3D.portal && !off && I.mx > -900 && (TOUCH ? hold.on : I.inside);
+      const showRing = !reduced && HERO3D.portal && !off && I.mx > -900 && (TOUCH ? hold.on : I.inside);
       ringEl.style.opacity = showRing ? 1 : 0;
       if (showRing) {
         ringEl.style.width = ringEl.style.height = I.rr * 2 + 'px';
