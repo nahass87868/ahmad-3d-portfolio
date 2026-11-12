@@ -1,0 +1,32 @@
+AHMAD NAHASS PORTFOLIO — FALLBACK + BUILD FIX
+
+Base source: GitHub main commit 3607d9bc63fbef367702f3ce9ed70c7de9f79b8f (fix04e)
+
+APPLY
+Copy the folders and files in this ZIP into the root of your portfolio repository.
+Replace the existing files when prompted. One file is new.
+
+Files:
+- src/main.js                    replace
+- src/hero/hero-fallback.js      new file
+- premium.js                     replace
+- tools/build-site.mjs           replace
+
+WHAT CHANGED
+- The no-3D hero now keeps the centred name, the same reserved hero stage, and the faint PORT / FOLIO backdrop.
+- The 3D module upgrades that same visual stage when it becomes available. The background word stays behind the canvas; if 3D startup fails, the fallback stage returns.
+- Data Saver, 2G / very slow connections, devices reporting 2 GB RAM or less, and devices reporting 2 CPU cores or less skip the 3D download. The lightweight hero design remains.
+- The loading curtain remains capped at 4.2 seconds. It no longer waits longer just for the 3D model.
+- The build excludes only images/smart-watch-image.png and images/vellum-image.png. Other PNG files are not globally excluded.
+
+CHECKS
+JavaScript syntax checks and targeted source assertions passed when this ZIP was prepared.
+A full Vite build, browser run, and physical-phone test have not been run here.
+
+After applying, run:
+  npm run build
+  npm run preview
+
+Then test the normal 3D path, Data Saver, slow network, a low-resource phone, and both light and dark themes. Check that the name and PORT / FOLIO backdrop stay centred and that no empty hero stage appears while 3D loads or when it is skipped.
+
+No commit or push was made. Do not update Graphify or the Notion project notes until the owner has tested this package.

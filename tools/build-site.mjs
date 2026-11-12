@@ -17,8 +17,9 @@ const MODULES = join(ROOT, '.build', 'modules');
 
 const SITE_URL = 'https://nahass87868.github.io/ahmad-3d-portfolio/'; // share cards need absolute addresses. If you ever get a custom domain, change this one line.
 const FILES = ['content/works.js', 'style.css', 'premium.css', 'script.js', 'extras.js', 'fixes.js', 'about-photo.js', 'hero-3d-model.js', 'polish.js', 'premium.js'];
-// not published: the old three.js (replaced by the npm version), and the .jpg masters in images/ (they stay in the repo; the site shows the .webp versions)
-const skipped = (r) => r === 'vendor/three.min.js' || (r.startsWith('images/') && r.endsWith('.jpg'));
+// not published: the old three.js (replaced by the npm version), the .jpg masters, and these two unused PNG masters
+const UNUSED_PNG_MASTERS = new Set(['images/smart-watch-image.png', 'images/vellum-image.png']);
+const skipped = (r) => r === 'vendor/three.min.js' || (r.startsWith('images/') && r.endsWith('.jpg')) || UNUSED_PNG_MASTERS.has(r);
 const rel = (p) => relative(ROOT, p).split('\\').join('/');
 const DIRS = ['vendor', 'fonts', 'images', 'videos', 'og'];
 const MODULE_TAG_SOURCE = 'src="src/main.js"'; // as written in index.html, which Vite's dev server serves from the project root
