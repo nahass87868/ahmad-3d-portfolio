@@ -54,14 +54,14 @@
   };
 
   /* ── panel focus ──────────────────────────────────────────────────────────
-     script.js calls panel.focus() on open, but a <section> without tabindex ignores focus(), so keyboard
-     users dropped to <body> after the tile went inert. tabindex="-1" makes it focusable by script only
-     (not in the Tab order). role=dialog + aria-modal tell screen readers the rest of the page is blocked,
-     which matches what the code already does with `inert`. The existing aria-label="Project" is kept. */
+     script.js focuses the panel on open and restores focus on close. The fixed header navigation,
+     appearance dock and panel close control remain available while the panel is open, so this is a
+     non-modal dialog. Do not announce aria-modal="true": the rest of the interface is not fully inert.
+     tabindex="-1" keeps the panel programmatically focusable without adding it to the Tab order. */
   function initPanelFocus(panel) {
     if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
     if (!panel.hasAttribute('role')) panel.setAttribute('role', 'dialog');
-    if (!panel.hasAttribute('aria-modal')) panel.setAttribute('aria-modal', 'true');
+    panel.removeAttribute('aria-modal');
   }
 
   /* ── optional CSS (only injected if a flag needs it) ───────────────────── */
