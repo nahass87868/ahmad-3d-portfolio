@@ -531,13 +531,13 @@ html .hero .px .w:last-of-type { text-align: center; }
     const frozen = () => root.classList.contains('vp-off') || root.classList.contains('panel-open');
 
     /* ── input ── */
-    if (FINE) {
+    if (FINE && !reduced) {
       addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; setPointer(e.clientX, e.clientY); wake(); }, { passive: true });
       addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') setPointer(e.clientX, e.clientY); }, { passive: true });
       root.addEventListener('mouseleave', clearPointer);
     }
     const hold = { timer: 0, on: false, id: -1, sx: 0, sy: 0 };
-    if (TOUCH && HERO3D.touchHold) {
+    if (TOUCH && HERO3D.touchHold && !reduced) {
       let used = false;
       try { used = sessionStorage.getItem('hero3d_hint') === '1'; } catch (e) { /* private mode */ }
       if (used) hint.classList.add('x-hide');
@@ -576,7 +576,7 @@ html .hero .px .w:last-of-type { text-align: center; }
     function step(dt) {
       P.forEach((p) => {
         const dx = I.wx - p.home.x, dy = I.wy - p.home.y;
-        const inf = !HERO3D.pull || I.mx < -900 || !(FINE || hold.on) ? 0 : Math.exp(-(dx * dx + dy * dy) / T.FALLOFF);
+        const inf = reduced || !HERO3D.pull || I.mx < -900 || !(FINE || hold.on) ? 0 : Math.exp(-(dx * dx + dy * dy) / T.FALLOFF);
         p.inf = inf;
         const tx = p.home.x + dx * T.PULL * inf, ty = p.home.y + dy * T.PULL * inf;
         p.vel.x += (T.K * (tx - p.pos.x) - T.C * p.vel.x) * dt; p.vel.y += (T.K * (ty - p.pos.y) - T.C * p.vel.y) * dt;
@@ -604,22 +604,22 @@ html .hero .px .w:last-of-type { text-align: center; }
       const t = now / 1000, off = frozen();
       const gap = S.last ? now - S.last : 16; // ms since the last frame
       S.acc += Math.min(gap / 1000, 3 / 120); S.last = now; // never more than 3 physics steps in one frame
-      if (!off) while (S.acc >= 1 / 120) { step(1 / 120); S.acc -= 1 / 120; }
+      if (!off && !reduced) while (S.acc >= 1 / 120) { step(1 / 120); S.acc -= 1 / 120; }
       else S.acc = 0;
 
       // theme: clay eases toward the current colour
       const colourBusy = Math.abs(clay.color.r - clayTarget.r) + Math.abs(clay.color.g - clayTarget.g) + Math.abs(clay.color.b - clayTarget.b) > 0.003;
-      if (colourBusy) clay.color.lerp(clayTarget, 0.12);
+      if (colourBusy && !reduced) clay.color.lerp(clayTarget, 0.12);
       else clay.color.copy(clayTarget);
 
       // the ring opens while the cursor is near any letter (covers holes and gaps) and stays open a moment after leaving
-      const near = I.mx > -900 && P.some((p) => Math.hypot(I.wx - p.pos.x, I.wy - p.pos.y) < T.OPEN_DIST);
+      const near = !reduced && I.mx > -900 && P.some((p) => Math.hypot(I.wx - p.pos.x, I.wy - p.pos.y) < T.OPEN_DIST);
       if (near && HERO3D.portal && !off) I.openT = now;
       const target = now - I.openT < T.OPEN_HOLD ? ringOpenR() : T.RING_IDLE;
       I.rr += (target - I.rr) * T.RING_EASE;
       const px = I.mx + rect.left, py = I.my + rect.top;
       if (I.mx > -900) { I.cx += (px - I.cx) * T.RING_FOLLOW; I.cy += (py - I.cy) * T.RING_FOLLOW; }
-      const showRing = HERO3D.portal && !off && I.mx > -900 && (TOUCH ? hold.on : I.inside);
+      const showRing = !reduced && HERO3D.portal && !off && I.mx > -900 && (TOUCH ? hold.on : I.inside);
       ringEl.style.opacity = showRing ? 1 : 0;
       if (showRing) {
         ringEl.style.width = ringEl.style.height = I.rr * 2 + 'px';
