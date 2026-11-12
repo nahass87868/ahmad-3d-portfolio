@@ -1,27 +1,25 @@
-# Phase 3 Fix 04c: heading flicker on 2 GB phones (experiment)
+# Fix 04d: undo the heading-fill change on small phones, wait longer for the 3D on slow data
 
-**What this does:** only on phones where Chrome reports 2 GB of memory or less (your Galaxy A10), `polish.js` adds the class `x-lowmem` and three CSS rules:
-1. The per-letter GPU layers on the headings are switched off (`will-change: auto`).
-2. The heading fill no longer uses the clip-path wipe on a copy of each letter; the letters just fade from outline to filled.
-3. Every other phone and all desktops are untouched.
+**What this does (2 tiny changes):**
+1. `polish.js`: removes the Fix 04c block. On 2 GB phones it replaced the bottom-to-top fill inside the heading outlines with a plain left-to-right colour fade. You did not like that, and it never fixed the flicker. Headings now fill the original way on every device.
+2. `premium.js`: `ASSETS_CAP_MS` 3800 -> 8000. The loading curtain used to give up waiting for the 3D after 3.8 s, so on slow data it lifted onto the plain fallback hero (AHMAD left / NAHASS right with hairlines). Now it waits up to 8 s. On fast connections nothing changes, because the curtain lifts as soon as the 3D is ready.
 
-Why: the flicker looks like the GPU dropping the per-letter layers (low memory) while the clip-path wipe repaints them. This is a **diagnosis from reading the code, not yet proven on a device**. Proximity morphing is not the cause: `script.js` already skips it on touch screens.
-
-Changed files: `polish.js` (also carries Fix 03b), `GUIDE.md`, refreshed `graphify-out/`.
+Changed files: `polish.js`, `premium.js`, `GUIDE.md`, refreshed `graphify-out/`.
 
 ## Step 1: copy the files in
-Unzip `fix04c.zip` into your clone folder, choose **Replace**.
+Unzip `fix04d.zip` into your clone folder (the one with `package.json`), choose **Replace**.
 
-## Step 2: build, push
+## Step 2: build and push
 ```
 npm run build
 ```
-Must end with **OK** and say **131 files**. Then GitHub Desktop: summary `Phase 3 Fix 04c: low-memory heading fill` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions**.
+Must end with **OK** and say **131 files**. Then GitHub Desktop: summary `Fix 04d: revert 04c, longer 3D wait` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions**.
 
-## Step 3: test on the A10 (the only test that counts)
-Open the live site in Chrome, hard refresh a few times. Watch the AHMAD NAHASS name and the Skills/Work headings fill in.
-- Smooth fade, no flicker: it worked.
-- Still flickers: tell me, and in Chrome on the phone open `chrome://version` and send me the Chrome version. Do not keep editing.
+## Step 3: test on the phone
+Clear the site's data (Chrome -> Settings -> Site settings -> the site -> Clear), then load it on slow mobile data. The curtain may stay up longer, then the centred name and the 3D should appear. The headings should fill from bottom to top inside the outline.
+
+## If you still see the old split layout
+Plug the phone into a computer with USB debugging, open `chrome://inspect` in desktop Chrome, inspect the page, and in the Console type `__hero3d`. Send me the `state` and `reason` it shows. That says exactly why the 3D did not start.
 
 ## If anything goes wrong
 GitHub Desktop -> **History** -> right-click the commit -> **Revert this commit** -> **Push origin**.

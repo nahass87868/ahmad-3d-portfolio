@@ -26,7 +26,7 @@
     INTRO_MIN_MS: 2000, // first visit of a session: the shortest the curtain stays (so the name can land)
     INTRO_MIN_REPEAT_MS: 800, // later visits in the same session
     INTRO_MAX_MS: 4200, // hard cap: the curtain never waits longer than this, whatever is still loading
-    ASSETS_CAP_MS: 3800, // how long to wait for the 3D hero's files
+    ASSETS_CAP_MS: 8000, // how long to wait for the 3D hero's files (was 3800: on slow data the curtain lifted before the 3D arrived and showed the plain fallback hero)
     HOLD_MS: 250, // pause at 100% before the lift
     LETTER_S: 1.0, LETTER_STAGGER: 0.045, WIDTH_FROM: 125, WIDTH_TO: 68, // name letters rise, condensing like your heading morph
     LIFT_S: 1.05,
