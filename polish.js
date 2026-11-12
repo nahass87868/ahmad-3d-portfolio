@@ -322,7 +322,13 @@ html.x-menu-open { overflow: hidden; }
     });
     sheet.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
     document.addEventListener('click', (e) => { if (pop.classList.contains('open') && !e.target.closest('#xPop, #xApp')) setPop(false); });
-    addEventListener('keydown', (e) => { if (e.key === 'Escape') { setPop(false); setMenu(false); } });
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const restoreApp = pop.classList.contains('open') && pop.contains(document.activeElement);
+      setPop(false);
+      setMenu(false);
+      if (restoreApp) app.focus({ preventScroll: true });
+    });
     matchMedia('(min-width: ' + (T.PHONE + 1) + 'px)').addEventListener('change', (m) => { if (m.matches) { setPop(false); setMenu(false); } });
   }
 
