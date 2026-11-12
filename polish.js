@@ -164,6 +164,17 @@ html.x-menu-open { overflow: hidden; }
 .x-next:focus-visible img { transform: scale(1.04); }
 `;
 
+  /* Fix 04c: 2 GB phones (Chrome reports deviceMemory <= 2) flickered while headings filled in. Each letter held its own GPU layer and
+     the fill was a clip-path wipe on a copy of the glyph. Here: no per-letter layers, and a plain colour fade instead of the wipe. */
+  if (navigator.deviceMemory && navigator.deviceMemory <= 2) {
+    document.documentElement.classList.add('x-lowmem');
+    css += `
+.x-lowmem .px.bm .l { will-change: auto; }
+.x-lowmem .st .l:after { display: none; }
+.x-lowmem .st.on .l { transition: color .5s ease var(--f, 0s), -webkit-text-stroke-color .4s ease calc(var(--f, 0s) + .5s); }
+`;
+  }
+
   /* Fix 03b: filter chips and colour switches had press feedback but no hover, and the chip state change snapped. */
   css += `
 .chip { transition: transform var(--press), background-color .2s ease, color .2s ease, border-color .2s ease; }

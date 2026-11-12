@@ -1,24 +1,27 @@
-# Phase 3 Fix 04b: stop the loading-curtain name from jumping (CLS)
+# Phase 3 Fix 04c: heading flicker on 2 GB phones (experiment)
 
-**What this does:** one CSS line in `premium.css`. Your trace showed the curtain name (`.pname`) growing from 2 lines to 3 and back at about 1.95 s and 2.2 s (two shifts of 0.36 each, about 0.72 of the 0.98 total). Cause: the letters start wide (width 125), a word wraps onto an extra line, then the letters condense and it unwraps. `white-space: nowrap` keeps each word on one line. The curtain clips anything past the screen edge, so nothing else changes.
+**What this does:** only on phones where Chrome reports 2 GB of memory or less (your Galaxy A10), `polish.js` adds the class `x-lowmem` and three CSS rules:
+1. The per-letter GPU layers on the headings are switched off (`will-change: auto`).
+2. The heading fill no longer uses the clip-path wipe on a copy of each letter; the letters just fade from outline to filled.
+3. Every other phone and all desktops are untouched.
 
-Changed files: `premium.css`, `GUIDE.md`, refreshed `graphify-out/`.
+Why: the flicker looks like the GPU dropping the per-letter layers (low memory) while the clip-path wipe repaints them. This is a **diagnosis from reading the code, not yet proven on a device**. Proximity morphing is not the cause: `script.js` already skips it on touch screens.
+
+Changed files: `polish.js` (also carries Fix 03b), `GUIDE.md`, refreshed `graphify-out/`.
 
 ## Step 1: copy the files in
-Unzip `fix04b.zip` into your clone folder (the one with `package.json`), choose **Replace**.
+Unzip `fix04c.zip` into your clone folder, choose **Replace**.
 
-## Step 2: build and look
+## Step 2: build, push
 ```
 npm run build
-npm run preview
 ```
-`npm run build` must end with **OK** and say **131 files**. Open the preview and reload a few times: the big name in the loading curtain should rise letter by letter on one line per word, with no jump.
+Must end with **OK** and say **131 files**. Then GitHub Desktop: summary `Phase 3 Fix 04c: low-memory heading fill` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions**.
 
-## Step 3: measure
-In Chrome DevTools, Performance tab, record a page reload again. In the **Layout shifts** row, the two big `div.pname` shifts should be gone (CLS should drop from about 0.98 to about 0.26).
-
-## Step 4: commit and push
-GitHub Desktop: summary `Phase 3 Fix 04b: curtain name no-wrap` -> **Commit to main** -> **Push origin**.
+## Step 3: test on the A10 (the only test that counts)
+Open the live site in Chrome, hard refresh a few times. Watch the AHMAD NAHASS name and the Skills/Work headings fill in.
+- Smooth fade, no flicker: it worked.
+- Still flickers: tell me, and in Chrome on the phone open `chrome://version` and send me the Chrome version. Do not keep editing.
 
 ## If anything goes wrong
 GitHub Desktop -> **History** -> right-click the commit -> **Revert this commit** -> **Push origin**.
