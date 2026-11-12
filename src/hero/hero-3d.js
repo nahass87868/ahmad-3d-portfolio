@@ -136,9 +136,9 @@ import * as THREE from 'three';
   if (navigator.connection && navigator.connection.saveData) { note('skipped', 'Data Saver is on'); resolveReady(); return; }
   try {
     const c = document.createElement('canvas');
-    if (!c.getContext('webgl')) { note('skipped', 'WebGL is not available in this browser'); resolveReady(); return; }
+    if (!c.getContext('webgl2')) { note('skipped', 'WebGL 2 is not available in this browser'); resolveReady(); return; }
   } catch (e) {
-    note('skipped', 'WebGL check threw: ' + e.message); resolveReady();
+    note('skipped', 'WebGL 2 check threw: ' + e.message); resolveReady();
     return;
   }
 

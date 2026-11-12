@@ -12,10 +12,10 @@ window.__hero3dResolve = done;
 
 // three.js and the hero load as their own chunk, in parallel with the page and never in front of it.
 // If that chunk fails to load, the curtain must not wait for it.
-// Same eligibility checks the hero makes (Data Saver, WebGL), done here so an ineligible device never downloads the chunk.
+// Same eligibility checks the hero makes (Data Saver, WebGL 2), done here so an ineligible device never downloads the chunk.
 let eligible = !(navigator.connection && navigator.connection.saveData);
 if (eligible) {
-  try { eligible = !!document.createElement('canvas').getContext('webgl'); } catch (e) { eligible = false; }
+  try { eligible = !!document.createElement('canvas').getContext('webgl2'); } catch (e) { eligible = false; }
 }
 if (eligible) {
   import('./hero/hero-3d.js').catch((err) => {
