@@ -185,19 +185,19 @@ html .hero .px .w:last-of-type { text-align: center; }
 .x-h3d { position: relative; flex: 0 0 auto; height: ${T.REGION_H_NARROW}; margin-bottom: auto;
   -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 @media (min-width: ${T.BREAKPOINT}px) { .x-h3d { height: ${T.REGION_H_WIDE}; } }
-.x-h3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+.x-h3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; }
 .x-h3d.x-on canvas, .x-h3d.x-on .x-ghost { opacity: 1; }
 /* faint PORT / FOLIO behind the letters, as in the prototype */
-.x-ghost { opacity: 0; transition: opacity .8s ease; position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
+.x-ghost { opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
   font-family: var(--font-display); font-weight: 900; line-height: .82; letter-spacing: -.04em; white-space: nowrap; text-transform: uppercase;
   color: var(--x-ghost, rgba(255,255,255,.045)); pointer-events: none; }
 .x-h3d-hint { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); margin: 0; color: var(--mut);
   white-space: nowrap; pointer-events: none; display: none; transition: opacity .3s; z-index: 2; }
-@media (pointer: coarse) { .x-h3d-hint { display: block; } }
+@media (pointer: coarse) { .x-h3d-hint { display: ${reduced ? 'none' : 'block'}; } }
 .x-h3d-hint.x-hide { opacity: 0; }
 /* the ring: a plain thin line, no glow */
 .x-ring { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; box-sizing: border-box; border-radius: 50%;
-  border: 1.5px solid var(--ink); opacity: 0; transition: opacity .25s ease; }
+  border: 1.5px solid var(--ink); opacity: 0; transition: ${reduced ? 'none' : 'opacity .25s ease'}; }
 /* while the ring is on screen the X/Y read-out would sit inside it */
 #cur.x-portal #cx { opacity: 0; }
 `;
