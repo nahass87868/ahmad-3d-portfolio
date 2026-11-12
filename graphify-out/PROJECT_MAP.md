@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 25 |
+| `GUIDE.md` | 2 KB | 27 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
@@ -20,15 +20,16 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 41 |
 | `content/works.js` | 10 KB | 235 |
-| `src/main.js` | 1 KB | 27 |
+| `src/main.js` | 3 KB | 62 |
 | `src/hero/hero-3d.js` | 45 KB | 697 |
+| `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
-| `tools/build-site.mjs` | 7 KB | 77 |
+| `tools/build-site.mjs` | 7 KB | 78 |
 | `tools/graph-map.py` | 11 KB | 142 |
 
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
 
-Published folders (copied byte for byte, never graphed): `images/` (142 files, 77.3 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (2 files, 117 KB)
+Published folders (copied byte for byte, never graphed): `images/` (141 files, 76.8 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (2 files, 117 KB)
 Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modules/`, `graphify-out/`.
 
 ## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)
@@ -50,12 +51,12 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 
 | global | set in | read in |
 |---|---|---|
-| `window.__BUILD__` | src/main.js:5 | - |
+| `window.__BUILD__` | src/main.js:7 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:316, src/hero/hero-3d.js:682 |
-| `window.__WORKS__` | content/works.js:6 | script.js:124, tools/build-site.mjs:37 |
-| `window.__hero3d` | src/hero/hero-3d.js:109 | - |
-| `window.__hero3dReady` | src/main.js:10 | premium.js:103, premium.js:106, src/hero/hero-3d.js:22 |
-| `window.__hero3dResolve` | src/main.js:11 | src/hero/hero-3d.js:24 |
+| `window.__WORKS__` | content/works.js:6 | script.js:124, tools/build-site.mjs:38 |
+| `window.__hero3d` | src/hero/hero-3d.js:109, src/main.js:41, src/main.js:46, src/main.js:54, src/main.js:60 | - |
+| `window.__hero3dReady` | src/main.js:11 | premium.js:103, premium.js:106, src/hero/hero-3d.js:22 |
+| `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:24 |
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
 

@@ -1,27 +1,29 @@
-# Fix 04e (includes 04d): undo the heading-fill change, wait longer for the 3D, and make the no-3D hero look like the real design
+# Fix 06: headings keep their outline when the fill finishes (no thinning, no flicker step)
 
-**What this does (3 small changes):**
-1. `polish.js`: removes the Fix 04c block. On 2 GB phones it replaced the bottom-to-top fill inside the heading outlines with a plain left-to-right colour fade. You did not like that, and it never fixed the flicker. Headings now fill the original way on every device.
-2. `premium.js`: `ASSETS_CAP_MS` 3800 -> 8000. The loading curtain used to give up waiting for the 3D after 3.8 s, so on slow data it lifted onto the plain fallback hero (AHMAD left / NAHASS right with hairlines). Now it waits up to 8 s. On fast connections nothing changes, because the curtain lifts as soon as the 3D is ready.
+**What this does:** one CSS rule in `style.css` (`.st.on .l`). Every heading with the outline-then-fill animation (hero name, Works, About, Skills, Contact, the pull quote and the project-panel titles all use the same rule) now keeps its ink-coloured 1.4 px outline after the fill instead of fading the outline out over 0.4 s.
+- Letters no longer get about 10% thinner at the end of the animation (measured: 32,181 px of ink stay 32,181 px).
+- The heavy 0.4 s outline fade-out step, which repainted every big letter and is the likely cause of the flicker on weak phones, is gone.
+- Finished headings are about 10% bolder than the font's plain weight, the same weight you see during the outline stage. You approved this.
 
-3. `premium.css`: 4 lines. When the 3D doesn't run (late, blocked, no WebGL 2), the plain hero now shows the name centred with no hairlines, like the designed hero, instead of AHMAD left / NAHASS right. When the 3D runs, nothing changes (checked in a simulated browser with the 3D chunk blocked, and with it allowed).
+Not changed: reduced motion, high-contrast mode and the viewport easter-egg modes keep their own rules.
 
-Changed files: `polish.js`, `premium.js`, `premium.css`, `GUIDE.md`, refreshed `graphify-out/`.
+Changed files: `style.css`, `GUIDE.md`, refreshed `graphify-out/`.
 
 ## Step 1: copy the files in
-Unzip `fix04e.zip` into your clone folder (the one with `package.json`), choose **Replace**.
+Unzip `fix06.zip` into your clone folder (the one with `package.json`), choose **Replace**.
 
-## Step 2: build and push
+## Step 2: build and look
 ```
 npm run build
+npm run preview
 ```
-Must end with **OK** and say **131 files**. Then GitHub Desktop: summary `Fix 04e: revert 04c, longer 3D wait, centred fallback hero` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions**.
+`npm run build` must end with **OK** and say **129 files**. Scroll the whole page: every heading should outline, fill from the bottom, and then stay exactly the same size.
 
-## Step 3: test on the phone
-Clear the site's data (Chrome -> Settings -> Site settings -> the site -> Clear), then load it on slow mobile data. The curtain may stay up longer, then the centred name and the 3D should appear. The headings should fill from bottom to top inside the outline.
+## Step 3: push
+GitHub Desktop: summary `Fix 06: keep heading outline after fill` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions**.
 
-## If you still see the old split layout
-Plug the phone into a computer with USB debugging, open `chrome://inspect` in desktop Chrome, inspect the page, and in the Console type `__hero3d`. Send me the `state` and `reason` it shows. That says exactly why the 3D did not start.
+## Step 4: test on the A10
+Reload the live site and watch a heading fill in. If it still flickers, send a short screen recording.
 
 ## If anything goes wrong
 GitHub Desktop -> **History** -> right-click the commit -> **Revert this commit** -> **Push origin**.

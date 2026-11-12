@@ -234,8 +234,8 @@ button {
  * 1. .stroke  the outline fades in (stroke COLOUR only: its width never changes), staggered by --d
  * 2. .on      ink rises INSIDE the outline. The ink is a copy of the glyph (::after, its text comes from data-c) revealed from
  *             the bottom with a clip-path wipe, staggered by --f. The outline stays visible the whole time: nothing disappears.
- * 3. when a letter's wipe ends the real glyph takes the ink colour (instantly, exactly under the copy), the copy is hidden
- *    50 ms later, and the outline fades out: it only existed to draw the shape.
+ * 3. when a letter's wipe ends the real glyph takes the ink colour (instantly, exactly under the copy) and the copy is hidden
+ *    50 ms later. The ink outline stays on the finished letter, so nothing changes size at the end.
  * No background-clip:text and no stroke-width change anywhere: the first repainted every letter on every frame of the wipe,
  * and Chrome does not transition the second, which is what used to make the text vanish between outline and fill.        */
 .st .l {
@@ -263,10 +263,10 @@ button {
 }
 .st.on .l {
   color: var(--ink);
-  -webkit-text-stroke-color: transparent;
+  -webkit-text-stroke-color: var(--ink); /* the outline stays: fading it out repainted every big letter and made the text 10% thinner at the end */
   transition:
     color 0s linear calc(var(--f, 0s) + 0.85s),
-    -webkit-text-stroke-color 0.4s ease calc(var(--f, 0s) + 0.85s);
+    -webkit-text-stroke-color 0.8s ease var(--d, 0s);
 }
 .st.on .l:after {
   clip-path: inset(0 -0.3em -0.3em -0.3em);
