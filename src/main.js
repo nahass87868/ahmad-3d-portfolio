@@ -18,22 +18,18 @@ const saveData = !!(connection && connection.saveData);
 const effectiveType = connection && connection.effectiveType;
 const downlink = connection && connection.downlink;
 const slowNetwork = !!(connection && (effectiveType === 'slow-2g' || effectiveType === '2g' || (Number.isFinite(downlink) && downlink > 0 && downlink < 0.5)));
-const memory = navigator.deviceMemory;
-const cores = navigator.hardwareConcurrency;
-const lowHardware = (Number.isFinite(memory) && memory <= 2) || (Number.isFinite(cores) && cores <= 2);
+// Owner decision (Fix 07): RAM and CPU core count never skip the 3D, every device gets it. Data Saver, a very slow link and a missing WebGL 2 still fall back to the designed hero.
 let webgl2 = false;
-if (!saveData && !slowNetwork && !lowHardware) {
+if (!saveData && !slowNetwork) {
   try { webgl2 = !!document.createElement('canvas').getContext('webgl2'); } catch (e) { webgl2 = false; }
 }
 const skipReason = saveData
   ? 'Data Saver is on'
   : slowNetwork
     ? 'The connection is too slow for the 3D hero'
-    : lowHardware
-      ? 'The device has limited hardware resources'
-      : !webgl2
-        ? 'WebGL 2 is not available in this browser'
-        : '';
+    : !webgl2
+      ? 'WebGL 2 is not available in this browser'
+      : '';
 
 mountHeroFallback()
   .then((fallbackRegion) => {

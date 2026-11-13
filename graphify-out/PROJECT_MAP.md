@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 27 |
+| `GUIDE.md` | 2 KB | 30 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
@@ -20,7 +20,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 41 |
 | `content/works.js` | 10 KB | 235 |
-| `src/main.js` | 3 KB | 62 |
+| `src/main.js` | 3 KB | 58 |
 | `src/hero/hero-3d.js` | 45 KB | 697 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
@@ -54,7 +54,7 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 | `window.__BUILD__` | src/main.js:7 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:316, src/hero/hero-3d.js:682 |
 | `window.__WORKS__` | content/works.js:6 | script.js:124, tools/build-site.mjs:38 |
-| `window.__hero3d` | src/hero/hero-3d.js:109, src/main.js:41, src/main.js:46, src/main.js:54, src/main.js:60 | - |
+| `window.__hero3d` | src/hero/hero-3d.js:109, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | - |
 | `window.__hero3dReady` | src/main.js:11 | premium.js:103, premium.js:106, src/hero/hero-3d.js:22 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:24 |
 

@@ -26,7 +26,7 @@
     INTRO_MIN_MS: 2000, // first visit of a session: the shortest the curtain stays (so the name can land)
     INTRO_MIN_REPEAT_MS: 800, // later visits in the same session
     INTRO_MAX_MS: 4200, // the fallback is ready without 3D, so the intro should not wait on a slow model
-    ASSETS_CAP_MS: 3800, // cap the 3D contribution; a late scene upgrades the visible fallback afterwards
+    ASSETS_CAP_MS: 0, // Fix 07: the curtain does not wait for the 3D (the designed fallback is already on screen); the scene upgrades it after the lift
     HOLD_MS: 250, // pause at 100% before the lift
     LETTER_S: 1.0, LETTER_STAGGER: 0.045, WIDTH_FROM: 125, WIDTH_TO: 68, // name letters rise, condensing like your heading morph
     LIFT_S: 1.05,
@@ -99,7 +99,7 @@
           g.to(line, { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: 'expo.out' });
         });
 
-        // real progress: fonts 30%, page load 35%, the 3D hero's files 35% (each capped, so a slow file cannot hold the curtain)
+        // real progress: fonts 30%, page load 35%, the 3D hero's share 35% (granted at once, ASSETS_CAP_MS is 0, so the 3D never holds the curtain)
         const real = { fonts: 0, load: document.readyState === 'complete' ? 1 : 0, assets: window.__hero3dReady ? 0 : 1 };
         fontsReady.then(() => { real.fonts = 1; });
         if (!real.load) addEventListener('load', () => { real.load = 1; }, { once: true });
