@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 29 |
+| `GUIDE.md` | 2 KB | 38 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
