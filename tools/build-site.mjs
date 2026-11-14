@@ -37,6 +37,19 @@ const ctx = { window: {} };
 vm.runInNewContext(readFileSync(join(ROOT, 'content/works.js'), 'utf8'), ctx);
 const works = ctx.window.__WORKS__;
 if (!Array.isArray(works) || !works.length) fail('content/works.js has no projects');
+// content check: collect every problem in works.js, then stop once with the full list
+const problems = [], slugs = new Set(), isText = (v) => typeof v === 'string' && v.trim() !== '';
+works.forEach((w, i) => {
+  const bad = (m) => problems.push(`project #${i + 1}${w && isText(w.slug) ? ' "' + w.slug + '"' : ''}: ${m}`);
+  if (!w || typeof w !== 'object') return bad('is not an object');
+  for (const k of ['slug', 'title', 'category', 'year', 'thumb', 'description', 'details']) if (!isText(w[k])) bad(`field "${k}" is missing or empty`);
+  for (const k of ['images', 'videos', 'tools']) if (!Array.isArray(w[k])) bad(`field "${k}" must be a list`);
+  if (Array.isArray(w.images) && !w.images.length) bad('"images" is empty');
+  if (isText(w.slug)) { if (slugs.has(w.slug)) bad(`duplicate slug "${w.slug}"`); slugs.add(w.slug); }
+  const media = [[w.thumb, 'images/thumbs/', '.webp'], ...[].concat(w.images || []).map((n) => [n, 'images/', '.webp']), ...[].concat(w.videos || []).map((n) => [n, 'videos/', '.mp4'])];
+  for (const [n, dir, ext] of media) if (isText(n) && !existsSync(join(ROOT, dir + n + ext))) bad(`missing file ${dir}${n}${ext}`);
+});
+if (problems.length) fail(`content/works.js has ${problems.length} problem(s):\n  - ` + problems.join('\n  - '));
 const esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 console.log('2/3  assembling dist/');

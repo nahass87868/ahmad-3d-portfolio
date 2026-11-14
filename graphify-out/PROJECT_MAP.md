@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 38 |
+| `GUIDE.md` | 1 KB | 23 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
@@ -25,7 +25,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `tests/smoke.mjs` | 6 KB | 91 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
-| `tools/build-site.mjs` | 7 KB | 78 |
+| `tools/build-site.mjs` | 8 KB | 91 |
 | `tools/graph-map.py` | 11 KB | 142 |
 
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
