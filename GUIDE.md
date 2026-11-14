@@ -1,30 +1,29 @@
-# Fix 07: every device gets the 3D hero, and the loading curtain no longer waits for it
+# Stage 1: add the smoke test (code-structure plan)
 
-**What this does:** two small edits.
-- `src/main.js`: the hardware skip (2 GB RAM or less, or 2 CPU cores or less) is removed, so every device loads the 3D hero. These still skip the 3D and show the designed hero with the faint PORT / FOLIO backdrop, unchanged: Data Saver on, a very slow connection (2g, or under 0.5 Mbps) and a browser without WebGL 2.
-- `premium.js`: `ASSETS_CAP_MS` goes from 3800 to 0. The curtain no longer waits for the 3D. It lifts after its normal minimum (about 2 s on a first visit, 0.8 s on later visits) once fonts and the page have loaded, and the 3D upgrades the hero when it arrives. In a sandbox test with the 3D delayed by 7 s the curtain lifted at 2.3 s instead of 4.3 s.
+**What this adds (the website itself is NOT touched):**
+- `tests/smoke.mjs`: opens the built site in Chrome (desktop and phone size) and fails if a path, font, script, the 3D hero, the project grid, filters, project panel or phone menu is broken.
+- `package.json`: one dev-only dependency `playwright-core` (about 14 MB, downloads no browser, uses the Chrome already installed on your PC) and one script `test:smoke`.
+- `package-lock.json`: updated for that dependency (+14 lines).
+- `graphify-out/`: the regenerated code map.
 
-Not changed: `hero-3d.js`, `hero-fallback.js`, the Data Saver / slow-network / WebGL 2 rules, the `__hero3dReady` shim.
-
-**Heads-up:** the 3D start-up work (a few hundred ms on a PC, more on a phone) can now land just after the curtain lifts instead of behind it. If the hero stutters after the lift on the A10, change `ASSETS_CAP_MS` in `premium.js` from 0 to about 1200 (a short wait) and tell me.
-
-Changed files: `src/main.js`, `premium.js`, `GUIDE.md`, refreshed `graphify-out/`.
+Base: main = `pre-tidy` = `abbdbb2` (Fix 07).
 
 ## Step 1: copy the files in
-Unzip `fix07.zip` into your clone folder (the one with `package.json`), choose **Replace**.
+Unzip this zip into your clone folder (the one with `package.json`) and choose **Replace** for all. Nothing is moved or deleted, so no `git mv` is needed.
 
-## Step 2: build and look
+## Step 2: install and test (Git Bash or terminal in the folder)
 ```
+npm install
 npm run build
-npm run preview
+npm run test:smoke
 ```
-`npm run build` must end with **OK** and say **129 files**. Open the preview with DevTools network set to Slow 4G: the curtain should lift after about 2 s even while the 3D is still loading, then the 3D letters appear.
+- `npm install` adds `playwright-core` (this folder's `node_modules`, never pushed).
+- The test needs Google Chrome installed on your PC (you have it).
+- It takes about 1 to 2 minutes. It must end with **SMOKE TEST PASSED**.
+- If it fails once, run `npm run test:smoke` again (it uses fixed waits); if it fails again, send me the lines that start with FAIL.
 
 ## Step 3: push
-GitHub Desktop: summary `Fix 07: 3D on every device, curtain does not wait for it` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions**.
-
-## Step 4: test on the A10
-Reload the live site on the A10. The 3D hero should now run (before, it showed the plain hero). Watch the curtain lift and scroll past the hero; if it feels laggy, send a short screen recording.
+GitHub Desktop: summary `Stage 1: add smoke test` -> **Commit to main** -> **Push origin**. Wait for the green tick under **Actions** (the test is not part of the deploy yet; that is Stage 4).
 
 ## If anything goes wrong
-GitHub Desktop -> **History** -> right-click the commit -> **Revert this commit** -> **Push origin**.
+GitHub Desktop -> **History** -> right-click the commit -> **Revert this commit** -> **Push origin**. The branch `pre-tidy` is the full rollback point.

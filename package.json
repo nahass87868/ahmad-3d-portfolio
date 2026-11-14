@@ -10,9 +10,11 @@
   "scripts": {
     "dev": "vite",
     "build": "node tools/build-site.mjs",
-    "preview": "vite preview --outDir dist"
+    "preview": "vite preview --outDir dist",
+    "test:smoke": "node tests/smoke.mjs"
   },
   "devDependencies": {
+    "playwright-core": "1.65.1",
     "vite": "8.3.5"
   },
   "dependencies": {
