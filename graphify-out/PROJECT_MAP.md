@@ -6,22 +6,22 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 20 |
-| `about-photo.js` | 6 KB | 132 |
-| `extras.js` | 19 KB | 390 |
-| `fixes.js` | 4 KB | 87 |
+| `GUIDE.md` | 2 KB | 31 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 23 |
-| `polish.js` | 22 KB | 360 |
 | `premium.css` | 8 KB | 113 |
-| `premium.js` | 21 KB | 355 |
-| `script.js` | 85 KB | 2185 |
 | `style.css` | 48 KB | 2152 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 44 |
 | `content/works.js` | 10 KB | 235 |
+| `js/about-photo.js` | 6 KB | 132 |
+| `js/extras.js` | 19 KB | 390 |
+| `js/fixes.js` | 4 KB | 87 |
+| `js/polish.js` | 22 KB | 360 |
+| `js/premium.js` | 21 KB | 355 |
+| `js/script.js` | 85 KB | 2185 |
 | `src/main.js` | 3 KB | 58 |
-| `src/hero/hero-3d.js` | 45 KB | 697 |
+| `src/hero/hero-3d.js` | 46 KB | 697 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `tests/smoke.mjs` | 6 KB | 91 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
@@ -39,13 +39,13 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 2. `premium.css`  (stylesheet)
 3. `vendor/gsap.min.js`  (defer)
 4. `vendor/ScrollTrigger.min.js`  (defer)
-5. `premium.js`  (defer)
+5. `js/premium.js`  (defer)
 6. `content/works.js`  (blocking)
-7. `script.js`  (blocking)
-8. `extras.js`  (defer)
-9. `fixes.js`  (defer)
-10. `about-photo.js`  (defer)
-11. `polish.js`  (defer)
+7. `js/script.js`  (blocking)
+8. `js/extras.js`  (defer)
+9. `js/fixes.js`  (defer)
+10. `js/about-photo.js`  (defer)
+11. `js/polish.js`  (defer)
 12. `src/main.js`  (module)
 
 ## window.* globals between scripts (a curtain/hero bug hid here once: check before changing any of these)
@@ -54,9 +54,9 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 |---|---|---|
 | `window.__BUILD__` | src/main.js:7 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:316, src/hero/hero-3d.js:682 |
-| `window.__WORKS__` | content/works.js:6 | script.js:124, tests/smoke.mjs:56, tools/build-site.mjs:38 |
+| `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:56, tools/build-site.mjs:38 |
 | `window.__hero3d` | src/hero/hero-3d.js:109, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51 |
-| `window.__hero3dReady` | src/main.js:11 | premium.js:103, premium.js:106, src/hero/hero-3d.js:22 |
+| `window.__hero3dReady` | src/main.js:11 | js/premium.js:103, js/premium.js:106, src/hero/hero-3d.js:22 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:24 |
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
@@ -85,10 +85,10 @@ Model file names do not equal slugs (e.g. `asus.glb`): the match above is by con
 ## Tunables (top of each module)
 
 - `src/hero/hero-3d.js`: BREAKPOINT, CLAY_DARK, CLAY_TINT, COLLIDER_CELL, COLLIDER_COVER, COLLIDER_GROW, COLLIDER_MAX, COLLIDER_MIN_R, DPR_MAX, FALLOFF, FILL_W, FLOAT_Y, GHOST_ALPHA, HOLD_MS, IDLE_FPS, LIFT, LIGHT_HEMI, NAME_FIT, NAME_ONE_LINE_EM, OPEN_DIST, PAGE_PAD, PULL, REGION_H_NARROW, REGION_H_WIDE, RELAX_FINISH, RELAX_HOME, RELAX_PASSES, RING_FOLLOW, RING_IDLE, ROUGH, THICK, TOUCH_OFFSET_PX, WIRE, WIRE_INSET
-- `script.js`: CALM_W_MIN, D_MAX, D_REST, EASE, FILL_MS, FILL_STAGGER, HOLD_MS, INTRO_END_MS, MAG_EASE, MAG_MAX, MAG_MAX_H, MAG_MAX_W, MAG_PULL, MAG_REACH, RADIUS, STROKE_STAGGER, TYPE_MS, W_MIN, W_REST
-- `extras.js`: 
-- `polish.js`: 
-- `premium.js`: 
+- `js/script.js`: CALM_W_MIN, D_MAX, D_REST, EASE, FILL_MS, FILL_STAGGER, HOLD_MS, INTRO_END_MS, MAG_EASE, MAG_MAX, MAG_MAX_H, MAG_MAX_W, MAG_PULL, MAG_REACH, RADIUS, STROKE_STAGGER, TYPE_MS, W_MIN, W_REST
+- `js/extras.js`: 
+- `js/polish.js`: 
+- `js/premium.js`: 
 
 ## Build
 

@@ -29,7 +29,7 @@ import * as THREE from 'three';
     pull: true, // desktop: the cluster is pulled toward the cursor
     portal: true, // the ring that reveals the mesh
     touchHold: true, // phones: press and hold on the 3D area, then drag, to move the ring
-    model: 'hero-3d-model.js',
+    model: 'js/hero-3d-model.js',
   };
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -689,7 +689,7 @@ html .hero .px .w:last-of-type { text-align: center; }
         ready3d();
       })
       .catch((err) => {
-        teardown('files did not load (' + (err && err.message) + '). Check that hero-3d-model.js is uploaded');
+        teardown('files did not load (' + (err && err.message) + '). Check that js/hero-3d-model.js is uploaded');
         ready3d();
       });
   });

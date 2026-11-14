@@ -18,7 +18,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, '..', 'assets-src', 'portfolio.glb')
-OUT = os.path.join(HERE, '..', 'hero-3d-model.js')
+OUT = os.path.join(HERE, '..', 'js', 'hero-3d-model.js')
 
 LETTERS = 'PORTFOLIO'
 # Longest side (x or z) of each letter in the model the layout was tuned with, in the file's own units.

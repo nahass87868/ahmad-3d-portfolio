@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 os.chdir(ROOT)
 OUT = Path('graphify-out'); OUT.mkdir(exist_ok=True)
 SKIP_DIRS = {'node_modules', 'dist', '.build', '.git', 'images', 'videos', 'models-src', 'assets-src', 'vendor', 'fonts', 'graphify-out', '.vite'}
-SKIP_FILES = {'hero-3d-model.js', 'package-lock.json'}
+SKIP_FILES = {'js/hero-3d-model.js', 'package-lock.json'}
 CODE_EXT = {'.js', '.mjs', '.py', '.json', '.yml', '.yaml'}
 
 def walk():
@@ -134,7 +134,7 @@ for k, b in enumerate([x for x in re.split(r"(?=slug: ')", works) if x.startswit
 M += ['', 'Model file names do not equal slugs (e.g. `asus.glb`): the match above is by containment; confirm before relying on it.', '']
 # tunables
 M += ['## Tunables (top of each module)', '']
-for p in ('src/hero/hero-3d.js', 'script.js', 'extras.js', 'polish.js', 'premium.js'):
+for p in ('src/hero/hero-3d.js', 'js/script.js', 'js/extras.js', 'js/polish.js', 'js/premium.js'):
     t = re.search(r"(?:const|let) (?:T|MOTION|TUNE|POLISH|EXTRAS|PREMIUM)\s*=\s*\{(.*?)\n\s*\};", open(p, encoding='utf8').read(), re.S)
     if t: M.append(f"- `{p}`: " + ', '.join(sorted(set(re.findall(r"\n\s+([A-Z][A-Z0-9_]+):", t.group(0))))[:40]))
 M += ['', '## Build', '', '`npm run build` -> `tools/build-site.mjs`: Vite builds `src/main.js` (+ lazy chunks, e.g. three.js) into `.build/modules`; the legacy files are copied to `dist/` and verified byte-identical; the build also writes one share-card page per project (`work/<slug>/`) and a no-JS project list into `index.html`, reading `content/works.js`; `og/<slug>.jpg` are their preview images; `.jpg` masters in `images/` are not published. `.github/workflows/deploy.yml` publishes `dist/` to GitHub Pages on push to main.',

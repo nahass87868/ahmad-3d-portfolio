@@ -10,6 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
+- script.js
 - deploy.yml
 -  + graph-map.py
 - build-site.mjs + smoke.mjs
@@ -18,8 +19,8 @@
 - extras.js
 - package.json + vite.config.js
 - polish.js
-- hero-3d.js + script.js
 - script.js
+- hero-3d.js + script.js
 - script.js + build-site.mjs
 - hero-fallback.js
 - script.js
@@ -38,13 +39,13 @@
 7. `initHeadings()` - 7 edges
 8. `mountPanelContent()` - 7 edges
 9. `openPanel()` - 7 edges
-10. `closePanel()` - 6 edges
+10. `steps` - 6 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `renderProject()` --indirect_call--> `esc()`  [INFERRED]
-  script.js → tools/build-site.mjs
+  js/script.js → tools/build-site.mjs
 - `typeTagline()` --indirect_call--> `step()`  [INFERRED]
-  script.js → src/hero/hero-3d.js
+  js/script.js → src/hero/hero-3d.js
 
 ## Import Cycles
 - None detected.
@@ -79,13 +80,13 @@ Nodes (9): initAvailability(), initBackToTop(), initCopyLabel(), initCursorIdle(
 Cohesion: 0.10
 Nodes (20): dependencies, three@0.186.1, description, devDependencies, playwright-core@1.65.1, vite@8.3.5, engines, node (+12 more)
 
-### Community 9 - "hero-3d.js + script.js"
-Cohesion: 0.20
-Nodes (14): heroIntro(), showTagline(), snapHero(), typeTagline(), run(), collide(), derivePointer(), frame() (+6 more)
-
-### Community 11 - "script.js"
+### Community 9 - "script.js"
 Cohesion: 0.21
-Nodes (14): closeFromUi(), go(), initGlobalUi(), initPanel(), initTheme(), initWorks(), layoutBento(), parseHash() (+6 more)
+Nodes (15): closeFromUi(), go(), heroIntro(), initGlobalUi(), initPanel(), initTheme(), parseHash(), route() (+7 more)
+
+### Community 11 - "hero-3d.js + script.js"
+Cohesion: 0.25
+Nodes (11): typeTagline(), run(), collide(), derivePointer(), frame(), readTheme(), resize(), step() (+3 more)
 
 ### Community 12 - "script.js + build-site.mjs"
 Cohesion: 0.18
@@ -130,7 +131,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `window.__BUILD__`, `window.__HERO3D_GLB__` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `script.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
 - **Why does `vite` connect `package.json + vite.config.js` to `build-site.mjs + smoke.mjs`?**
   _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `wake()` (e.g. with `frame()` and `initPanel()`) actually correct?**

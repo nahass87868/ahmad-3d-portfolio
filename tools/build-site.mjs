@@ -16,7 +16,7 @@ const DIST = join(ROOT, 'dist');
 const MODULES = join(ROOT, '.build', 'modules');
 
 const SITE_URL = 'https://nahass87868.github.io/ahmad-3d-portfolio/'; // share cards need absolute addresses. If you ever get a custom domain, change this one line.
-const FILES = ['content/works.js', 'style.css', 'premium.css', 'script.js', 'extras.js', 'fixes.js', 'about-photo.js', 'hero-3d-model.js', 'polish.js', 'premium.js'];
+const FILES = ['content/works.js', 'style.css', 'premium.css', 'js/script.js', 'js/extras.js', 'js/fixes.js', 'js/about-photo.js', 'js/hero-3d-model.js', 'js/polish.js', 'js/premium.js'];
 // not published: the old three.js (replaced by the npm version), the .jpg masters, and these two unused PNG masters
 const UNUSED_PNG_MASTERS = new Set(['images/smart-watch-image.png', 'images/vellum-image.png']);
 const skipped = (r) => r === 'vendor/three.min.js' || (r.startsWith('images/') && r.endsWith('.jpg')) || UNUSED_PNG_MASTERS.has(r);
