@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 1 KB | 23 |
+| `GUIDE.md` | 2 KB | 20 |
 | `about-photo.js` | 6 KB | 132 |
 | `extras.js` | 19 KB | 390 |
 | `fixes.js` | 4 KB | 87 |
@@ -18,7 +18,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `script.js` | 85 KB | 2185 |
 | `style.css` | 48 KB | 2152 |
 | `vite.config.js` | 1 KB | 23 |
-| `.github/workflows/deploy.yml` | 1 KB | 41 |
+| `.github/workflows/deploy.yml` | 1 KB | 44 |
 | `content/works.js` | 10 KB | 235 |
 | `src/main.js` | 3 KB | 58 |
 | `src/hero/hero-3d.js` | 45 KB | 697 |
