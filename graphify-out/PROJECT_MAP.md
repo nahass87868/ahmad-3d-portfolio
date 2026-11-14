@@ -6,14 +6,14 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 31 |
+| `GUIDE.md` | 2 KB | 30 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 23 |
-| `premium.css` | 8 KB | 113 |
-| `style.css` | 48 KB | 2152 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 44 |
 | `content/works.js` | 10 KB | 235 |
+| `css/premium.css` | 8 KB | 113 |
+| `css/style.css` | 48 KB | 2152 |
 | `js/about-photo.js` | 6 KB | 132 |
 | `js/extras.js` | 19 KB | 390 |
 | `js/fixes.js` | 4 KB | 87 |
@@ -35,8 +35,8 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 
 ## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)
 
-1. `style.css`  (stylesheet)
-2. `premium.css`  (stylesheet)
+1. `css/style.css`  (stylesheet)
+2. `css/premium.css`  (stylesheet)
 3. `vendor/gsap.min.js`  (defer)
 4. `vendor/ScrollTrigger.min.js`  (defer)
 5. `js/premium.js`  (defer)
