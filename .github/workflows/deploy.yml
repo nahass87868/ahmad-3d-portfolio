@@ -28,7 +28,6 @@ jobs:
       - run: npm run build
       - name: npm run test:smoke
         run: npm run test:smoke
-        continue-on-error: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -6,12 +6,12 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 1 KB | 18 |
+| `GUIDE.md` | 1 KB | 17 |
 | `README.md` | 6 KB | 101 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 23 |
 | `vite.config.js` | 1 KB | 23 |
-| `.github/workflows/deploy.yml` | 1 KB | 44 |
+| `.github/workflows/deploy.yml` | 1 KB | 43 |
 | `content/works.js` | 10 KB | 235 |
 | `css/premium.css` | 8 KB | 113 |
 | `css/style.css` | 48 KB | 2152 |
