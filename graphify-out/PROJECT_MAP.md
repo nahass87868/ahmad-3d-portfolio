@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 30 |
+| `GUIDE.md` | 2 KB | 39 |
 | `index.html` | 5 KB | 64 |
 | `package.json` | 0 KB | 23 |
 | `vite.config.js` | 1 KB | 23 |
@@ -31,7 +31,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
 
 Published folders (copied byte for byte, never graphed): `images/` (141 files, 76.8 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (2 files, 117 KB)
-Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modules/`, `graphify-out/`.
+Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out/`.
 
 ## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)
 
@@ -61,7 +61,7 @@ Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modul
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
 
-| # | slug | title | category | images | videos | breakdown trio | model in models-src (name match) |
+| # | slug | title | category | images | videos | breakdown trio | model in source (name match) |
 |---|---|---|---|---|---|---|---|
 | 1 | `realistic-ice` | Realistic Ice Render | Product Visualization | 2 | 0 | yes | - |
 | 2 | `soap-animation` | Soap Animation | Product Visualization | 4 | 1 | - | - |

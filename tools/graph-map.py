@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 os.chdir(ROOT)
 OUT = Path('graphify-out'); OUT.mkdir(exist_ok=True)
-SKIP_DIRS = {'node_modules', 'dist', '.build', '.git', 'images', 'videos', 'models-src', 'assets-src', 'vendor', 'fonts', 'graphify-out', '.vite'}
+SKIP_DIRS = {'node_modules', 'dist', '.build', '.git', 'images', 'videos', 'source', 'vendor', 'fonts', 'graphify-out', '.vite'}
 SKIP_FILES = {'js/hero-3d-model.js', 'package-lock.json'}
 CODE_EXT = {'.js', '.mjs', '.py', '.json', '.yml', '.yaml'}
 
@@ -115,7 +115,7 @@ for p in files:
     if Path(p).suffix in ('.js', '.mjs', '.css', '.html', '.py', '.json', '.yml', '.md'): M.append(f'| `{p}` | {mb(size(p))} | {sum(1 for _ in open(p, encoding="utf8", errors="replace"))} |')
 M += ['', '## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)', '',
       'Published folders (copied byte for byte, never graphed): ' + ', '.join(f'`{d}/` ({sum(len(fs) for _, _, fs in os.walk(d))} files, {mb(sum(size(os.path.join(a, f)) for a, _, fs in os.walk(d) for f in fs))})' for d in ('images', 'videos', 'fonts', 'vendor') if os.path.isdir(d)),
-      'Never published: `tools/`, `models-src/`, `assets-src/`, `.github/`, `node_modules/`, `graphify-out/`.', '']
+      'Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out/`.', '']
 M += ['## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)', '']
 for e in sorted([e for e in edges if e['relation'] == 'loads'], key=lambda e: e['order']): M.append(f"{e['order']}. `{[k for k, v in file_node.items() if v == e['target']][0]}`  ({e['kind']})")
 M += ['', '## window.* globals between scripts (a curtain/hero bug hid here once: check before changing any of these)', '', '| global | set in | read in |', '|---|---|---|']
@@ -123,9 +123,9 @@ for g, d in sorted(W.items()): M.append(f"| `window.{g}` | {', '.join(sorted({f'
 # project table
 works = open('content/works.js', encoding='utf8').read()
 bd = set(os.listdir('images/projects-breakdown')) if os.path.isdir('images/projects-breakdown') else set()
-mods = sorted(os.listdir('models-src')) if os.path.isdir('models-src') else []
+mods = sorted(os.listdir('source')) if os.path.isdir('source') else []
 ALIAS = {'2026-looks.glb': '2026-modes-looks'}  # model files whose names do not contain the slug (confirmed by the owner's naming)
-M += ['', '## Projects (source of truth: `content/works.js`, read by script.js and by the build)', '', '| # | slug | title | category | images | videos | breakdown trio | model in models-src (name match) |', '|---|---|---|---|---|---|---|---|']
+M += ['', '## Projects (source of truth: `content/works.js`, read by script.js and by the build)', '', '| # | slug | title | category | images | videos | breakdown trio | model in source (name match) |', '|---|---|---|---|---|---|---|---|']
 for k, b in enumerate([x for x in re.split(r"(?=slug: ')", works) if x.startswith("slug: '")], 1):
     s = re.match(r"slug: '([^']+)'", b).group(1); g = lambda r: (re.search(r, b) or [None, '?'])[1]
     ni = len(re.findall(r"'[^']+'", (re.search(r"images: \[(.*?)\]", b, re.S) or [0, ''])[1])); nv = len(re.findall(r"'[^']+'", (re.search(r"videos: \[(.*?)\]", b, re.S) or [0, ''])[1]))

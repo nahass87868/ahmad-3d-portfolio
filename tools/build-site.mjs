@@ -3,7 +3,7 @@
  *   1. Vite builds the modern layer (src/main.js) into .build/modules
  *   2. the existing site is copied into dist/ UNCHANGED, plus the module bundle
  *   3. every copied file is compared with its source, byte for byte. A difference stops the build.
- * Only the files listed below are published. tools/, models-src/, assets-src/ and the like never are.
+ * Only the files listed below are published. tools/, source/ and the like never are.
  */
 import { build } from 'vite';
 import { cpSync, rmSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';

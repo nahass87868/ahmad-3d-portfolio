@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-build-hero-model.py - turns assets-src/portfolio.glb into hero-3d-model.js (the base64 text the 3D hero loads).
+build-hero-model.py - turns source/portfolio.glb into hero-3d-model.js (the base64 text the 3D hero loads).
 
 Run it whenever you change the model:   python3 tools/build-hero-model.py
 Needs Python 3 and numpy (pip install numpy). Nothing else.
@@ -17,7 +17,7 @@ import base64, json, struct, sys, os
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, '..', 'assets-src', 'portfolio.glb')
+SRC = os.path.join(HERE, '..', 'source', 'portfolio.glb')
 OUT = os.path.join(HERE, '..', 'js', 'hero-3d-model.js')
 
 LETTERS = 'PORTFOLIO'
