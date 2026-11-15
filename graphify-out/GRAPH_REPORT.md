@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 358 nodes · 514 edges · 20 communities (16 shown, 4 thin omitted)
+- 359 nodes · 514 edges · 21 communities (16 shown, 5 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -50,7 +50,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (20 total, 4 thin omitted)
+## Communities (21 total, 5 thin omitted)
 
 ### Community 1 - "deploy.yml"
 Cohesion: 0.06
@@ -118,8 +118,8 @@ Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 195 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 196 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -133,7 +133,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `script.js` be split into smaller, more focused modules?**
   _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
 - **Why does `vite` connect `package.json + vite.config.js` to `build-site.mjs + smoke.mjs`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `wake()` (e.g. with `frame()` and `initPanel()`) actually correct?**
   _`wake()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Should `deploy.yml` be split into smaller, more focused modules?**
