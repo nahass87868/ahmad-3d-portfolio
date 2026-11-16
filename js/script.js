@@ -1947,6 +1947,7 @@
     if (!wasOpen) panelState.lastFocus = document.activeElement;
     unmountPanelContent(body);
     body.innerHTML = html;
+    if (work && window.__breakdown) window.__breakdown(body, work); // js/breakdown.js: wire/clay/final slider above the gallery
     panel.scrollTop = 0;
     mountPanelContent(body, panel);
     setPageMeta(title, description);

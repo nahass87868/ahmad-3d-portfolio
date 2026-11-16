@@ -17,6 +17,7 @@ window.__WORKS__ = [
     details:
       'A material and lighting study focused on believable ice, refraction, highlights, and controlled studio presentation.',
     tools: ['Blender', 'Cycles', 'Materials', 'Lighting'],
+    breakdown: [2560, 1440], // wire/clay/final trio in images/projects-breakdown/realistic-ice-image-wire|clay|final.webp; value = pixel size (box ratio)
   },
   {
     slug: 'soap-animation',
@@ -42,6 +43,7 @@ window.__WORKS__ = [
     description: 'Refreshing beverage hero shot with condensation and motion.',
     details: 'Product-focused beverage visualization with emphasis on materials, condensation, lighting, and motion.',
     tools: ['Blender', 'Cycles', 'Product Visualization'],
+    breakdown: [2048, 2048], // wire/clay/final trio in images/projects-breakdown/yerba-mate-animation-image-wire|clay|final.webp; value = pixel size (box ratio)
   },
   {
     slug: 'asus-product-animation',
@@ -121,6 +123,7 @@ window.__WORKS__ = [
     details:
       'A black steel frame carries a wood slat roof with integrated LED strips. The layout includes a marble-and-wood reception desk, a lounge with a wooden sofa set, wall panels showing building elevations, and a glass-enclosed meeting room. Warm wood, stone and concealed lighting tie the space together. Modeled and rendered in Blender 5.2 LTS with Cycles.',
     tools: ['Blender', 'Cycles', 'Interior Design', 'Lighting'],
+    breakdown: [2560, 1440], // wire/clay/final trio in images/projects-breakdown/real-estate-exhibition-booth-image-wire|clay|final.webp; value = pixel size (box ratio)
   },
   {
     slug: 'interior-room-design',
@@ -182,6 +185,7 @@ window.__WORKS__ = [
     details:
       'A procedural-style experiment combining soft body deformation, procedural shading, and volumetric smoke.',
     tools: ['Blender', 'Soft Body', 'Smoke', 'Procedural Shading'],
+    breakdown: [2048, 2048], // wire/clay/final trio in images/projects-breakdown/folder-inflation-image-wire|clay|final.webp; value = pixel size (box ratio)
   },
   {
     slug: 'vellum-simulation',
@@ -194,6 +198,7 @@ window.__WORKS__ = [
     description: 'A procedural growth-style simulation study.',
     details: 'A Houdini-inspired simulation experiment recreated with Blender techniques and procedural control.',
     tools: ['Blender', 'Geometry Nodes', 'Simulation', 'Procedural'],
+    breakdown: [1080, 1920], // wire/clay/final trio in images/projects-breakdown/vellum-simulation-image-wire|clay|final.webp; value = pixel size (box ratio)
   },
   {
     slug: 'date-cookies-animation',
@@ -206,6 +211,7 @@ window.__WORKS__ = [
     description: 'Food-focused product animation with controlled lighting and presentation.',
     details: 'A product visualization study focused on food form, materials, lighting, and camera movement.',
     tools: ['Blender', 'Cycles', 'Product Animation'],
+    breakdown: [2560, 1440], // wire/clay/final trio in images/projects-breakdown/date-cookies-animation-image-wire|clay|final.webp; value = pixel size (box ratio)
   },
   {
     slug: 'blue-mall-logo-animation',

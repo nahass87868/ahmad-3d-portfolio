@@ -6,27 +6,28 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 1 KB | 17 |
+| `GUIDE.md` | 2 KB | 24 |
 | `README.md` | 6 KB | 101 |
-| `index.html` | 5 KB | 64 |
+| `index.html` | 5 KB | 66 |
 | `package.json` | 0 KB | 23 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 43 |
-| `content/works.js` | 10 KB | 235 |
+| `content/works.js` | 11 KB | 241 |
 | `css/premium.css` | 8 KB | 113 |
-| `css/style.css` | 48 KB | 2152 |
+| `css/style.css` | 49 KB | 2202 |
 | `js/about-photo.js` | 6 KB | 132 |
+| `js/breakdown.js` | 3 KB | 54 |
 | `js/extras.js` | 19 KB | 390 |
 | `js/fixes.js` | 4 KB | 87 |
 | `js/polish.js` | 22 KB | 360 |
 | `js/premium.js` | 21 KB | 355 |
-| `js/script.js` | 85 KB | 2185 |
+| `js/script.js` | 85 KB | 2186 |
 | `src/main.js` | 3 KB | 58 |
 | `src/hero/hero-3d.js` | 46 KB | 697 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
-| `tests/smoke.mjs` | 6 KB | 91 |
+| `tests/smoke.mjs` | 7 KB | 101 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
-| `tools/build-site.mjs` | 8 KB | 91 |
+| `tools/build-site.mjs` | 9 KB | 95 |
 | `tools/graph-map.py` | 11 KB | 142 |
 
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
@@ -47,7 +48,8 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 9. `js/fixes.js`  (defer)
 10. `js/about-photo.js`  (defer)
 11. `js/polish.js`  (defer)
-12. `src/main.js`  (module)
+12. `js/breakdown.js`  (defer)
+13. `src/main.js`  (module)
 
 ## window.* globals between scripts (a curtain/hero bug hid here once: check before changing any of these)
 
@@ -56,6 +58,7 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 | `window.__BUILD__` | src/main.js:7 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:316, src/hero/hero-3d.js:682 |
 | `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:56, tools/build-site.mjs:38 |
+| `window.__breakdown` | js/breakdown.js:12 | js/script.js:1950 |
 | `window.__hero3d` | src/hero/hero-3d.js:109, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51 |
 | `window.__hero3dReady` | src/main.js:11 | js/premium.js:103, js/premium.js:106, src/hero/hero-3d.js:22 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:24 |

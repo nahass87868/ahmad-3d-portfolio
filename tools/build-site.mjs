@@ -16,7 +16,7 @@ const DIST = join(ROOT, 'dist');
 const MODULES = join(ROOT, '.build', 'modules');
 
 const SITE_URL = 'https://nahass87868.github.io/ahmad-3d-portfolio/'; // share cards need absolute addresses. If you ever get a custom domain, change this one line.
-const FILES = ['content/works.js', 'css/style.css', 'css/premium.css', 'js/script.js', 'js/extras.js', 'js/fixes.js', 'js/about-photo.js', 'js/hero-3d-model.js', 'js/polish.js', 'js/premium.js'];
+const FILES = ['content/works.js', 'css/style.css', 'css/premium.css', 'js/script.js', 'js/extras.js', 'js/fixes.js', 'js/about-photo.js', 'js/hero-3d-model.js', 'js/polish.js', 'js/premium.js', 'js/breakdown.js'];
 // not published: the old three.js (replaced by the npm version), the .jpg masters, and these two unused PNG masters
 const UNUSED_PNG_MASTERS = new Set(['images/smart-watch-image.png', 'images/vellum-image.png']);
 const skipped = (r) => r === 'vendor/three.min.js' || (r.startsWith('images/') && r.endsWith('.jpg')) || UNUSED_PNG_MASTERS.has(r);
@@ -48,6 +48,10 @@ works.forEach((w, i) => {
   if (isText(w.slug)) { if (slugs.has(w.slug)) bad(`duplicate slug "${w.slug}"`); slugs.add(w.slug); }
   const media = [[w.thumb, 'images/thumbs/', '.webp'], ...[].concat(w.images || []).map((n) => [n, 'images/', '.webp']), ...[].concat(w.videos || []).map((n) => [n, 'videos/', '.mp4'])];
   for (const [n, dir, ext] of media) if (isText(n) && !existsSync(join(ROOT, dir + n + ext))) bad(`missing file ${dir}${n}${ext}`);
+  if (w.breakdown) { // wire/clay/final trio: [width, height] of the images, and all 3 files must exist
+    if (!Array.isArray(w.breakdown) || w.breakdown.length !== 2 || !w.breakdown.every((n) => Number.isInteger(n) && n > 0)) bad('"breakdown" must be [width, height]');
+    if (isText(w.slug)) for (const l of ['wire', 'clay', 'final']) if (!existsSync(join(ROOT, `images/projects-breakdown/${w.slug}-image-${l}.webp`))) bad(`missing file images/projects-breakdown/${w.slug}-image-${l}.webp`);
+  }
 });
 if (problems.length) fail(`content/works.js has ${problems.length} problem(s):\n  - ` + problems.join('\n  - '));
 const esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
