@@ -2167,18 +2167,52 @@ html[data-vp='wire'] .tile > a:after {
   overflow: hidden;
   background: var(--surface);
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
-.bd-stage img {
+.bd-l {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+}
+.bd-l.off {
+  visibility: hidden;
+}
+.bd-l img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  visibility: hidden;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
-.bd-stage img.on {
-  visibility: visible;
+.bd-h {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--acc);
+  pointer-events: none;
+}
+.bd-h::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 44px;
+  margin: -22px 0 0 -7px;
+  border-radius: 999px;
+  background: var(--acc);
+}
+.bd-live .bd-l,
+.bd-live .bd-l img,
+.bd-live .bd-h {
+  will-change: transform;
 }
 .bd-stops {
   display: flex;
@@ -2186,17 +2220,27 @@ html[data-vp='wire'] .tile > a:after {
   border-top: 1px solid var(--line);
 }
 .bd-stop {
+  position: relative;
   flex: 1;
   min-height: 44px;
   margin: -1px 0 0;
   padding: 0;
   border: 0;
-  border-top: 2px solid transparent;
   background: none;
   color: var(--mut);
+  opacity: calc(0.55 + 0.45 * var(--k, 0));
   cursor: pointer;
+}
+.bd-stop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--acc);
+  opacity: var(--k, 0);
 }
 .bd-stop.on {
   color: var(--ink);
-  border-top-color: var(--acc);
 }

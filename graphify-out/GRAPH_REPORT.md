@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 362 nodes · 518 edges · 21 communities (16 shown, 5 thin omitted)
+- 376 nodes · 532 edges · 22 communities (16 shown, 6 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -18,7 +18,7 @@
 - extras.js
 - package.json + vite.config.js
 - polish.js
-- fixes.js + about-photo.js
+- breakdown.js
 - hero-3d.js + script.js
 - script.js
 - script.js + build-site.mjs
@@ -50,7 +50,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (21 total, 5 thin omitted)
+## Communities (22 total, 6 thin omitted)
 
 ### Community 1 - "deploy.yml"
 Cohesion: 0.06
@@ -84,56 +84,56 @@ Nodes (20): dependencies, three@0.186.1, description, devDependencies, playwrigh
 Cohesion: 0.20
 Nodes (14): heroIntro(), showTagline(), snapHero(), typeTagline(), run(), collide(), derivePointer(), frame() (+6 more)
 
-### Community 11 - "script.js"
+### Community 12 - "script.js"
 Cohesion: 0.21
 Nodes (14): closeFromUi(), go(), initGlobalUi(), initPanel(), initTheme(), initWorks(), layoutBento(), parseHash() (+6 more)
 
-### Community 12 - "script.js + build-site.mjs"
+### Community 13 - "script.js + build-site.mjs"
 Cohesion: 0.18
 Nodes (13): bindMagnetRefresh(), closePanel(), disposeHeadings(), initMedia(), initProjectVideos(), initScrollMotion(), mountPanelContent(), openPanel() (+5 more)
 
-### Community 13 - "hero-fallback.js"
+### Community 14 - "hero-fallback.js"
 Cohesion: 0.35
 Nodes (9): ensureFallbackStyle(), fitName(), mountHeroFallback(), mountIntoHero(), observeHero(), queueSizeFallback(), sizeFallback(), sizeGhost() (+1 more)
 
-### Community 14 - "script.js"
+### Community 15 - "script.js"
 Cohesion: 0.22
 Nodes (10): bindHeadingMeasure(), buildWidthTable(), enableEngineB(), frame(), initCursor(), initHeadings(), initPointer(), measureHeadings() (+2 more)
 
-### Community 15 - "script.js"
+### Community 16 - "script.js"
 Cohesion: 0.22
 Nodes (9): boot(), categories(), render(), renderHome(), renderShellBottom(), renderShellTop(), runIntro(), tile() (+1 more)
 
-### Community 16 - "script.js"
+### Community 17 - "script.js"
 Cohesion: 0.40
 Nodes (6): initCards(), initViewport(), apply(), releaseCard(), stepCards(), viewportOff()
 
-### Community 17 - "script.js"
+### Community 18 - "script.js"
 Cohesion: 0.40
 Nodes (5): layoutLines(), stepEngineA(), stepEngineB(), stepHeadings(), widthAt()
 
-### Community 18 - "script.js"
+### Community 19 - "script.js"
 Cohesion: 0.50
 Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 197 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 211 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `window.__WORKS__` connect `build-site.mjs + smoke.mjs` to `script.js`?**
-  _High betweenness centrality (0.128) - this node is a cross-community bridge._
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `start()` (e.g. with `boot()` and `stepCards()`) actually correct?**
   _`start()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `window.__BUILD__`, `window.__HERO3D_GLB__` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `script.js` be split into smaller, more focused modules?**
   _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
-- **Why does `vite` connect `package.json + vite.config.js` to `build-site.mjs + smoke.mjs`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `three` connect `package.json + vite.config.js` to `hero-3d.js + main.js`?**
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `wake()` (e.g. with `frame()` and `initPanel()`) actually correct?**
   _`wake()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Should `deploy.yml` be split into smaller, more focused modules?**
