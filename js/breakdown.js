@@ -1,5 +1,5 @@
 /*
- * Breakdown slider (Phase 4a structure + 4b motion): wire, clay and final renders of one project, one stage above the gallery.
+ * Breakdown slider (Phase 4a structure + 4b motion + 4c scroll): wire, clay and final renders of one project, one stage above the gallery.
  * Shown only for projects with `breakdown: [width, height]` in content/works.js. Called once by openPanel() in script.js
  * after the project markup is in the panel. A classic script, loaded last.
  *
@@ -7,6 +7,11 @@
  * and the edge moves 1:1 with the finger. Only transform and opacity change (each layer is a clipping wrapper moved by
  * translateX, its image moved back so the picture stays put). One rAF loop runs only while dragging or settling, and only
  * while the slider is on screen.
+ *
+ * Scroll (4c): the slider starts on Wire and scrolling the project panel moves it Wire > Clay > Final (up again reverses).
+ * Scroll only ADDS its change to the current position (never an absolute mapping), so after a drag, key or stop click the
+ * scroll carries on from wherever the slider was left, with no jump. A drag in progress wins over scroll. Reduced motion:
+ * scroll does not drive it, it rests on Final.
  */
 (function () {
   'use strict';
@@ -22,7 +27,9 @@
     parallax: 0.012, // counter-parallax of the layers, share of the stage width
     grab: 0.02, // extra scale while grabbed
     rubber: 0.04, // end-stop reach, in stage widths (Apple rubber-band curve, constant 0.55)
-    nudge: 5.5, // first-view hint: kick velocity in layers/s
+    scrollResponse: 0.3, // scroll smoothing spring, damping 1.0 (the lightest of the default 0.3-0.4 range)
+    scrollStart: 0.8, // scroll starts moving it when the slider's top reaches this share of the viewport height (from the top)
+    scrollEnd: 0.5, // and it is on Final when the slider's centre reaches this share (0.5 = the middle of the viewport)
   };
   const SLOP = 6; // px of horizontal travel before a touch or click counts as a drag (vertical scroll keeps working)
   const GRIP = 8; // px the handle keeps from the stage edge
@@ -31,12 +38,13 @@
   const reduced = () => mq.matches && !document.documentElement.classList.contains('mfull'); // ?motion=full overrides, as in script.js
   const rb = (o) => (Math.sign(o) * (Math.abs(o) * FEEL.rubber * 0.55)) / (FEEL.rubber + 0.55 * Math.abs(o));
   const disp = (x) => clamp(x, 0, 2) + rb(x - clamp(x, 0, 2)); // position as drawn: soft past the ends
-  let hinted = false; // the hint nudge plays once per page load
-
+  
   window.__breakdown = function (body, work) {
     const size = work.breakdown;
     const host = body.querySelector('.gallery') || body.querySelector('.pn'); // above the gallery
-    if (!Array.isArray(size) || !host) return;
+    const panel = body.closest('.panel'); // the scroll container (the page behind it is locked while it is open)
+    if (!Array.isArray(size) || !host || !panel) return;
+    const at = reduced() ? 2 : 0; // starts on Wire; reduced motion rests on Final
     const [w, h] = size;
     const imgs = LAYERS.map(
       (l, i) =>
@@ -46,7 +54,7 @@
     host.insertAdjacentHTML(
       'beforebegin',
       `<section class="bd" aria-label="Breakdown of ${esc(work.title)}"><div class="bd-in" style="--bd-r:${w} / ${h};--bd-n:${(w / h).toFixed(4)}">` +
-        `<div class="bd-stage" role="slider" tabindex="0" aria-label="${esc(work.title)} breakdown layer" aria-valuemin="0" aria-valuemax="2" aria-valuenow="2" aria-valuetext="Final">${imgs}<span class="bd-h" aria-hidden="true"></span></div>` +
+        `<div class="bd-stage" role="slider" tabindex="0" aria-label="${esc(work.title)} breakdown layer" aria-valuemin="0" aria-valuemax="2" aria-valuenow="${at}" aria-valuetext="${NAMES[at]}">${imgs}<span class="bd-h" aria-hidden="true"></span></div>` +
         `<div class="bd-stops">${stops}</div></div></section>`,
     );
     const root = host.previousElementSibling;
@@ -56,9 +64,9 @@
     const handle = stage.querySelector('.bd-h');
     const btns = [...root.querySelectorAll('.bd-stop')];
 
-    let value = 2; // the stop the slider is heading for (what aria reports)
-    let x = 2, v = 0; // position in layers (0 wire .. 2 final) and velocity in layers/s
-    let T = 2, wn = 0, zeta = 1, dir = 0; // settle target and spring
+    let value = at; // the stop the slider is heading for (what aria reports)
+    let x = at, v = 0; // position in layers (0 wire .. 2 final) and velocity in layers/s
+    let T = at, wn = 0, zeta = 1, dir = 0; // settle target and spring
     let mode = 'idle'; // idle | settle | drag
     let grab = 0, grabTo = 0, W = 1, visible = false, raf = 0, last = 0, drag = null;
     const shown = [true, true, true];
@@ -128,10 +136,10 @@
         rest();
       }
     };
-    const settle = (t, bounce) => {
+    const settle = (t) => {
       T = t;
       dir = Math.sign(t - x);
-      const flick = bounce || (Math.abs(v) > 0.8 && (t === 0 || t === 2) && x >= 0 && x <= 2);
+      const flick = Math.abs(v) > 0.8 && (t === 0 || t === 2) && x >= 0 && x <= 2;
       wn = (2 * Math.PI) / (flick ? FEEL.flickResponse : FEEL.response);
       zeta = flick ? 0.8 : 1;
       mode = 'settle';
@@ -202,6 +210,32 @@
     stage.addEventListener('pointerup', release);
     stage.addEventListener('pointercancel', release);
 
+    // --- scroll: the change in the panel's scroll position inside the range [lo, hi] is added to the slider position ---
+    let s0 = 0; // last scrollTop seen (openPanel resets it to 0 right after this runs)
+    const scrolled = () => {
+      const s = panel.scrollTop, H = panel.clientHeight, r = stage.getBoundingClientRect();
+      const top = s + r.top - panel.getBoundingClientRect().top; // slider top in panel content coordinates
+      const lo = Math.max(0, top - FEEL.scrollStart * H); // scroll where it starts moving
+      const hi = Math.max(lo + 1, Math.min(top + r.height / 2 - FEEL.scrollEnd * H, panel.scrollHeight - H)); // where it is on Final
+      const d = ((clamp(s, lo, hi) - clamp(s0, lo, hi)) / (hi - lo)) * 2; // layers
+      s0 = s;
+      return d;
+    };
+    const onScroll = () => {
+      if (!root.isConnected) return panel.removeEventListener('scroll', onScroll); // the panel loaded another project
+      const d = scrolled(); // always advances s0, so a drag or reduced motion never leaves a backlog
+      if (!d || mode === 'drag' || reduced()) return; // a drag in progress wins
+      T = clamp((mode === 'settle' || mode === 'hold' ? T : x) + d, 0, 2); // carry on from where the slider is heading
+      const n = clamp(Math.round(T), 0, 2);
+      if (n !== value) aria(n);
+      if (mode === 'hold') return; // a finger just landed on it: the release picks up the new target
+      if (!visible) { x = T; v = 0; mode = 'idle'; return render(); } // off screen: no loop, just stay in step
+      dir = Math.sign(T - x);
+      if (mode !== 'settle') { wn = (2 * Math.PI) / FEEL.scrollResponse; zeta = 1; mode = 'settle'; live(true); } // a flick in flight keeps its own spring
+      kick();
+    };
+    panel.addEventListener('scroll', onScroll, { passive: true });
+
     // --- keyboard and stops: same keys and values as 4a ---
     stage.addEventListener('keydown', (e) => {
       const to = { ArrowLeft: value - 1, ArrowDown: value - 1, ArrowRight: value + 1, ArrowUp: value + 1, Home: 0, End: 2 }[e.key];
@@ -216,35 +250,27 @@
       }),
     );
 
-    // --- on screen: load the hidden layers, run the loop only while visible, hint once ---
-    let loaded = false;
+    // --- on screen: run the loop only while visible; the hidden layers load and decode a screen BEFORE the slider scrolls in ---
     new ResizeObserver(() => (W = stage.clientWidth || 1)).observe(stage);
-    const io = new IntersectionObserver(
+    const pre = new IntersectionObserver(
       (entries) => {
-        const e = entries[entries.length - 1];
-        if (!root.isConnected) return io.disconnect();
-        visible = e.isIntersecting;
-        if (!visible) return stop();
-        if (!loaded) {
-          loaded = true;
-          pics.forEach((im) => {
-            im.loading = 'eager'; // the two hidden layers are clipped away, so lazy loading would never fetch them
-            if (im.decode) im.decode().catch(() => {});
-          });
-        }
-        if (e.intersectionRatio >= 0.6 && !hinted && !reduced() && mode === 'idle' && value === 2) {
-          hinted = true;
-          setTimeout(() => {
-            if (!visible || mode !== 'idle' || drag || !root.isConnected) return;
-            x = 2;
-            v = -FEEL.nudge; // a small kick toward clay; the spring brings it back to final
-            settle(2, true);
-          }, 600);
-        }
+        if (!root.isConnected) return pre.disconnect();
+        if (!entries[entries.length - 1].isIntersecting) return;
+        pre.disconnect();
+        pics.forEach((im) => {
+          im.loading = 'eager'; // the two hidden layers are clipped away, so lazy loading would never fetch them
+          if (im.decode) im.decode().catch(() => {});
+        });
       },
-      { threshold: [0, 0.6] },
+      { root: panel, rootMargin: '0px 0px 100% 0px' }, // one panel height below the visible area
     );
+    pre.observe(stage);
+    const io = new IntersectionObserver((entries) => {
+      if (!root.isConnected) return io.disconnect();
+      visible = entries[entries.length - 1].isIntersecting;
+      if (!visible) stop();
+    });
     io.observe(stage);
-    render(); // rests on final
+    render(); // starts on Wire (reduced motion: Final)
   };
 })();

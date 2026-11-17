@@ -75,14 +75,14 @@ for (const [profile, ctxOpts] of [
   const closed = await page.evaluate(() => ({ hash: location.hash, hidden: document.getElementById('panel').getAttribute('aria-hidden') }));
   check(profile, 'Escape closes the project', closed.hidden === 'true' && closed.hash.length <= 1, JSON.stringify(closed));
 
-  // breakdown slider: a flagged project shows it at "Final", an arrow key changes the layer, a project without the flag has none
+  // breakdown slider: a flagged project shows it at "Wire" (scroll moves it from there), an arrow key changes the layer, a project without the flag has none
   await page.evaluate(() => { location.hash = '#work/realistic-ice'; }); await page.waitForTimeout(2500);
   const bd0 = await page.locator('.bd-stage[role=slider]').getAttribute('aria-valuetext');
-  await page.locator('.bd-stage').focus(); await page.keyboard.press('ArrowLeft');
+  await page.locator('.bd-stage').evaluate((e) => e.focus({ preventScroll: true })); await page.keyboard.press('ArrowRight'); // preventScroll: scroll would move the slider
   const bd1 = await page.locator('.bd-stage').getAttribute('aria-valuetext');
   await page.evaluate(() => { location.hash = '#work/realistic-water-glass'; }); await page.waitForTimeout(2500);
   const bdNone = await page.locator('.bd').count();
-  check(profile, 'breakdown slider: Final, arrow key changes layer, none without the flag', bd0 === 'Final' && bd1 === 'Clay' && bdNone === 0, `${bd0} / ${bd1} / ${bdNone}`);
+  check(profile, 'breakdown slider: Wire, arrow key changes layer, none without the flag', bd0 === 'Wire' && bd1 === 'Clay' && bdNone === 0, `${bd0} / ${bd1} / ${bdNone}`);
   await page.keyboard.press('Escape'); await page.waitForTimeout(1500);
 
   if (profile === 'phone') {

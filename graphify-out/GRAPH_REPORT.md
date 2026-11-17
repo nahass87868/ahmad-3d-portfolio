@@ -1,15 +1,16 @@
-# Graph Report - ahmad-3d-portfolio  (2026-11-16)
+# Graph Report - ahmad-3d-portfolio  (2026-11-17)
 
 ## Corpus Check
 - 21 files · ~0 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 376 nodes · 532 edges · 22 communities (16 shown, 6 thin omitted)
+- 378 nodes · 534 edges · 22 communities (16 shown, 6 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
+- script.js
 - deploy.yml
 -  + graph-map.py
 - build-site.mjs + smoke.mjs
@@ -17,10 +18,10 @@
 - premium.js
 - extras.js
 - package.json + vite.config.js
-- polish.js
 - breakdown.js
-- hero-3d.js + script.js
+- polish.js
 - script.js
+- hero-3d.js + script.js
 - script.js + build-site.mjs
 - hero-fallback.js
 - script.js
@@ -80,13 +81,13 @@ Nodes (9): initAvailability(), initBackToTop(), initCopyLabel(), initCursorIdle(
 Cohesion: 0.10
 Nodes (20): dependencies, three@0.186.1, description, devDependencies, playwright-core@1.65.1, vite@8.3.5, engines, node (+12 more)
 
-### Community 10 - "hero-3d.js + script.js"
-Cohesion: 0.20
-Nodes (14): heroIntro(), showTagline(), snapHero(), typeTagline(), run(), collide(), derivePointer(), frame() (+6 more)
-
-### Community 12 - "script.js"
+### Community 10 - "script.js"
 Cohesion: 0.21
-Nodes (14): closeFromUi(), go(), initGlobalUi(), initPanel(), initTheme(), initWorks(), layoutBento(), parseHash() (+6 more)
+Nodes (15): closeFromUi(), go(), heroIntro(), initGlobalUi(), initPanel(), initTheme(), parseHash(), route() (+7 more)
+
+### Community 12 - "hero-3d.js + script.js"
+Cohesion: 0.25
+Nodes (11): typeTagline(), run(), collide(), derivePointer(), frame(), readTheme(), resize(), step() (+3 more)
 
 ### Community 13 - "script.js + build-site.mjs"
 Cohesion: 0.18
@@ -118,7 +119,7 @@ Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 211 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 213 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
@@ -131,7 +132,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `window.__BUILD__`, `window.__HERO3D_GLB__` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `script.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
 - **Why does `three` connect `package.json + vite.config.js` to `hero-3d.js + main.js`?**
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `wake()` (e.g. with `frame()` and `initPanel()`) actually correct?**

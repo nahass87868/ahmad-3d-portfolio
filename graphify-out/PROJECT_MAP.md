@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 2 KB | 22 |
+| `GUIDE.md` | 3 KB | 29 |
 | `README.md` | 6 KB | 101 |
 | `index.html` | 5 KB | 66 |
 | `package.json` | 0 KB | 23 |
@@ -16,7 +16,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `css/premium.css` | 8 KB | 113 |
 | `css/style.css` | 50 KB | 2246 |
 | `js/about-photo.js` | 6 KB | 132 |
-| `js/breakdown.js` | 12 KB | 250 |
+| `js/breakdown.js` | 15 KB | 276 |
 | `js/extras.js` | 19 KB | 390 |
 | `js/fixes.js` | 4 KB | 87 |
 | `js/polish.js` | 22 KB | 360 |
@@ -58,7 +58,7 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 | `window.__BUILD__` | src/main.js:7 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:316, src/hero/hero-3d.js:682 |
 | `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:56, tools/build-site.mjs:38 |
-| `window.__breakdown` | js/breakdown.js:36 | js/script.js:1950 |
+| `window.__breakdown` | js/breakdown.js:42 | js/script.js:1950 |
 | `window.__hero3d` | src/hero/hero-3d.js:109, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51 |
 | `window.__hero3dReady` | src/main.js:11 | js/premium.js:103, js/premium.js:106, src/hero/hero-3d.js:22 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:24 |
