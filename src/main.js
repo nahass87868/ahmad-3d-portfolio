@@ -56,3 +56,23 @@ mountHeroFallback()
     window.__hero3d = { state: 'fallback-failed', reason: err && err.message ? err.message : String(err) };
     done();
   });
+
+// Phase 5a: Lenis smooth scroll, desktop only. The test is the same as FINE and REDUCED in js/script.js (including the ?motion=full override),
+// so touch and reduced motion never download it. It starts once the intro is done (body.go).
+const motionParam = (() => {
+  try { const q = new URLSearchParams(location.search).get('motion'); if (q !== null) return q; } catch (e) { /* ignore */ }
+  try { return localStorage.getItem('pf_motion'); } catch (e) { return null; }
+})();
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches && motionParam !== 'full';
+if (matchMedia('(hover: hover) and (pointer: fine)').matches && !reducedMotion) {
+  const startLenis = () => import('./scroll/lenis.js').catch((err) => console.warn('[lenis] could not load:', err));
+  if (document.body.classList.contains('go')) startLenis();
+  else {
+    const mo = new MutationObserver(() => {
+      if (!document.body.classList.contains('go')) return;
+      mo.disconnect();
+      startLenis();
+    });
+    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+}

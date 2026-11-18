@@ -6,10 +6,9 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `GUIDE.md` | 3 KB | 29 |
 | `README.md` | 6 KB | 101 |
 | `index.html` | 5 KB | 66 |
-| `package.json` | 0 KB | 23 |
+| `package.json` | 1 KB | 24 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 43 |
 | `content/works.js` | 11 KB | 241 |
@@ -22,9 +21,10 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `js/polish.js` | 22 KB | 360 |
 | `js/premium.js` | 21 KB | 355 |
 | `js/script.js` | 85 KB | 2186 |
-| `src/main.js` | 3 KB | 58 |
+| `src/main.js` | 4 KB | 78 |
 | `src/hero/hero-3d.js` | 46 KB | 697 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
+| `src/scroll/lenis.js` | 2 KB | 41 |
 | `tests/smoke.mjs` | 7 KB | 101 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
 | `tools/build-site.mjs` | 9 KB | 95 |

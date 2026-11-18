@@ -1,11 +1,11 @@
-# Graph Report - ahmad-3d-portfolio  (2026-11-17)
+# Graph Report - ahmad-3d-portfolio  (2026-11-18)
 
 ## Corpus Check
-- 21 files · ~0 words
+- 22 files · ~0 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 378 nodes · 534 edges · 22 communities (16 shown, 6 thin omitted)
+- 387 nodes · 546 edges · 21 communities (16 shown, 5 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 36 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -14,10 +14,10 @@
 - deploy.yml
 -  + graph-map.py
 - build-site.mjs + smoke.mjs
+- package.json + lenis.js
 - hero-3d.js + main.js
 - premium.js
 - extras.js
-- package.json + vite.config.js
 - breakdown.js
 - polish.js
 - script.js
@@ -51,7 +51,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (22 total, 6 thin omitted)
+## Communities (21 total, 5 thin omitted)
 
 ### Community 1 - "deploy.yml"
 Cohesion: 0.06
@@ -65,21 +65,21 @@ Nodes (9): accessor(), main(), pad4(), read_glb(), add_node(), fnode(), label(),
 Cohesion: 0.07
 Nodes (15): DIST, server, TYPES, ctx, DIRS, DIST, FILES, html (+7 more)
 
-### Community 4 - "hero-3d.js + main.js"
-Cohesion: 0.09
-Nodes (7): fitName(), watchName(), window.__BUILD__, window.__hero3d, window.__HERO3D_GLB__, window.__hero3dReady, window.__hero3dResolve
+### Community 4 - "package.json + lenis.js"
+Cohesion: 0.08
+Nodes (24): dependencies, lenis@1.3.27, three@0.186.1, description, devDependencies, playwright-core@1.65.1, vite@8.3.5, engines (+16 more)
 
-### Community 5 - "premium.js"
+### Community 5 - "hero-3d.js + main.js"
+Cohesion: 0.08
+Nodes (8): fitName(), watchName(), motionParam, window.__BUILD__, window.__hero3d, window.__HERO3D_GLB__, window.__hero3dReady, window.__hero3dResolve
+
+### Community 6 - "premium.js"
 Cohesion: 0.09
 Nodes (4): initIndex(), initPortrait(), initProject(), whenReady()
 
-### Community 6 - "extras.js"
+### Community 7 - "extras.js"
 Cohesion: 0.13
 Nodes (9): initAvailability(), initBackToTop(), initCopyLabel(), initCursorIdle(), initFilterTransition(), initNavActive(), initScrollProgress(), initToolbarTips() (+1 more)
-
-### Community 7 - "package.json + vite.config.js"
-Cohesion: 0.10
-Nodes (20): dependencies, three@0.186.1, description, devDependencies, playwright-core@1.65.1, vite@8.3.5, engines, node (+12 more)
 
 ### Community 10 - "script.js"
 Cohesion: 0.21
@@ -119,21 +119,21 @@ Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 213 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 218 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `window.__WORKS__` connect `build-site.mjs + smoke.mjs` to `script.js`?**
-  _High betweenness centrality (0.124) - this node is a cross-community bridge._
+  _High betweenness centrality (0.118) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `start()` (e.g. with `boot()` and `stepCards()`) actually correct?**
   _`start()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `window.__BUILD__`, `window.__HERO3D_GLB__` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `script.js` be split into smaller, more focused modules?**
   _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
-- **Why does `three` connect `package.json + vite.config.js` to `hero-3d.js + main.js`?**
+- **Why does `vite` connect `package.json + lenis.js` to `build-site.mjs + smoke.mjs`?**
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `wake()` (e.g. with `frame()` and `initPanel()`) actually correct?**
   _`wake()` has 2 INFERRED edges - model-reasoned connections that need verification._
