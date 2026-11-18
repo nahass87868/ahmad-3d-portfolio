@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createWorld } from '../world/world.js';
 /*
  * hero-3d.js — isolated add-on. It never edits script.js, style.css, extras.js, fixes.js or about-photo.js.
  * It only ADDS: one <style>, one <div> inside the hero (canvas + ghost text), and one ring <div>. Nothing existing is renamed or removed.
@@ -282,7 +283,8 @@ html .hero .px .w:last-of-type { text-align: center; }
     const ghost = q('.x-ghost', region);
     const hint = q('.x-h3d-hint', region);
     const cur = q('#cur');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    const world = createWorld(canvas); // the world owns the renderer and the one rAF loop (src/world/world.js)
+    const renderer = world.renderer;
     THREE.ColorManagement.enabled = false; // keeps r128-style colour so the hero looks exactly as before (set before any colour is made)
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -493,8 +495,8 @@ html .hero .px .w:last-of-type { text-align: center; }
       .observe(root, { attributes: true, attributeFilter: ['data-theme', 'style'] });
 
     /* ── state ── */
-    const S = { w: 1, h: 1, dpr: Math.min(devicePixelRatio || 1, TOUCH ? T.DPR_MAX_TOUCH : T.DPR_MAX), vW: 3.2, vH: 2.4, inView: true, hidden: false,
-      raf: 0, last: 0, acc: 0, ema: 16, slow: 0, drawn: 0, calm: false, force: false };
+    const S = { w: 1, h: 1, dpr: Math.min(devicePixelRatio || 1, TOUCH ? T.DPR_MAX_TOUCH : T.DPR_MAX), vW: 3.2, vH: 2.4, inView: true,
+      last: 0, acc: 0, ema: 16, slow: 0, drawn: 0, calm: false, force: false };
     // pointer in region pixels (mx,my = -999 means "no pointer"); cx,cy = the ring's smoothed position; rr/tr = ring radius and its target
     const I = { px: -999, py: -999, mx: -999, my: -999, wx: 0, wy: 0, cx: -999, cy: -999, rr: T.RING_IDLE, openT: -1e9, inside: false };
     const ringOpenR = () => clamp(S.h * 0.3, 60, T.RING_OPEN_MAX);
@@ -585,10 +587,9 @@ html .hero .px .w:last-of-type { text-align: center; }
       for (let i = 0; i < 3; i++) collide(i === 0);
     }
 
-    /* ── loop: sleeps when off-screen or the tab is hidden ── */
-    function wake() { if (!S.raf && S.inView && !S.hidden) S.raf = requestAnimationFrame(frame); }
+    /* ── loop: sleeps when off-screen or the tab is hidden (the world runs the rAF and skips hidden tabs) ── */
+    function wake() { if (S.inView) layer.wake(); }
     function frame(now) {
-      S.raf = 0;
       // calm = only the idle float is moving: skip frames until 1/IDLE_FPS has passed (3 ms slack for rAF jitter)
       if (S.calm && !S.force && now - S.drawn < 1000 / T.IDLE_FPS - 3) { wake(); return; }
       try { tick(now); } catch (err) { teardown('runtime error: ' + (err && err.message)); }
@@ -649,11 +650,10 @@ html .hero .px .w:last-of-type { text-align: center; }
       if (!reduced || moving || near || Math.abs(I.rr - target) > 0.3) wake();
     }
     /* ── life-cycle ── */
+    const layer = world.add({ frame, visible: (shown) => { if (shown) { S.last = 0; wake(); } else hideUi(); }, lost: () => teardown('WebGL context was lost') });
     readTheme();
     new IntersectionObserver((en) => { S.inView = en[0].isIntersecting; if (S.inView) { S.last = 0; wake(); } else hideUi(); }).observe(region);
-    document.addEventListener('visibilitychange', () => { S.hidden = document.hidden; if (!S.hidden) { S.last = 0; wake(); } else hideUi(); });
     new ResizeObserver(resize).observe(region);
-    canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); teardown('WebGL context was lost'); });
     new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['class'] }); // shading modes / project panel
     resize();
 
