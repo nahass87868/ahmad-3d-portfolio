@@ -131,6 +131,7 @@ import { createWorld } from '../world/world.js';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FINE = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const TOUCH = !FINE;
+  const FIXED = FINE && !reduced; // Phase 5c: one fixed full-viewport canvas, the hero draws into its region's rectangle. Touch and reduced motion keep the docked canvas of 5b.
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   /* Bail out before touching anything if the 3D cannot work: the site stays exactly as it was. */
@@ -188,6 +189,9 @@ html .hero .px .w:last-of-type { text-align: center; }
 @media (min-width: ${T.BREAKPOINT}px) { .x-h3d { height: ${T.REGION_H_WIDE}; } }
 .x-h3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; }
 .x-h3d.x-on canvas, .x-h3d.x-on .x-ghost { opacity: 1; }
+/* desktop (FIXED): the canvas leaves the region and covers the viewport: above the hero text and the ghost like before, under every fixed bar, never takes a click */
+.x-world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+.x-world.x-on { opacity: 1; }
 /* faint PORT / FOLIO behind the letters, as in the prototype */
 .x-ghost { opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
   font-family: var(--font-display); font-weight: 900; line-height: .82; letter-spacing: -.04em; white-space: nowrap; text-transform: uppercase;
@@ -202,7 +206,7 @@ html .hero .px .w:last-of-type { text-align: center; }
 /* while the ring is on screen the X/Y read-out would sit inside it */
 #cur.x-portal #cx { opacity: 0; }
 `;
-  let styleEl, region, ringEl;
+  let styleEl, region, ringEl, unfix;
   function mountDom(hero) {
     styleEl = document.createElement('style');
     styleEl.id = 'hero3d-css';
@@ -221,6 +225,7 @@ html .hero .px .w:last-of-type { text-align: center; }
   function teardown(why) {
     // Restores the original hero completely.
     if (why) note('stopped', why, 'warn');
+    if (unfix) unfix();
     if (styleEl) styleEl.remove();
     if (region) region.remove();
     if (ringEl) ringEl.remove();
@@ -280,6 +285,10 @@ html .hero .px .w:last-of-type { text-align: center; }
      ══════════════════════════════════════════════════════════════════════════ */
   function run(THREE) {
     const canvas = q('canvas', region);
+    if (FIXED) { // the canvas leaves the region before the renderer is made; teardown() puts everything back
+      canvas.classList.add('x-world'); document.body.appendChild(canvas);
+      unfix = () => { removeEventListener('scroll', onScroll); removeEventListener('load', resize); canvas.remove(); };
+    }
     const ghost = q('.x-ghost', region);
     const hint = q('.x-h3d-hint', region);
     const cur = q('#cur');
@@ -500,12 +509,36 @@ html .hero .px .w:last-of-type { text-align: center; }
     // pointer in region pixels (mx,my = -999 means "no pointer"); cx,cy = the ring's smoothed position; rr/tr = ring radius and its target
     const I = { px: -999, py: -999, mx: -999, my: -999, wx: 0, wy: 0, cx: -999, cy: -999, rr: T.RING_IDLE, openT: -1e9, inside: false };
     const ringOpenR = () => clamp(S.h * 0.3, 60, T.RING_OPEN_MAX);
-    let rect = region.getBoundingClientRect();
+    let rect = FIXED ? { left: 0, top: 0, width: 1, height: 1 } : region.getBoundingClientRect(); // FIXED: the region in viewport px, from the cache below
+    const V = { w: 1, h: 1, dpr: 0 }; // FIXED: the canvas is the viewport (CSS px)
+    let pageLeft = 0, pageTop = 0; // FIXED: the region's place in the page, read once per resize so no frame asks the layout for it
+    let cvHidden = false;
 
+    function measure() { // FIXED. Runs from the ResizeObserver, where the layout is clean
+      const r = region.getBoundingClientRect();
+      pageLeft = r.left + scrollX; pageTop = r.top + scrollY;
+      rect.width = S.w = Math.max(1, r.width); rect.height = S.h = Math.max(1, r.height);
+      if (V.w !== root.clientWidth || V.h !== root.clientHeight || V.dpr !== S.dpr) { // only a real viewport or pixel-ratio change reallocates the big buffer
+        V.w = root.clientWidth; V.h = root.clientHeight; V.dpr = S.dpr;
+        renderer.setPixelRatio(S.dpr); renderer.setSize(V.w, V.h, false);
+      }
+      place(); setView(seen());
+    }
+    function place() { rect.left = pageLeft - scrollX; rect.top = pageTop - scrollY; } // the scroll offset is not a layout query
+    function seen() { return rect.top < V.h && rect.top + S.h > 0; }
+    function setView(v) { // FIXED: decided from the cached rectangle, so it is right in the same frame as the scroll (no observer delay)
+      if (v === S.inView) return;
+      S.inView = v;
+      if (v) { S.last = 0; wake(); } else { hideUi(); cvHidden = true; canvas.style.visibility = 'hidden'; } // a fixed canvas must not keep the last frame on screen
+    }
+    function onScroll() { place(); setView(seen()); S.force = true; wake(); }
     function resize() {
-      rect = region.getBoundingClientRect();
-      S.w = Math.max(1, rect.width); S.h = Math.max(1, rect.height);
-      renderer.setPixelRatio(S.dpr); renderer.setSize(S.w, S.h, false);
+      if (FIXED) measure();
+      else {
+        rect = region.getBoundingClientRect();
+        S.w = Math.max(1, rect.width); S.h = Math.max(1, rect.height);
+        renderer.setPixelRatio(S.dpr); renderer.setSize(S.w, S.h, false);
+      }
       const aspect = S.w / S.h;
       camera.aspect = aspect;
       S.vH = Math.max(ch / T.FILL_H, cw / (T.FILL_W * aspect)); // the cluster fills the region, whatever its shape
@@ -595,12 +628,13 @@ html .hero .px .w:last-of-type { text-align: center; }
       try { tick(now); } catch (err) { teardown('runtime error: ' + (err && err.message)); }
     }
     function tick(now) {
+      if (FIXED && !S.inView) return; // scrolled away while a frame was queued: nothing to draw, and the canvas stays hidden
       // frozen (project panel open, or motion off): nothing visible changes, so draw nothing and do not reschedule.
       // The root-class observer wakes the loop when that ends; a theme/size change forces one repaint.
       if (frozen() && !S.force) { ringEl.style.opacity = 0; if (cur) cur.classList.remove('x-portal'); S.acc = 0; S.last = 0; return; }
       S.force = false; S.drawn = now;
       const wasCalm = S.calm;
-      rect = region.getBoundingClientRect(); // read fresh: the hero can shift when the web font arrives
+      if (FIXED) place(); else rect = region.getBoundingClientRect(); // read fresh: the hero can shift when the web font arrives (FIXED: the ResizeObserver re-measures it)
       derivePointer();
       const t = now / 1000, off = frozen();
       const gap = S.last ? now - S.last : 16; // ms since the last frame
@@ -627,9 +661,10 @@ html .hero .px .w:last-of-type { text-align: center; }
         ringEl.style.transform = 'translate(' + (I.cx - I.rr) + 'px,' + (I.cy - I.rr) + 'px)';
       }
       if (cur) cur.classList.toggle('x-portal', showRing && FINE);
-      // mesh circle, in canvas pixels (gl_FragCoord origin is the canvas' bottom-left)
+      // mesh circle, in canvas pixels (gl_FragCoord origin is the canvas' bottom-left, whatever the viewport). FIXED: the canvas is the viewport, so the origin is 0,0 and the height is the viewport's
       const dpr = renderer.getPixelRatio(), wr = showRing ? Math.max(0, I.rr - T.WIRE_INSET) : 0;
-      U.uCur.value.set((I.cx - rect.left) * dpr, (rect.height - (I.cy - rect.top)) * dpr, wr * dpr);
+      const ox = FIXED ? 0 : rect.left, oy = FIXED ? 0 : rect.top, ch = FIXED ? V.h : rect.height;
+      U.uCur.value.set((I.cx - ox) * dpr, (ch - (I.cy - oy)) * dpr, wr * dpr);
       wires.forEach((w) => { w.visible = wr > 0; }); // no mesh pass at all while the ring is idle
 
       P.forEach((p, i) => {
@@ -640,7 +675,8 @@ html .hero .px .w:last-of-type { text-align: center; }
         p.g.position.set(p.pos.x, p.pos.y + fy, p.z);
         p.g.rotation.set(p.r.x + p.ro.x, p.r.y + p.ro.y, p.r.z + fr);
       });
-      renderer.render(scene, camera);
+      if (FIXED) world.renderRegion(scene, camera, rect.left, rect.top, S.w, S.h); else renderer.render(scene, camera);
+      if (cvHidden) { cvHidden = false; canvas.style.visibility = ''; } // shown again only after a fresh draw
 
       // adaptive quality: sustained slow frames step the pixel ratio down toward 1
       if (!wasCalm) { S.ema += (Math.min(60, gap) - S.ema) * 0.05; S.slow = S.ema > 26 ? S.slow + 1 : 0; } // calm frames are slow on purpose
@@ -652,13 +688,20 @@ html .hero .px .w:last-of-type { text-align: center; }
     /* ── life-cycle ── */
     const layer = world.add({ frame, visible: (shown) => { if (shown) { S.last = 0; wake(); } else hideUi(); }, lost: () => teardown('WebGL context was lost') });
     readTheme();
-    new IntersectionObserver((en) => { S.inView = en[0].isIntersecting; if (S.inView) { S.last = 0; wake(); } else hideUi(); }).observe(region);
-    new ResizeObserver(resize).observe(region);
+    if (!FIXED) new IntersectionObserver((en) => { S.inView = en[0].isIntersecting; if (S.inView) { S.last = 0; wake(); } else hideUi(); }).observe(region);
+    const ro = new ResizeObserver(resize);
+    ro.observe(region);
+    if (FIXED) { // anything that can move the region, or change the viewport, re-measures it
+      [canvas, q('.hero'), q('#heroName')].forEach((el) => el && ro.observe(el));
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('load', resize);
+      if (document.fonts) document.fonts.ready.then(resize);
+    }
     new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['class'] }); // shading modes / project panel
     resize();
 
     // the canvas fades in with the hero sequence (body.go), so the letters arrive with the name, not behind the intro curtain
-    const show = () => { region.classList.add('x-on'); wake(); };
+    const show = () => { region.classList.add('x-on'); if (FIXED) canvas.classList.add('x-on'); wake(); };
     if (reduced || document.body.classList.contains('go')) show();
     else {
       const mo = new MutationObserver(() => { if (document.body.classList.contains('go')) { mo.disconnect(); show(); } });

@@ -49,6 +49,14 @@ for (const [profile, ctxOpts] of [
   if (profile === 'desktop') {
     let ran = true; try { await page.waitForFunction(() => window.__hero3d && window.__hero3d.state === 'running', null, { timeout: 25000 }); } catch { ran = false; }
     check(profile, '3D hero is running (not just the fallback)', ran, JSON.stringify(await page.evaluate(() => window.__hero3d || null)));
+    // Phase 5c: on desktop the one canvas is a fixed full-viewport layer in <body> that never takes a click
+    const cv = await page.evaluate(() => { const c = document.querySelector('canvas'); if (!c) return null; const s = getComputedStyle(c), r = c.getBoundingClientRect(); return { n: document.querySelectorAll('canvas').length, parent: c.parentElement.tagName, pos: s.position, pe: s.pointerEvents, w: Math.round(r.width), h: Math.round(r.height) }; });
+    check(profile, 'desktop: one fixed full-viewport canvas that lets clicks through', !ran || (!!cv && cv.n === 1 && cv.parent === 'BODY' && cv.pos === 'fixed' && cv.pe === 'none' && cv.w === 1440 && cv.h === 900), JSON.stringify(cv));
+  }
+  if (profile === 'phone') {
+    let ran = true; try { await page.waitForFunction(() => window.__hero3d && window.__hero3d.state === 'running', null, { timeout: 25000 }); } catch { ran = false; }
+    const docked = await page.evaluate(() => { const c = document.querySelector('canvas'); return !!c && c.parentElement.classList.contains('x-h3d'); });
+    check(profile, 'touch: the canvas stays docked in the hero region', !ran || docked); // (when the designed fallback runs instead there is no canvas to place)
   }
   const badFonts = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter((f) => f.status === 'error').map((f) => f.family); });
   check(profile, 'all fonts loaded', badFonts.length === 0, badFonts.join(', '));
