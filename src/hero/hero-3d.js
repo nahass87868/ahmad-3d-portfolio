@@ -86,7 +86,7 @@ import { createWorld } from '../world/world.js';
     HOLD_MS: 380, HOLD_SLOP_PX: 10, // press this long, without moving more than this, to start the ring
     TOUCH_OFFSET_PX: 80, // the ring sits this far above the finger
 
-    DPR_MAX: 2, DPR_MAX_TOUCH: 1.25, FOV: 30,
+    FOV: 30,
   };
 
   /* Each letter, from your prototype. p: px in the 1200x900 reference image · s: scale · r: rotation in degrees (x, y, z) ·
@@ -206,7 +206,7 @@ html .hero .px .w:last-of-type { text-align: center; }
 /* while the ring is on screen the X/Y read-out would sit inside it */
 #cur.x-portal #cx { opacity: 0; }
 `;
-  let styleEl, region, ringEl, unfix;
+  let styleEl, region, ringEl, unfix, disposeWorld;
   function mountDom(hero) {
     styleEl = document.createElement('style');
     styleEl.id = 'hero3d-css';
@@ -231,6 +231,7 @@ html .hero .px .w:last-of-type { text-align: center; }
     if (ringEl) ringEl.remove();
     const cur = q('#cur');
     if (cur) cur.classList.remove('x-portal');
+    if (disposeWorld) disposeWorld(); // last, so the hero is already restored: stops the loop, removes the world's listeners, releases the GL context
   }
 
   /* The name is sized by MEASURING it, not by assuming font metrics: a hidden copy of the name is laid out at 100px
@@ -292,7 +293,8 @@ html .hero .px .w:last-of-type { text-align: center; }
     const ghost = q('.x-ghost', region);
     const hint = q('.x-h3d-hint', region);
     const cur = q('#cur');
-    const world = createWorld(canvas); // the world owns the renderer and the one rAF loop (src/world/world.js)
+    const world = createWorld(canvas); // the world owns the renderer, the one rAF loop, the pause rules and the quality presets (src/world/world.js)
+    disposeWorld = world.dispose;
     const renderer = world.renderer;
     THREE.ColorManagement.enabled = false; // keeps r128-style colour so the hero looks exactly as before (set before any colour is made)
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -504,7 +506,7 @@ html .hero .px .w:last-of-type { text-align: center; }
       .observe(root, { attributes: true, attributeFilter: ['data-theme', 'style'] });
 
     /* ── state ── */
-    const S = { w: 1, h: 1, dpr: Math.min(devicePixelRatio || 1, TOUCH ? T.DPR_MAX_TOUCH : T.DPR_MAX), vW: 3.2, vH: 2.4, inView: true,
+    const S = { w: 1, h: 1, dpr: Math.min(devicePixelRatio || 1, world.quality.dpr), vW: 3.2, vH: 2.4,
       last: 0, acc: 0, ema: 16, slow: 0, drawn: 0, calm: false, force: false };
     // pointer in region pixels (mx,my = -999 means "no pointer"); cx,cy = the ring's smoothed position; rr/tr = ring radius and its target
     const I = { px: -999, py: -999, mx: -999, my: -999, wx: 0, wy: 0, cx: -999, cy: -999, rr: T.RING_IDLE, openT: -1e9, inside: false };
@@ -527,9 +529,9 @@ html .hero .px .w:last-of-type { text-align: center; }
     function place() { rect.left = pageLeft - scrollX; rect.top = pageTop - scrollY; } // the scroll offset is not a layout query
     function seen() { return rect.top < V.h && rect.top + S.h > 0; }
     function setView(v) { // FIXED: decided from the cached rectangle, so it is right in the same frame as the scroll (no observer delay)
-      if (v === S.inView) return;
-      S.inView = v;
-      if (v) { S.last = 0; wake(); } else { hideUi(); cvHidden = true; canvas.style.visibility = 'hidden'; } // a fixed canvas must not keep the last frame on screen
+      if (v === layer.inView) return;
+      layer.view(v); // the world records it and tells layer.visible()
+      if (!v) { cvHidden = true; canvas.style.visibility = 'hidden'; } // a fixed canvas must not keep the last frame on screen
     }
     function onScroll() { place(); setView(seen()); S.force = true; wake(); }
     function resize() {
@@ -563,7 +565,6 @@ html .hero .px .w:last-of-type { text-align: center; }
     }
     const hideUi = () => { ringEl.style.opacity = 0; if (cur) cur.classList.remove('x-portal'); }; // gives the site's cursor label back
     const clearPointer = () => { I.px = I.py = -999; I.mx = I.my = -999; I.inside = false; hideUi(); wake(); };
-    const frozen = () => root.classList.contains('vp-off') || root.classList.contains('panel-open');
 
     /* ── input ── */
     if (FINE && !reduced) {
@@ -585,7 +586,7 @@ html .hero .px .w:last-of-type { text-align: center; }
       };
       const end = () => { clearTimeout(hold.timer); hold.on = false; hold.id = -1; clearPointer(); };
       region.addEventListener('pointerdown', (e) => {
-        if (e.pointerType !== 'touch' || frozen()) return;
+        if (e.pointerType !== 'touch' || world.frozen()) return;
         hold.id = e.pointerId; hold.sx = e.clientX; hold.sy = e.clientY;
         clearTimeout(hold.timer);
         hold.timer = setTimeout(() => {
@@ -620,23 +621,19 @@ html .hero .px .w:last-of-type { text-align: center; }
       for (let i = 0; i < 3; i++) collide(i === 0);
     }
 
-    /* ── loop: sleeps when off-screen or the tab is hidden (the world runs the rAF and skips hidden tabs) ── */
-    function wake() { if (S.inView) layer.wake(); }
+    /* ── loop: the world runs the rAF and applies the pause rules (tab hidden, panel open, hero off screen) ── */
+    function wake() { layer.wake(); }
     function frame(now) {
       // calm = only the idle float is moving: skip frames until 1/IDLE_FPS has passed (3 ms slack for rAF jitter)
       if (S.calm && !S.force && now - S.drawn < 1000 / T.IDLE_FPS - 3) { wake(); return; }
       try { tick(now); } catch (err) { teardown('runtime error: ' + (err && err.message)); }
     }
     function tick(now) {
-      if (FIXED && !S.inView) return; // scrolled away while a frame was queued: nothing to draw, and the canvas stays hidden
-      // frozen (project panel open, or motion off): nothing visible changes, so draw nothing and do not reschedule.
-      // The root-class observer wakes the loop when that ends; a theme/size change forces one repaint.
-      if (frozen() && !S.force) { ringEl.style.opacity = 0; if (cur) cur.classList.remove('x-portal'); S.acc = 0; S.last = 0; return; }
       S.force = false; S.drawn = now;
       const wasCalm = S.calm;
       if (FIXED) place(); else rect = region.getBoundingClientRect(); // read fresh: the hero can shift when the web font arrives (FIXED: the ResizeObserver re-measures it)
       derivePointer();
-      const t = now / 1000, off = frozen();
+      const t = now / 1000, off = world.frozen(); // frozen here only on a forced repaint (theme, resize): the world calls no other frame while a panel is open
       const gap = S.last ? now - S.last : 16; // ms since the last frame
       S.acc += Math.min(gap / 1000, 3 / 120); S.last = now; // never more than 3 physics steps in one frame
       if (!off && !reduced) while (S.acc >= 1 / 120) { step(1 / 120); S.acc -= 1 / 120; }
@@ -686,9 +683,9 @@ html .hero .px .w:last-of-type { text-align: center; }
       if (!reduced || moving || near || Math.abs(I.rr - target) > 0.3) wake();
     }
     /* ── life-cycle ── */
-    const layer = world.add({ frame, visible: (shown) => { if (shown) { S.last = 0; wake(); } else hideUi(); }, lost: () => teardown('WebGL context was lost') });
+    const layer = world.add({ frame, visible: (shown) => { if (shown) { S.last = 0; wake(); } else { hideUi(); S.acc = 0; S.last = 0; } }, urgent: () => S.force, lost: () => teardown('WebGL context was lost') });
     readTheme();
-    if (!FIXED) new IntersectionObserver((en) => { S.inView = en[0].isIntersecting; if (S.inView) { S.last = 0; wake(); } else hideUi(); }).observe(region);
+    if (!FIXED) new IntersectionObserver((en) => layer.view(en[0].isIntersecting)).observe(region);
     const ro = new ResizeObserver(resize);
     ro.observe(region);
     if (FIXED) { // anything that can move the region, or change the viewport, re-measures it
@@ -697,7 +694,6 @@ html .hero .px .w:last-of-type { text-align: center; }
       addEventListener('load', resize);
       if (document.fonts) document.fonts.ready.then(resize);
     }
-    new MutationObserver(wake).observe(root, { attributes: true, attributeFilter: ['class'] }); // shading modes / project panel
     resize();
 
     // the canvas fades in with the hero sequence (body.go), so the letters arrive with the name, not behind the intro curtain

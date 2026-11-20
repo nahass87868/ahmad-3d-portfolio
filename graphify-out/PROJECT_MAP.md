@@ -22,10 +22,10 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `js/premium.js` | 21 KB | 355 |
 | `js/script.js` | 85 KB | 2186 |
 | `src/main.js` | 4 KB | 78 |
-| `src/hero/hero-3d.js` | 49 KB | 740 |
+| `src/hero/hero-3d.js` | 49 KB | 736 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `src/scroll/lenis.js` | 2 KB | 41 |
-| `src/world/world.js` | 2 KB | 47 |
+| `src/world/world.js` | 5 KB | 87 |
 | `tests/smoke.mjs` | 9 KB | 109 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
 | `tools/build-site.mjs` | 9 KB | 95 |
@@ -57,7 +57,7 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 | global | set in | read in |
 |---|---|---|
 | `window.__BUILD__` | src/main.js:7 | - |
-| `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:327, src/hero/hero-3d.js:725 |
+| `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:329, src/hero/hero-3d.js:721 |
 | `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:64, tools/build-site.mjs:38 |
 | `window.__breakdown` | js/breakdown.js:42 | js/script.js:1950 |
 | `window.__hero3d` | src/hero/hero-3d.js:110, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51, tests/smoke.mjs:57 |
@@ -89,7 +89,7 @@ Model file names do not equal slugs (e.g. `asus.glb`): the match above is by con
 
 ## Tunables (top of each module)
 
-- `src/hero/hero-3d.js`: BREAKPOINT, CLAY_DARK, CLAY_TINT, COLLIDER_CELL, COLLIDER_COVER, COLLIDER_GROW, COLLIDER_MAX, COLLIDER_MIN_R, DPR_MAX, FALLOFF, FILL_W, FLOAT_Y, GHOST_ALPHA, HOLD_MS, IDLE_FPS, LIFT, LIGHT_HEMI, NAME_FIT, NAME_ONE_LINE_EM, OPEN_DIST, PAGE_PAD, PULL, REGION_H_NARROW, REGION_H_WIDE, RELAX_FINISH, RELAX_HOME, RELAX_PASSES, RING_FOLLOW, RING_IDLE, ROUGH, THICK, TOUCH_OFFSET_PX, WIRE, WIRE_INSET
+- `src/hero/hero-3d.js`: BREAKPOINT, CLAY_DARK, CLAY_TINT, COLLIDER_CELL, COLLIDER_COVER, COLLIDER_GROW, COLLIDER_MAX, COLLIDER_MIN_R, FALLOFF, FILL_W, FLOAT_Y, FOV, GHOST_ALPHA, HOLD_MS, IDLE_FPS, LIFT, LIGHT_HEMI, NAME_FIT, NAME_ONE_LINE_EM, OPEN_DIST, PAGE_PAD, PULL, REGION_H_NARROW, REGION_H_WIDE, RELAX_FINISH, RELAX_HOME, RELAX_PASSES, RING_FOLLOW, RING_IDLE, ROUGH, THICK, TOUCH_OFFSET_PX, WIRE, WIRE_INSET
 - `js/script.js`: CALM_W_MIN, D_MAX, D_REST, EASE, FILL_MS, FILL_STAGGER, HOLD_MS, INTRO_END_MS, MAG_EASE, MAG_MAX, MAG_MAX_H, MAG_MAX_W, MAG_PULL, MAG_REACH, RADIUS, STROKE_STAGGER, TYPE_MS, W_MIN, W_REST
 - `js/extras.js`: 
 - `js/polish.js`: 
