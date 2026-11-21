@@ -55,8 +55,15 @@ for (const [profile, ctxOpts] of [
   }
   if (profile === 'phone') {
     let ran = true; try { await page.waitForFunction(() => window.__hero3d && window.__hero3d.state === 'running', null, { timeout: 25000 }); } catch { ran = false; }
-    const docked = await page.evaluate(() => { const c = document.querySelector('canvas'); return !!c && c.parentElement.classList.contains('x-h3d'); });
-    check(profile, 'touch: the canvas stays docked in the hero region', !ran || docked); // (when the designed fallback runs instead there is no canvas to place)
+    // Phase 5f: on touch the canvas is the fixed full-viewport layer by default (stable 100lvh), and ?canvas=docked brings the old docked canvas back
+    const cv = await page.evaluate(() => { const c = document.querySelector('canvas'); if (!c) return null; const s = getComputedStyle(c), r = c.getBoundingClientRect(); return { n: document.querySelectorAll('canvas').length, parent: c.parentElement.tagName, pos: s.position, pe: s.pointerEvents, w: Math.round(r.width), h: Math.round(r.height) }; });
+    check(profile, 'touch: one fixed full-viewport canvas that lets touches through', !ran || (!!cv && cv.n === 1 && cv.parent === 'BODY' && cv.pos === 'fixed' && cv.pe === 'none' && cv.w === 390 && cv.h >= 844), JSON.stringify(cv));
+    const p2 = await ctx.newPage();
+    await p2.goto(base + '?canvas=docked');
+    let ran2 = true; try { await p2.waitForFunction(() => window.__hero3d && window.__hero3d.state === 'running', null, { timeout: 25000 }); } catch { ran2 = false; }
+    const docked = await p2.evaluate(() => { const c = document.querySelector('canvas'); return !!c && c.parentElement.classList.contains('x-h3d'); });
+    check(profile, 'touch: ?canvas=docked keeps the canvas docked in the hero region', !ran2 || docked); // (when the designed fallback runs instead there is no canvas to place)
+    await p2.evaluate(() => localStorage.removeItem('pf_canvas')); await p2.close();
   }
   const badFonts = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter((f) => f.status === 'error').map((f) => f.family); });
   check(profile, 'all fonts loaded', badFonts.length === 0, badFonts.join(', '));

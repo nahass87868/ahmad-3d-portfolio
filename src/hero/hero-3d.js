@@ -131,7 +131,21 @@ import { createWorld } from '../world/world.js';
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const FINE = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const TOUCH = !FINE;
-  const FIXED = FINE && !reduced; // Phase 5c: one fixed full-viewport canvas, the hero draws into its region's rectangle. Touch and reduced motion keep the docked canvas of 5b.
+  // Phase 5f: on touch the hero draws into the one fixed canvas too. Safety switch: ?canvas=docked forces the old docked canvas (5b path) and is remembered
+  // in localStorage pf_canvas; ?canvas=fixed clears it; without a query the stored value is used (same style as ?motion=full). Touch also needs the stable
+  // viewport unit 100lvh (the canvas must not change size when the URL bar shows or hides); a browser without it stays docked.
+  const canvasMode = (() => {
+    let m = null;
+    try { m = new URLSearchParams(location.search).get('canvas'); } catch (e) { /* ignore */ }
+    try {
+      if (m === 'docked') localStorage.setItem('pf_canvas', 'docked');
+      else if (m === 'fixed') localStorage.removeItem('pf_canvas');
+      else if (m === null) m = localStorage.getItem('pf_canvas');
+    } catch (e) { /* storage blocked */ }
+    return m;
+  })();
+  const TOUCH_FIXED = TOUCH && !reduced && canvasMode !== 'docked' && !!(window.CSS && CSS.supports && CSS.supports('height', '100lvh'));
+  const FIXED = (FINE && !reduced) || TOUCH_FIXED; // Phase 5c: one fixed full-viewport canvas, the hero draws into its region's rectangle. Reduced motion keeps the docked canvas of 5b.
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   /* Bail out before touching anything if the 3D cannot work: the site stays exactly as it was. */
@@ -192,6 +206,8 @@ html .hero .px .w:last-of-type { text-align: center; }
 /* desktop (FIXED): the canvas leaves the region and covers the viewport: above the hero text and the ghost like before, under every fixed bar, never takes a click */
 .x-world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
 .x-world.x-on { opacity: 1; }
+/* touch: 100lvh does not change when the URL bar shows or hides (a browser without lvh never gets here: it stays docked) */
+.x-world.x-touch { height: 100lvh; }
 /* faint PORT / FOLIO behind the letters, as in the prototype */
 .x-ghost { opacity: 0; transition: ${reduced ? 'none' : 'opacity .8s ease'}; position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
   font-family: var(--font-display); font-weight: 900; line-height: .82; letter-spacing: -.04em; white-space: nowrap; text-transform: uppercase;
@@ -287,7 +303,7 @@ html .hero .px .w:last-of-type { text-align: center; }
   function run(THREE) {
     const canvas = q('canvas', region);
     if (FIXED) { // the canvas leaves the region before the renderer is made; teardown() puts everything back
-      canvas.classList.add('x-world'); document.body.appendChild(canvas);
+      canvas.classList.add('x-world'); if (TOUCH_FIXED) canvas.classList.add('x-touch'); document.body.appendChild(canvas);
       unfix = () => { removeEventListener('scroll', onScroll); removeEventListener('load', resize); canvas.remove(); };
     }
     const ghost = q('.x-ghost', region);
@@ -520,8 +536,9 @@ html .hero .px .w:last-of-type { text-align: center; }
       const r = region.getBoundingClientRect();
       pageLeft = r.left + scrollX; pageTop = r.top + scrollY;
       rect.width = S.w = Math.max(1, r.width); rect.height = S.h = Math.max(1, r.height);
-      if (V.w !== root.clientWidth || V.h !== root.clientHeight || V.dpr !== S.dpr) { // only a real viewport or pixel-ratio change reallocates the big buffer
-        V.w = root.clientWidth; V.h = root.clientHeight; V.dpr = S.dpr;
+      const vw = TOUCH_FIXED ? canvas.clientWidth : root.clientWidth, vh = TOUCH_FIXED ? canvas.clientHeight : root.clientHeight; // touch: the canvas' own stable size (100lvh), so the URL bar never resizes the buffer
+      if (V.w !== vw || V.h !== vh || V.dpr !== S.dpr) { // only a real viewport or pixel-ratio change reallocates the big buffer
+        V.w = vw; V.h = vh; V.dpr = S.dpr;
         renderer.setPixelRatio(S.dpr); renderer.setSize(V.w, V.h, false);
       }
       place(); setView(seen());
