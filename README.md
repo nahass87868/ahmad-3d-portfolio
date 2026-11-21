@@ -15,9 +15,10 @@ ahmad-3d-portfolio/
 ├── .github/workflows/deploy.yml  build + smoke test + publish to GitHub Pages
 ├── css/        style.css, premium.css
 ├── js/         script.js, premium.js, polish.js, extras.js, fixes.js,
-│               about-photo.js, hero-3d-model.js (generated, base64)
+│               about-photo.js, breakdown.js, hero-3d-model.js (generated, base64)
 ├── content/    works.js            the project list (single source of truth)
-├── src/        main.js, hero/      the Vite layer: hero-3d.js, hero-fallback.js
+├── src/        main.js, hero/,     the Vite layer: hero/ (hero-3d.js, hero-fallback.js),
+│               world/, scroll/     world/world.js (the one renderer and loop), scroll/lenis.js
 ├── tests/      smoke.mjs
 ├── tools/      build-site.mjs, build-hero-model.py, graph-map.py
 ├── source/     portfolio.glb + 6 project .glb files (never published)
@@ -47,11 +48,11 @@ npm run test:smoke     # run after npm run build; opens dist/ in Chrome at deskt
 
 A good build ends with: `OK  129 files identical to source (84.6 MB) + index.html ... + 16 share-card pages + the modern layer (2 files, 766 KB)`. The build stops with a list of problems if `content/works.js` is wrong (see below) or if a published copy differs from its source.
 
-The smoke test prints one PASS/FAIL line per check (21 in total: 10 desktop, 11 phone) and ends with `SMOKE TEST PASSED` or `SMOKE TEST FAILED (n)`. It takes about 35 s and uses fixed waits, so re-run once before blaming a change.
+The smoke test prints one PASS/FAIL line per check (25 in total: 12 desktop, 13 phone) and ends with `SMOKE TEST PASSED` or `SMOKE TEST FAILED (n)`. It takes about 35 s and uses fixed waits, so re-run once before blaming a change.
 
 ## Deployment
 
-Push to `main`. GitHub Actions ("Deploy site", `.github/workflows/deploy.yml`) runs `npm ci`, `npm run build`, `npm run test:smoke`, uploads `dist/` and deploys it to Pages (about a minute). Pages source must be "GitHub Actions". Check the run in the repo's Actions tab: both jobs, build and deploy, must be green. The smoke step currently has `continue-on-error: true`: a failing smoke test shows in the log but does not stop the deploy.
+Push to `main`. GitHub Actions ("Deploy site", `.github/workflows/deploy.yml`) runs `npm ci`, `npm run build`, `npm run test:smoke`, uploads `dist/` and deploys it to Pages (about a minute). Pages source must be "GitHub Actions". Check the run in the repo's Actions tab: both jobs, build and deploy, must be green. The smoke step is a deploy gate: a failing smoke test fails the build job, so the deploy job does not run and the live site stays on the last good version.
 
 ## Add or edit a project
 
