@@ -309,7 +309,7 @@ html .hero .px .w:last-of-type { text-align: center; }
     const ghost = q('.x-ghost', region);
     const hint = q('.x-h3d-hint', region);
     const cur = q('#cur');
-    const world = createWorld(canvas); // the world owns the renderer, the one rAF loop, the pause rules and the quality presets (src/world/world.js)
+    const world = createWorld(canvas, FIXED); // the world owns the renderer, the one rAF loop, the pause rules and the quality presets (src/world/world.js)
     disposeWorld = world.dispose;
     const renderer = world.renderer;
     THREE.ColorManagement.enabled = false; // keeps r128-style colour so the hero looks exactly as before (set before any colour is made)
@@ -530,7 +530,6 @@ html .hero .px .w:last-of-type { text-align: center; }
     let rect = FIXED ? { left: 0, top: 0, width: 1, height: 1 } : region.getBoundingClientRect(); // FIXED: the region in viewport px, from the cache below
     const V = { w: 1, h: 1, dpr: 0 }; // FIXED: the canvas is the viewport (CSS px)
     let pageLeft = 0, pageTop = 0; // FIXED: the region's place in the page, read once per resize so no frame asks the layout for it
-    let cvHidden = false;
 
     function measure() { // FIXED. Runs from the ResizeObserver, where the layout is clean
       const r = region.getBoundingClientRect();
@@ -547,8 +546,7 @@ html .hero .px .w:last-of-type { text-align: center; }
     function seen() { return rect.top < V.h && rect.top + S.h > 0; }
     function setView(v) { // FIXED: decided from the cached rectangle, so it is right in the same frame as the scroll (no observer delay)
       if (v === layer.inView) return;
-      layer.view(v); // the world records it and tells layer.visible()
-      if (!v) { cvHidden = true; canvas.style.visibility = 'hidden'; } // a fixed canvas must not keep the last frame on screen
+      layer.view(v); // the world records it, tells layer.visible() and hides the fixed canvas when nothing is in view
     }
     function onScroll() { place(); setView(seen()); S.force = true; wake(); }
     function resize() {
@@ -690,7 +688,6 @@ html .hero .px .w:last-of-type { text-align: center; }
         p.g.rotation.set(p.r.x + p.ro.x, p.r.y + p.ro.y, p.r.z + fr);
       });
       if (FIXED) world.renderRegion(scene, camera, rect.left, rect.top, S.w, S.h); else renderer.render(scene, camera);
-      if (cvHidden) { cvHidden = false; canvas.style.visibility = ''; } // shown again only after a fresh draw
 
       // adaptive quality: sustained slow frames step the pixel ratio down toward 1
       if (!wasCalm) { S.ema += (Math.min(60, gap) - S.ema) * 0.05; S.slow = S.ema > 26 ? S.slow + 1 : 0; } // calm frames are slow on purpose
@@ -699,8 +696,12 @@ html .hero .px .w:last-of-type { text-align: center; }
       S.calm = !moving && !near && !showRing && !hold.on && !colourBusy && Math.abs(I.rr - target) <= 0.3;
       if (!reduced || moving || near || Math.abs(I.rr - target) > 0.3) wake();
     }
+    // FIXED: another layer drew and the canvas was cleared: draw the current scene again, no stepping
+    function redraw() {
+      try { place(); world.renderRegion(scene, camera, rect.left, rect.top, S.w, S.h); } catch (err) { teardown('runtime error: ' + (err && err.message)); }
+    }
     /* ── life-cycle ── */
-    const layer = world.add({ frame, visible: (shown) => { if (shown) { S.last = 0; wake(); } else { hideUi(); S.acc = 0; S.last = 0; } }, urgent: () => S.force, lost: () => teardown('WebGL context was lost') });
+    const layer = world.add({ frame, visible: (shown) => { if (shown) { S.last = 0; wake(); } else { hideUi(); S.acc = 0; S.last = 0; } }, urgent: () => S.force, redraw, lost: () => teardown('WebGL context was lost') });
     readTheme();
     if (!FIXED) new IntersectionObserver((en) => layer.view(en[0].isIntersecting)).observe(region);
     const ro = new ResizeObserver(resize);
