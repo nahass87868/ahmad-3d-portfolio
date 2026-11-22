@@ -71,6 +71,9 @@ for (const [profile, ctxOpts] of [
     const toWorks = async (pg) => { await pg.waitForFunction(() => window.__hero3d && window.__hero3d.state === 'running' && document.documentElement.classList.contains('x-hero-clear'), null, { timeout: 25000 }).catch(() => {}); await pg.evaluate(() => document.getElementById('works').scrollIntoView()); };
     await page.evaluate(() => document.getElementById('works').scrollIntoView());
     check(profile, 'works planes are on by default and at least one tile is a plane', await planesOn(page), JSON.stringify(await page.evaluate(() => window.__planes || null)));
+    await page.waitForTimeout(2500); // Phase 6c: at rest (after the scroll wave has settled) the planes layer draws nothing
+    const draws = await page.evaluate(() => new Promise((res) => { const G = WebGL2RenderingContext.prototype, de = G.drawElements, da = G.drawArrays; let n = 0; G.drawElements = function (...a) { n++; return de.apply(this, a); }; G.drawArrays = function (...a) { n++; return da.apply(this, a); }; setTimeout(() => { G.drawElements = de; G.drawArrays = da; res(n); }, 1000); }));
+    check(profile, 'works planes idle: no GL draw call at rest', draws === 0, 'draw calls in 1 s: ' + draws);
     const p3 = await ctx.newPage();
     await p3.goto(base + '?planes=off'); await toWorks(p3); await p3.waitForTimeout(2000);
     const off = await p3.evaluate(() => ({ pl: document.querySelectorAll('.tile.x-pl').length, st: window.__planes && window.__planes.state }));

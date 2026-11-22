@@ -3,6 +3,8 @@
  * accessibility and fallback layer: a tile switches to plane mode (html .x-pl: DOM image invisible, .th background clear) only after its
  * plane was drawn once, in the same frame, and any failure puts that tile (or all of them) back to the plain DOM image.
  * Lazy chunk: hero-3d.js imports it after the world's first frame (fixed canvas only) and passes the world and THREE, so it imports nothing.
+ * Phase 6c: scroll wave. The scrollY of the frame (read in the batched READ pass) gives a smoothed, clamped scroll speed; the vertex shader shifts the card's
+ * middle along the scroll with a half sine over the card's height, so the top and bottom edges stay on the DOM card and the sides only slide along themselves.
  * Switch: ?planes=off | on (remembered in localStorage pf_planes; ?planes=on clears it).
  * window.__planes (the 8th window global) = { state: 'on'|'off'|'lost', reason, tiles, ready, last }
  *   tiles: tiles found; ready: tiles in plane mode now; last[i]: the last drawn rectangle of tile i, { x, y, w, h } in CSS px (reused objects).
@@ -12,7 +14,13 @@
 const FEEL = {
   HOVER_ZOOM: 1.05, HOVER_MS: 700, HOVER_EASE: [0.2, 0.7, 0.1, 1], // hover / focus-visible image zoom
   SATURATE: 0.8, // CSS saturate() of the card image
-  SEGMENTS: 1, // plane subdivisions per side (6c raises this for the wave)
+  SEGMENTS: 24, // plane subdivisions along the card's height (the wave bends it there): at full wave 0.08 px of chord error and a 4.1% strain step per segment on a 350 px card
+  WAVE_AMP: 0.10, // full wave: the card's middle shifts this fraction of the card's height (sign flips the direction: + lags behind the scroll)
+  WAVE_TOUCH: 0.7, // touch multiplier of the wave
+  WAVE_VMAX: 1.4, // scroll speed in px per ms that is a full wave (faster is clamped)
+  WAVE_TAU_MS: 100, // smoothing time constant of the scroll speed
+  WAVE_EPS: 0.01, // below this fraction of a full wave it is exactly zero
+  GAP_MS: 200, // a longer gap between two frames (idle, panel open) has no speed history
   ANISOTROPY: 4, // texture anisotropy cap
   NEAR: '100%', // tiles within this margin (of the viewport height) above and below are planes
   FAR_VH: 2, // touch: textures further than this many viewport heights away are disposed
@@ -21,7 +29,13 @@ const FEEL = {
   UPLOADS_PER_FRAME: 1,
 };
 
-const VS = 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+const VS = `
+uniform float uWave; varying vec2 vUv; // uWave: shift of the card's middle as a fraction of its height, positive = towards the bottom of the screen
+void main() {
+  vUv = uv;
+  vec3 p = position; p.y -= uWave * sin(3.14159265 * uv.y);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+}`;
 const FS = `
 uniform sampler2D uMap; uniform vec2 uSize, uCover; uniform float uRadius, uOpacity, uPx; varying vec2 vUv;
 const float S = ${FEEL.SATURATE.toFixed(4)};
@@ -87,8 +101,11 @@ export function startPlanes(world, THREE) {
 
   const scene = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(30, 1, 1, 1e5); // 1 unit = 1 CSS px at z = 0
-  const geo = new THREE.PlaneGeometry(1, 1, FEEL.SEGMENTS, FEEL.SEGMENTS);
+  const geo = new THREE.PlaneGeometry(1, 1, 1, FEEL.SEGMENTS); // shared by every tile; disposed in fail()
   const sz = new THREE.Vector2();
+  const uWave = { value: 0 }; // one uniform object shared by every tile's material
+  const AMP = FEEL.WAVE_AMP * (FINE ? 1 : FEEL.WAVE_TOUCH), REDUCED = matchMedia('(prefers-reduced-motion: reduce)'); // planes never start with reduced motion; this guards a runtime change
+  let wv = 0, wY = 0, wT = -1e9; // smoothed scroll speed (px per ms), the last frame's scrollY and time
   let W = 0, H = 0, hadDrawn = false, calm = 0, until = 0, nearCount = 0, force = false, held = null, heldAt = 0, sawOpen = false, hoverRec = null, focusRec = null;
   const eligible = (r) => r.near && !r.bad && r !== held;
 
@@ -119,7 +136,7 @@ export function startPlanes(world, THREE) {
     if (!r.mat) {
       r.mat = new THREE.ShaderMaterial({
         vertexShader: VS, fragmentShader: FS, transparent: true, premultipliedAlpha: true, depthTest: false, depthWrite: false,
-        uniforms: { uMap: { value: t }, uSize: { value: new THREE.Vector2() }, uCover: { value: new THREE.Vector2(1, 1) }, uRadius: { value: 0 }, uOpacity: { value: 1 }, uPx: { value: 1 } },
+        uniforms: { uMap: { value: t }, uSize: { value: new THREE.Vector2() }, uWave: uWave, uCover: { value: new THREE.Vector2(1, 1) }, uRadius: { value: 0 }, uOpacity: { value: 1 }, uPx: { value: 1 } },
       });
       r.mesh = new THREE.Mesh(geo, r.mat); r.mesh.visible = false; scene.add(r.mesh);
     } else r.mat.uniforms.uMap.value = t;
@@ -152,7 +169,8 @@ export function startPlanes(world, THREE) {
     fit();
     if (held) { if (!root.classList.contains('panel-open') && (sawOpen || now - heldAt > 2000)) held = null; }
     const dpr = renderer.getPixelRatio(), gridOff = grid.classList.contains('x-off');
-    // 1. READ (one batched pass, nothing is written): rectangles, opacity, scroll zoom
+    // 1. READ (one batched pass, nothing is written): scrollY, rectangles, opacity, scroll zoom
+    const sy = window.scrollY;
     for (const r of recs) {
       r.draw = false;
       r.rect = null;
@@ -162,6 +180,14 @@ export function startPlanes(world, THREE) {
     }
     // 2. UPDATE (uniforms, textures): no DOM access
     let moved = false, busy = false, uploads = 0;
+    const dt = now - wT; // scroll wave: exponential smoothing of the scroll speed, exactly zero below WAVE_EPS
+    if (dt > 0) {
+      if (dt < FEEL.GAP_MS) wv += (Math.max(-FEEL.WAVE_VMAX, Math.min(FEEL.WAVE_VMAX, (sy - wY) / dt)) - wv) * (1 - Math.exp(-dt / FEEL.WAVE_TAU_MS));
+      else wv = 0;
+      wY = sy; wT = now;
+    }
+    if (REDUCED.matches || Math.abs(wv) < FEEL.WAVE_EPS * FEEL.WAVE_VMAX) wv = 0;
+    uWave.value = (wv / FEEL.WAVE_VMAX) * AMP;
     for (let i = 0; i < recs.length; i++) {
       const r = recs[i];
       const b = r.rect;
@@ -199,6 +225,7 @@ export function startPlanes(world, THREE) {
     for (const r of recs) if (r.draw) { any = true; break; }
     if (any || hadDrawn) draw();
     hadDrawn = any;
+    if (wv !== 0 && any) moved = true; // a frame with the wave is a frame that moved
     // 4. HAND OVER, in this same frame: a tile becomes a plane only after its plane was drawn
     let ready = 0;
     for (const r of recs) {

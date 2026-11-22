@@ -25,9 +25,9 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `src/hero/hero-3d.js` | 50 KB | 756 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `src/scroll/lenis.js` | 2 KB | 41 |
-| `src/works/planes.js` | 16 KB | 257 |
+| `src/works/planes.js` | 18 KB | 284 |
 | `src/world/world.js` | 6 KB | 99 |
-| `tests/smoke.mjs` | 12 KB | 134 |
+| `tests/smoke.mjs` | 12 KB | 137 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
 | `tools/build-site.mjs` | 9 KB | 95 |
 | `tools/graph-map.py` | 11 KB | 142 |
@@ -59,12 +59,12 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 |---|---|---|
 | `window.__BUILD__` | src/main.js:7 | - |
 | `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:346, src/hero/hero-3d.js:741 |
-| `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:89, tools/build-site.mjs:38 |
+| `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:92, tools/build-site.mjs:38 |
 | `window.__breakdown` | js/breakdown.js:42 | js/script.js:1913 |
 | `window.__hero3d` | src/hero/hero-3d.js:110, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51, tests/smoke.mjs:57, tests/smoke.mjs:63, tests/smoke.mjs:69, tests/smoke.mjs:71 |
 | `window.__hero3dReady` | src/main.js:11 | js/premium.js:103, js/premium.js:106, src/hero/hero-3d.js:23 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:25 |
-| `window.__planes` | src/works/planes.js:57 | src/works/planes.js:7, tests/smoke.mjs:70, tests/smoke.mjs:73, tests/smoke.mjs:76, tests/smoke.mjs:82 |
+| `window.__planes` | src/works/planes.js:71 | src/works/planes.js:9, tests/smoke.mjs:70, tests/smoke.mjs:73, tests/smoke.mjs:79, tests/smoke.mjs:85 |
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
 
