@@ -13,20 +13,21 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `.github/workflows/deploy.yml` | 1 KB | 43 |
 | `content/works.js` | 11 KB | 241 |
 | `css/premium.css` | 8 KB | 113 |
-| `css/style.css` | 50 KB | 2246 |
+| `css/style.css` | 49 KB | 2232 |
 | `js/about-photo.js` | 6 KB | 132 |
 | `js/breakdown.js` | 15 KB | 276 |
 | `js/extras.js` | 19 KB | 390 |
 | `js/fixes.js` | 4 KB | 87 |
 | `js/polish.js` | 22 KB | 360 |
 | `js/premium.js` | 21 KB | 355 |
-| `js/script.js` | 85 KB | 2186 |
+| `js/script.js` | 84 KB | 2149 |
 | `src/main.js` | 4 KB | 78 |
-| `src/hero/hero-3d.js` | 50 KB | 754 |
+| `src/hero/hero-3d.js` | 50 KB | 756 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `src/scroll/lenis.js` | 2 KB | 41 |
+| `src/works/planes.js` | 16 KB | 257 |
 | `src/world/world.js` | 6 KB | 99 |
-| `tests/smoke.mjs` | 10 KB | 116 |
+| `tests/smoke.mjs` | 12 KB | 134 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
 | `tools/build-site.mjs` | 9 KB | 95 |
 | `tools/graph-map.py` | 11 KB | 142 |
@@ -57,12 +58,13 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 | global | set in | read in |
 |---|---|---|
 | `window.__BUILD__` | src/main.js:7 | - |
-| `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:345, src/hero/hero-3d.js:739 |
-| `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:71, tools/build-site.mjs:38 |
-| `window.__breakdown` | js/breakdown.js:42 | js/script.js:1950 |
-| `window.__hero3d` | src/hero/hero-3d.js:110, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51, tests/smoke.mjs:57, tests/smoke.mjs:63 |
+| `window.__HERO3D_GLB__` | - | src/hero/hero-3d.js:346, src/hero/hero-3d.js:741 |
+| `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:89, tools/build-site.mjs:38 |
+| `window.__breakdown` | js/breakdown.js:42 | js/script.js:1913 |
+| `window.__hero3d` | src/hero/hero-3d.js:110, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51, tests/smoke.mjs:57, tests/smoke.mjs:63, tests/smoke.mjs:69, tests/smoke.mjs:71 |
 | `window.__hero3dReady` | src/main.js:11 | js/premium.js:103, js/premium.js:106, src/hero/hero-3d.js:23 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:25 |
+| `window.__planes` | src/works/planes.js:57 | src/works/planes.js:7, tests/smoke.mjs:70, tests/smoke.mjs:73, tests/smoke.mjs:76, tests/smoke.mjs:82 |
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
 

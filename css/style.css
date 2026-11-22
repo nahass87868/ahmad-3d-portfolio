@@ -1172,20 +1172,6 @@ section.s {
   filter: saturate(0.8);
   transition: transform 0.7s var(--ease-out);
 }
-/* hover video preview (features/works.ts) fades in over the still */
-.th .pre {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.th .pre.on {
-  opacity: 1;
-}
-
 /* accent glow under the pointer */
 .th:after {
   content: '';

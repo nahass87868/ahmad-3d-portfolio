@@ -222,7 +222,7 @@ html .hero .px .w:last-of-type { text-align: center; }
 /* while the ring is on screen the X/Y read-out would sit inside it */
 #cur.x-portal #cx { opacity: 0; }
 `;
-  let styleEl, region, ringEl, unfix, disposeWorld;
+  let styleEl, region, ringEl, unfix, disposeWorld, planes, planesAsked, torn; // planes: Phase 6b works planes (lazy chunk)
   function mountDom(hero) {
     styleEl = document.createElement('style');
     styleEl.id = 'hero3d-css';
@@ -247,6 +247,7 @@ html .hero .px .w:last-of-type { text-align: center; }
     if (ringEl) ringEl.remove();
     const cur = q('#cur');
     if (cur) cur.classList.remove('x-portal');
+    torn = true; if (planes) planes.stop(); // before the world goes: the tiles are DOM images again
     if (disposeWorld) disposeWorld(); // last, so the hero is already restored: stops the loop, removes the world's listeners, releases the GL context
   }
 
@@ -688,6 +689,7 @@ html .hero .px .w:last-of-type { text-align: center; }
         p.g.rotation.set(p.r.x + p.ro.x, p.r.y + p.ro.y, p.r.z + fr);
       });
       if (FIXED) world.renderRegion(scene, camera, rect.left, rect.top, S.w, S.h); else renderer.render(scene, camera);
+      if (FIXED && !planesAsked) { planesAsked = true; import('../works/planes.js').then((m) => { if (!torn) planes = m.startPlanes(world, THREE); }).catch(() => {}); } // after the first drawn frame
 
       // adaptive quality: sustained slow frames step the pixel ratio down toward 1
       if (!wasCalm) { S.ema += (Math.min(60, gap) - S.ema) * 0.05; S.slow = S.ema > 26 ? S.slow + 1 : 0; } // calm frames are slow on purpose

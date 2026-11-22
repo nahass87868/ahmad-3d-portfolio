@@ -65,6 +65,24 @@ for (const [profile, ctxOpts] of [
     check(profile, 'touch: ?canvas=docked keeps the canvas docked in the hero region', !ran2 || docked); // (when the designed fallback runs instead there is no canvas to place)
     await p2.evaluate(() => localStorage.removeItem('pf_canvas')); await p2.close();
   }
+  // Phase 6b: the works planes (only when the 3D world runs)
+  if (await page.evaluate(() => !!window.__hero3d && window.__hero3d.state === 'running')) {
+    const planesOn = (pg) => pg.waitForFunction(() => { document.getElementById('works').scrollIntoView(); return !!window.__planes && window.__planes.state === 'on' && document.querySelectorAll('.tile.x-pl').length > 0; }, null, { timeout: 20000, polling: 500 }).then(() => true, () => false); // re-scrolls while polling: the intro can reset an early scroll
+    const toWorks = async (pg) => { await pg.waitForFunction(() => window.__hero3d && window.__hero3d.state === 'running' && document.documentElement.classList.contains('x-hero-clear'), null, { timeout: 25000 }).catch(() => {}); await pg.evaluate(() => document.getElementById('works').scrollIntoView()); };
+    await page.evaluate(() => document.getElementById('works').scrollIntoView());
+    check(profile, 'works planes are on by default and at least one tile is a plane', await planesOn(page), JSON.stringify(await page.evaluate(() => window.__planes || null)));
+    const p3 = await ctx.newPage();
+    await p3.goto(base + '?planes=off'); await toWorks(p3); await p3.waitForTimeout(2000);
+    const off = await p3.evaluate(() => ({ pl: document.querySelectorAll('.tile.x-pl').length, st: window.__planes && window.__planes.state }));
+    check(profile, '?planes=off: no plane tiles', off.pl === 0 && off.st !== 'on', JSON.stringify(off));
+    await p3.goto(base + '?planes=on'); await toWorks(p3);
+    const again = await planesOn(p3);
+    await p3.evaluate(() => document.querySelector('canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
+    await p3.waitForTimeout(1500);
+    const lost = await p3.evaluate(() => ({ pl: document.querySelectorAll('.tile.x-pl').length, st: window.__planes && window.__planes.state }));
+    check(profile, 'forced context loss: no plane tiles remain, state lost', again && lost.pl === 0 && lost.st === 'lost', JSON.stringify(lost));
+    await p3.evaluate(() => localStorage.removeItem('pf_planes')); await p3.close();
+  }
   const badFonts = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter((f) => f.status === 'error').map((f) => f.family); });
   check(profile, 'all fonts loaded', badFonts.length === 0, badFonts.join(', '));
 

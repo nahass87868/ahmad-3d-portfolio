@@ -444,7 +444,7 @@
   function tile(w) {
     const hasVideo = w.videos.length > 0;
     return (
-      `<article class="tile" data-sa data-cat="${esc(w.category)}"${hasVideo ? ` data-video="${esc(w.videos[0])}"` : ''}>` +
+      `<article class="tile" data-sa data-cat="${esc(w.category)}">` +
       `<a href="#work/${w.slug}" data-panel data-cur="View"><div class="th">` +
       // grid thumbnail; if it is missing the full image is used instead (see initMediaFallback)
       `<img class="cov" src="images/thumbs/${w.thumb}.webp" data-full="images/${w.images[0]}.webp" width="480" height="600" alt="" loading="lazy" decoding="async">` +
@@ -1263,7 +1263,7 @@
     });
   }
 
-  /* ── works grid: bento layout, category filter, hover video previews ── */
+  /* ── works grid: bento layout, category filter ── */
   function layoutBento(tiles) {
     let i = 0;
     tiles.forEach((tile) => {
@@ -1295,43 +1295,6 @@
       $$('.chip', chips).forEach((c) => c.setAttribute('aria-pressed', String((c.dataset.cat || '') === category)));
       count.textContent = shown + (shown === 1 ? ' project' : ' projects') + (category ? ' in ' + category : '');
     });
-
-    // hover video preview — mouse only, and never when reduced motion or Data Saver is on
-    const saveData = navigator.connection && navigator.connection.saveData;
-    if (!FINE || REDUCED || saveData) return;
-    const previews = new Map();
-    const stop = (tile) => {
-      const v = previews.get(tile);
-      if (!v) return;
-      v.pause();
-      v.remove();
-      previews.delete(tile);
-    };
-    const start = (tile) => {
-      const id = tile.dataset.video;
-      if (!id || previews.has(tile)) return;
-      const v = document.createElement('video');
-      v.className = 'pre';
-      v.muted = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.preload = 'auto';
-      v.setAttribute('aria-hidden', 'true');
-      v.src = 'videos/' + id + '.mp4';
-      v.addEventListener('playing', () => v.classList.add('on'), { once: true });
-      v.addEventListener('error', () => stop(tile), { once: true });
-      previews.set(tile, v);
-      tile.querySelector('.th').appendChild(v);
-      v.play().catch(() => stop(tile));
-    };
-    tiles
-      .filter((t) => t.dataset.video)
-      .forEach((tile) => {
-        tile.addEventListener('pointerenter', () => start(tile));
-        tile.addEventListener('pointerleave', () => stop(tile));
-        tile.addEventListener('focusin', () => start(tile));
-        tile.addEventListener('focusout', () => stop(tile));
-      });
   }
 
   /* ── cards: tiles near the mouse drift toward it and an accent glow follows (mouse only) ──
