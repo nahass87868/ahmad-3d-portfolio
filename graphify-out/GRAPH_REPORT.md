@@ -1,25 +1,25 @@
-# Graph Report - repo  (2026-11-22)
+# Graph Report - ahmad-3d-portfolio  (2026-11-23)
 
 ## Corpus Check
 - 24 files · ~0 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 423 nodes · 613 edges · 21 communities (17 shown, 4 thin omitted)
+- 427 nodes · 621 edges · 21 communities (17 shown, 4 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 41 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
 - script.js
-- extras.js + fixes.js
 - hero-3d.js + world.js
 - build-site.mjs + smoke.mjs
+- breakdown.js + fixes.js
 - deploy.yml
 -  + graph-map.py
 - package.json + lenis.js
-- premium.js
 - planes.js
-- breakdown.js
+- premium.js
+- extras.js
 - hero-3d.js + script.js
 - polish.js
 - script.js
@@ -35,10 +35,10 @@
 1. `start()` - 28 edges
 2. `run()` - 20 edges
 3. `wake()` - 13 edges
-4. `startPlanes()` - 12 edges
-5. `start()` - 9 edges
-6. `route()` - 9 edges
-7. `tick()` - 9 edges
+4. `startPlanes()` - 13 edges
+5. `tick()` - 12 edges
+6. `start()` - 9 edges
+7. `route()` - 9 edges
 8. `tick()` - 8 edges
 9. `main()` - 8 edges
 10. `initHeadings()` - 7 edges
@@ -56,15 +56,11 @@
 
 ## Communities (21 total, 4 thin omitted)
 
-### Community 1 - "extras.js + fixes.js"
-Cohesion: 0.07
-Nodes (9): initAvailability(), initBackToTop(), initCopyLabel(), initCursorIdle(), initFilterTransition(), initNavActive(), initScrollProgress(), initToolbarTips() (+1 more)
-
-### Community 2 - "hero-3d.js + world.js"
+### Community 1 - "hero-3d.js + world.js"
 Cohesion: 0.06
 Nodes (10): fitName(), watchName(), motionParam, createWorld(), QUALITY, window.__BUILD__, window.__hero3d, window.__HERO3D_GLB__ (+2 more)
 
-### Community 3 - "build-site.mjs + smoke.mjs"
+### Community 2 - "build-site.mjs + smoke.mjs"
 Cohesion: 0.06
 Nodes (15): DIST, server, TYPES, ctx, DIRS, DIST, FILES, html (+7 more)
 
@@ -80,13 +76,17 @@ Nodes (9): accessor(), main(), pad4(), read_glb(), add_node(), fnode(), label(),
 Cohesion: 0.08
 Nodes (24): dependencies, lenis@1.3.27, three@0.186.1, description, devDependencies, playwright-core@1.65.1, vite@8.3.5, engines (+16 more)
 
-### Community 7 - "premium.js"
+### Community 7 - "planes.js"
+Cohesion: 0.14
+Nodes (17): bezier(), FEEL, ramp(), smooth(), startPlanes(), build(), clearFx(), draw() (+9 more)
+
+### Community 8 - "premium.js"
 Cohesion: 0.09
 Nodes (4): initIndex(), initPortrait(), initProject(), whenReady()
 
-### Community 8 - "planes.js"
-Cohesion: 0.15
-Nodes (14): bezier(), FEEL, startPlanes(), build(), draw(), dropPl(), dropTex(), fail() (+6 more)
+### Community 9 - "extras.js"
+Cohesion: 0.13
+Nodes (9): initAvailability(), initBackToTop(), initCopyLabel(), initCursorIdle(), initFilterTransition(), initNavActive(), initScrollProgress(), initToolbarTips() (+1 more)
 
 ### Community 10 - "hero-3d.js + script.js"
 Cohesion: 0.21
@@ -126,14 +126,14 @@ Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 232 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 233 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `window.__WORKS__` connect `build-site.mjs + smoke.mjs` to `script.js`?**
-  _High betweenness centrality (0.112) - this node is a cross-community bridge._
+  _High betweenness centrality (0.113) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `start()` (e.g. with `boot()` and `stepCards()`) actually correct?**
   _`start()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `window.__BUILD__`, `window.__HERO3D_GLB__` to the rest of the system?**
@@ -144,5 +144,5 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `run()` (e.g. with `frame()` and `onScroll()`) actually correct?**
   _`run()` has 4 INFERRED edges - model-reasoned connections that need verification._
-- **Should `extras.js + fixes.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.06825396825396825 - nodes in this community are weakly interconnected._
+- **Should `hero-3d.js + world.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.06349206349206349 - nodes in this community are weakly interconnected._

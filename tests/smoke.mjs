@@ -74,6 +74,17 @@ for (const [profile, ctxOpts] of [
     await page.waitForTimeout(2500); // Phase 6c: at rest (after the scroll wave has settled) the planes layer draws nothing
     const draws = await page.evaluate(() => new Promise((res) => { const G = WebGL2RenderingContext.prototype, de = G.drawElements, da = G.drawArrays; let n = 0; G.drawElements = function (...a) { n++; return de.apply(this, a); }; G.drawArrays = function (...a) { n++; return da.apply(this, a); }; setTimeout(() => { G.drawElements = de; G.drawArrays = da; res(n); }, 1000); }));
     check(profile, 'works planes idle: no GL draw call at rest', draws === 0, 'draw calls in 1 s: ' + draws);
+    if (profile === 'desktop' && await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)) { // Phase 6d: a mouse on a tile wakes the layer; once the effects settle it is idle again with the pointer still there
+      const drawCount = (ms) => page.evaluate((ms) => new Promise((res) => { const G = WebGL2RenderingContext.prototype, de = G.drawElements, da = G.drawArrays; let n = 0; G.drawElements = function (...a) { n++; return de.apply(this, a); }; G.drawArrays = function (...a) { n++; return da.apply(this, a); }; setTimeout(() => { G.drawElements = de; G.drawArrays = da; res(n); }, ms); }), ms);
+      await page.evaluate(() => document.querySelector('#grid .tile.x-pl .th').scrollIntoView({ block: 'center', behavior: 'instant' })); await page.waitForTimeout(2500);
+      const rc = await page.evaluate(() => { const r = document.querySelector('#grid .tile.x-pl .th').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+      const during = drawCount(500);
+      await page.mouse.move(rc.x - 40, rc.y - 40); await page.mouse.move(rc.x, rc.y, { steps: 5 });
+      const woke = await during; await page.waitForTimeout(1500);
+      const rest = await drawCount(1000);
+      check(profile, 'works planes hover: a mouse on a tile draws, then no GL draw at rest', woke > 0 && rest === 0, `draw calls while moving ${woke}, at rest ${rest}`);
+      await page.mouse.move(2, 2);
+    }
     const p3 = await ctx.newPage();
     await p3.goto(base + '?planes=off'); await toWorks(p3); await p3.waitForTimeout(2000);
     const off = await p3.evaluate(() => ({ pl: document.querySelectorAll('.tile.x-pl').length, st: window.__planes && window.__planes.state }));
