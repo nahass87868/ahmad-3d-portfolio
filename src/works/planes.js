@@ -8,6 +8,7 @@
  * Phase 6d: desktop hover (mouse / pen behind hover:hover + pointer:fine): a fast blur pulse (uBlur, 9 taps only while > 0) and a pointer fisheye (uLens, uLensC) on the hovered
  * tile; touch: a subtle press zoom of the image, cancelled the moment the touch moves or becomes a scroll. Each effect is a 0..1 progress ramped linearly per frame time
  * (reverses from where it is), then smoothstepped; at rest every uniform is 0 and the shader takes the 6c path.
+ * Phase 6e: while polish.js runs its reverse View Transition on close (html.x-vt-close, the card carries data-x-hold) that one card stays its DOM image (vtHold); it is a plane again once the class is gone.
  * Switch: ?planes=off | on (remembered in localStorage pf_planes; ?planes=on clears it).
  * window.__planes (the 8th window global) = { state: 'on'|'off'|'lost', reason, tiles, ready, last }
  *   tiles: tiles found; ready: tiles in plane mode now; last[i]: the last drawn rectangle of tile i, { x, y, w, h } in CSS px (reused objects).
@@ -130,9 +131,9 @@ export function startPlanes(world, THREE) {
   const uWave = { value: 0 }; // one uniform object shared by every tile's material
   const AMP = FEEL.WAVE_AMP * (FINE ? 1 : FEEL.WAVE_TOUCH), REDUCED = matchMedia('(prefers-reduced-motion: reduce)'); // planes never start with reduced motion; this guards a runtime change
   let wv = 0, wY = 0, wT = -1e9; // smoothed scroll speed (px per ms), the last frame's scrollY and time
-  let W = 0, H = 0, hadDrawn = false, calm = 0, until = 0, nearCount = 0, force = false, held = null, heldAt = 0, sawOpen = false, hoverRec = null, focusRec = null;
+  let W = 0, H = 0, hadDrawn = false, calm = 0, until = 0, nearCount = 0, force = false, held = null, heldAt = 0, sawOpen = false, hoverRec = null, focusRec = null, vtHold = null;
   let pointerX = 0, pointerY = 0, pressRec = null, pressX = 0, pressY = 0, pressFast = false; // 6d: last mouse position (viewport px), the tile under a touch and where it started
-  const eligible = (r) => r.near && !r.bad && r !== held;
+  const eligible = (r) => r.near && !r.bad && r !== held && r !== vtHold;
 
   function fit() { // the camera follows the canvas size (the hero resizes the shared renderer)
     renderer.getSize(sz);
@@ -304,7 +305,12 @@ export function startPlanes(world, THREE) {
 
   const ro = new ResizeObserver(() => { refresh(); poke(); });
   ro.observe(grid);
-  const mo = new MutationObserver(() => { if (root.classList.contains('panel-open')) { sawOpen = true; pressRec = null; for (const r of recs) clearFx(r); } poke(); }); // a panel opening ends every 6d effect
+  const mo = new MutationObserver(() => {
+    if (root.classList.contains('panel-open')) { sawOpen = true; pressRec = null; for (const r of recs) clearFx(r); } // a panel opening ends every 6d effect
+    if (!root.classList.contains('x-vt-close')) vtHold = null; // 6e: the reverse transition is over
+    else if (!vtHold) { const t = grid.querySelector('.tile[data-x-hold]'), r = t && byTile.get(t); if (r) { vtHold = r; dropPl(r); clearFx(r); r.draw = false; } } // once per close, never per frame
+    poke();
+  });
   mo.observe(root, { attributes: true, attributeFilter: ['class', 'data-vp'] });
 
   on(window, 'scroll', () => { force = true; if (pressRec) { pressRec = null; pressFast = true; } poke(); }); // a scroll cancels a press at once

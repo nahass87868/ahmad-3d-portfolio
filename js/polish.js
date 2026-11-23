@@ -34,6 +34,9 @@
     LIFT_PX: 6, // desktop hover lift
     RADIUS: 12, // card image corner radius, px
     SWIPE_CLOSE_PX: 110, // how far to pull the project sheet down to close it
+    VT_VISIBLE: 0.4, // close transition: share of the card and of the top image on screen
+    VT_CLOSE_WAIT_MS: 400, // wait for the panel to close
+    VT_FAILSAFE_MS: 1500, // release everything after this
   };
 
   if (!POLISH.enabled) return;
@@ -267,6 +270,64 @@ html.x-menu-open { overflow: hidden; }
     }, true);
   }
 
+  /* close (X or Escape): the top image shrinks back into its card (the .6s group rule above). Any doubt: the normal close runs. */
+  function initCloseTransition() {
+    if (!POLISH.viewTransition || reduced || !document.startViewTransition) return;
+    const panel = $('#panel'), grid = $('#grid');
+    if (!panel || !grid) return;
+    let closing = false;
+    const open = () => root.classList.contains('panel-open');
+    const seen = (r) => { const w = Math.min(r.right, innerWidth) - Math.max(r.left, 0), h = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0); return w > 0 && h > 0 && w * h >= T.VT_VISIBLE * r.width * r.height; };
+    const target = () => { // .instant: an opening runs; inline transform: swipe-close
+      if (!open() || panel.classList.contains('instant') || panel.style.transform || grid.classList.contains('x-off') || !/^#work\//.test(location.hash)) return null;
+      const a = $$('.tile > a[data-panel]', grid).find((l) => l.getAttribute('href') === location.hash);
+      const tile = a && a.parentNode, th = tile && !tile.hidden && $('.th', a), hm = $('.hero-media', panel);
+      return th && hm && seen(th.getBoundingClientRect()) && seen(hm.getBoundingClientRect()) ? { tile, th, hm } : null;
+    };
+    const start = (fire) => { // true: the event is ours now, re-sent inside the transition
+      if (closing) return open(); // no second history.back()
+      const c = target();
+      if (!c) return false;
+      const { tile, th, hm } = c;
+      let sent = false, over = false;
+      const send = () => { if (!sent && open()) { sent = true; fire(); } };
+      const done = () => {
+        if (over) return; over = true; closing = false;
+        hm.style.viewTransitionName = th.style.viewTransitionName = '';
+        panel.classList.remove('instant'); tile.removeAttribute('data-x-hold'); root.classList.remove('x-vt-close');
+        send();
+      };
+      const update = () => {
+        hm.style.viewTransitionName = ''; th.style.viewTransitionName = 'x-hero';
+        panel.classList.add('instant'); // no slide: the transition is the motion
+        send();
+        return new Promise((res) => { // history.back() is async
+          const mo = new MutationObserver(() => { if (!open()) { mo.disconnect(); res(); } });
+          mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+          setTimeout(() => { mo.disconnect(); res(); }, T.VT_CLOSE_WAIT_MS);
+          if (!open()) res();
+        });
+      };
+      closing = true;
+      hm.style.viewTransitionName = 'x-hero';
+      tile.setAttribute('data-x-hold', ''); root.classList.add('x-vt-close'); // planes.js: this card stays a DOM image
+      setTimeout(done, T.VT_FAILSAFE_MS);
+      try { document.startViewTransition(update).finished.then(done, done); } catch { done(); }
+      return true;
+    };
+    const plain = (e) => e.__xvt || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
+    const resend = (el, ev) => () => { ev.__xvt = true; el.dispatchEvent(ev); };
+    document.addEventListener('click', (e) => {
+      const c = !plain(e) && e.button === 0 && open() && e.target.closest && e.target.closest('#panelX, [data-close]');
+      if (c && start(resend(c, new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, view: window })))) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+    addEventListener('keydown', (e) => {
+      const pie = $('#vpie'); // the pie menu closes itself on Escape
+      if (plain(e) || e.key !== 'Escape' || !open() || (pie && !pie.hidden)) return;
+      if (start(resend(e.target, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))) e.stopImmediatePropagation();
+    }, true);
+  }
+
   /* phones: Menu button + sheet, one Appearance button (it simply presses your own mode and scheme buttons) */
   function initPhoneHeader() {
     if (!POLISH.phoneHeader) return;
@@ -354,6 +415,7 @@ html.x-menu-open { overflow: hidden; }
     safely('scrollMotion', initScrollMotion);
     safely('imageZoom', initImageZoom);
     safely('viewTransition', initViewTransition);
+    safely('closeTransition', initCloseTransition);
     safely('phoneHeader', initPhoneHeader);
     safely('swipeClose', initSwipeClose);
   });

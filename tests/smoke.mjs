@@ -85,6 +85,16 @@ for (const [profile, ctxOpts] of [
       check(profile, 'works planes hover: a mouse on a tile draws, then no GL draw at rest', woke > 0 && rest === 0, `draw calls while moving ${woke}, at rest ${rest}`);
       await page.mouse.move(2, 2);
     }
+    if (profile === 'desktop') { // Phase 6e: a card opens and Escape closes it, each with a View Transition; nothing is left behind and the card is a plane again
+      await page.evaluate(() => { window.__vtN = 0; const s = document.startViewTransition; if (s) document.startViewTransition = function (...a) { window.__vtN++; return s.apply(this, a); }; });
+      const href = await page.evaluate(() => { const t = document.querySelector('#grid .tile.x-pl'); t.querySelector('.th').scrollIntoView({ block: 'center', behavior: 'instant' }); return t.querySelector('a').getAttribute('href'); });
+      await page.waitForTimeout(2500);
+      await page.click(`#grid .tile > a[href="${href}"]`); await page.waitForTimeout(2200);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction((h) => !document.documentElement.classList.contains('x-vt-close') && !document.documentElement.classList.contains('panel-open') && document.querySelector(`#grid .tile > a[href="${h}"]`).parentElement.classList.contains('x-pl'), href, { timeout: 8000 }).catch(() => {});
+      const rv = await page.evaluate((h) => ({ n: window.__vtN, hash: location.hash, hidden: document.getElementById('panel').getAttribute('aria-hidden'), name: document.querySelector(`#grid .tile > a[href="${h}"] .th`).style.viewTransitionName, inst: document.getElementById('panel').classList.contains('instant'), hold: document.documentElement.classList.contains('x-vt-close'), pl: document.querySelector(`#grid .tile > a[href="${h}"]`).parentElement.classList.contains('x-pl') }), href);
+      check(profile, 'works close: Escape runs the reverse View Transition, leaves nothing behind, the card is a plane again', rv.n === 2 && rv.hidden === 'true' && rv.hash.length <= 1 && !rv.name && !rv.inst && !rv.hold && rv.pl, JSON.stringify(rv));
+    }
     const p3 = await ctx.newPage();
     await p3.goto(base + '?planes=off'); await toWorks(p3); await p3.waitForTimeout(2000);
     const off = await p3.evaluate(() => ({ pl: document.querySelectorAll('.tile.x-pl').length, st: window.__planes && window.__planes.state }));
