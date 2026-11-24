@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `README.md` | 6 KB | 102 |
+| `README.md` | 10 KB | 137 |
 | `index.html` | 5 KB | 66 |
 | `package.json` | 1 KB | 24 |
 | `vite.config.js` | 1 KB | 23 |
