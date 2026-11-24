@@ -24,6 +24,7 @@
   position: absolute; right: 18px; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   font: 400 13px/1 var(--font-mono); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; text-transform: none;
 }
+#pre.x-spin .pt b { animation: none; display: inline-block; width: 1ch; margin-left: 0.5ch; } /* spinner char instead of the pulsing dots (premium.js) */
 #pre .pcount:after { content: '%'; margin-left: 2px; color: var(--mut); }
 html:not(.js) #pre { display: none; }
 

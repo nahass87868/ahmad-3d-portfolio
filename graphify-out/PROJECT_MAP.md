@@ -12,14 +12,14 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 43 |
 | `content/works.js` | 11 KB | 241 |
-| `css/premium.css` | 8 KB | 113 |
+| `css/premium.css` | 8 KB | 114 |
 | `css/style.css` | 49 KB | 2232 |
 | `js/about-photo.js` | 6 KB | 132 |
 | `js/breakdown.js` | 15 KB | 276 |
 | `js/extras.js` | 19 KB | 390 |
 | `js/fixes.js` | 4 KB | 87 |
 | `js/polish.js` | 26 KB | 422 |
-| `js/premium.js` | 21 KB | 355 |
+| `js/premium.js` | 22 KB | 360 |
 | `js/script.js` | 84 KB | 2149 |
 | `src/main.js` | 4 KB | 78 |
 | `src/hero/hero-3d.js` | 50 KB | 756 |
@@ -62,7 +62,7 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 | `window.__WORKS__` | content/works.js:6 | js/script.js:124, tests/smoke.mjs:113, tools/build-site.mjs:38 |
 | `window.__breakdown` | js/breakdown.js:42 | js/script.js:1913 |
 | `window.__hero3d` | src/hero/hero-3d.js:110, src/main.js:37, src/main.js:42, src/main.js:50, src/main.js:56 | tests/smoke.mjs:50, tests/smoke.mjs:51, tests/smoke.mjs:57, tests/smoke.mjs:63, tests/smoke.mjs:69, tests/smoke.mjs:71 |
-| `window.__hero3dReady` | src/main.js:11 | js/premium.js:103, js/premium.js:106, src/hero/hero-3d.js:23 |
+| `window.__hero3dReady` | src/main.js:11 | js/premium.js:107, js/premium.js:110, src/hero/hero-3d.js:23 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:25 |
 | `window.__planes` | src/works/planes.js:95 | src/works/planes.js:13, tests/smoke.mjs:100, tests/smoke.mjs:106, tests/smoke.mjs:70, tests/smoke.mjs:73 |
 | `window.__vtN` | tests/smoke.mjs:89 | tests/smoke.mjs:95 |

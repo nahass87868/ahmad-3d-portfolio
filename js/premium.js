@@ -30,6 +30,7 @@
     HOLD_MS: 250, // pause at 100% before the lift
     LETTER_S: 1.0, LETTER_STAGGER: 0.045, WIDTH_FROM: 125, WIDTH_TO: 68, // name letters rise, condensing like your heading morph
     LIFT_S: 1.05,
+    SPIN_MS: 100, // the | / - \ spinner next to "rendering" (npm style): ms per frame
     // ── index view ──
     PREVIEW_OFFSET: 28, // px between the cursor and the preview
     // ── gallery ──
@@ -90,6 +91,9 @@
         g.set(line, { opacity: 0, y: 14 });
         g.set(l1, { borderBottomLeftRadius: '0% 0vh', borderBottomRightRadius: '0% 0vh' });
         curtain.classList.add('x-ready');
+        const spin = reduced ? null : $('.pt b', curtain); // reduced motion keeps the static "..."
+        if (spin) curtain.classList.add('x-spin');
+        let si = -1;
 
         // wait briefly for Archivo so the name never shows in a fallback face
         const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
@@ -130,6 +134,7 @@
           const shown = Math.min(proxy.v, capped ? 1 : 0.3 * real.fonts + 0.35 * real.load + 0.35 * real.assets);
           counter.textContent = String(Math.round(shown * 100)).padStart(3, '0');
           g.set(bar, { scaleX: shown });
+          if (spin) { const i = ((performance.now() - t0) / T.SPIN_MS | 0) % 4; if (i !== si) { si = i; spin.textContent = '|/-\\'[i]; } }
           if (shown >= 0.999) { g.ticker.remove(tick); setTimeout(lift, T.HOLD_MS); }
         }
         g.ticker.add(tick);
