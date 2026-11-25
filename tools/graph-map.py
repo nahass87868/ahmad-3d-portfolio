@@ -114,7 +114,7 @@ M += ['## Files (text sources)', '', '| file | size | lines |', '|---|---|---|']
 for p in files:
     if Path(p).suffix in ('.js', '.mjs', '.css', '.html', '.py', '.json', '.yml', '.md'): M.append(f'| `{p}` | {mb(size(p))} | {sum(1 for _ in open(p, encoding="utf8", errors="replace"))} |')
 M += ['', '## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)', '',
-      'Published folders (copied byte for byte, never graphed): ' + ', '.join(f'`{d}/` ({sum(len(fs) for _, _, fs in os.walk(d))} files, {mb(sum(size(os.path.join(a, f)) for a, _, fs in os.walk(d) for f in fs))})' for d in ('images', 'videos', 'fonts', 'vendor') if os.path.isdir(d)),
+      'Published folders (copied byte for byte, never graphed): ' + ', '.join(f'`{d}/` ({sum(len(fs) for _, _, fs in os.walk(d))} files, {mb(sum(size(os.path.join(a, f)) for a, _, fs in os.walk(d) for f in fs))})' for d in ('images', 'videos', 'fonts', 'vendor', 'models') if os.path.isdir(d)),
       'Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out/`.', '']
 M += ['## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)', '']
 for e in sorted([e for e in edges if e['relation'] == 'loads'], key=lambda e: e['order']): M.append(f"{e['order']}. `{[k for k, v in file_node.items() if v == e['target']][0]}`  ({e['kind']})")
@@ -125,13 +125,13 @@ works = open('content/works.js', encoding='utf8').read()
 bd = set(os.listdir('images/projects-breakdown')) if os.path.isdir('images/projects-breakdown') else set()
 mods = sorted(os.listdir('source')) if os.path.isdir('source') else []
 ALIAS = {'2026-looks.glb': '2026-modes-looks'}  # model files whose names do not contain the slug (confirmed by the owner's naming)
-M += ['', '## Projects (source of truth: `content/works.js`, read by script.js and by the build)', '', '| # | slug | title | category | images | videos | breakdown trio | model in source (name match) |', '|---|---|---|---|---|---|---|---|']
+M += ['', '## Projects (source of truth: `content/works.js`, read by script.js and by the build)', '', '| # | slug | title | category | images | videos | breakdown trio | model in source (name match) | turntable model (works.js) |', '|---|---|---|---|---|---|---|---|---|']
 for k, b in enumerate([x for x in re.split(r"(?=slug: ')", works) if x.startswith("slug: '")], 1):
     s = re.match(r"slug: '([^']+)'", b).group(1); g = lambda r: (re.search(r, b) or [None, '?'])[1]
     ni = len(re.findall(r"'[^']+'", (re.search(r"images: \[(.*?)\]", b, re.S) or [0, ''])[1])); nv = len(re.findall(r"'[^']+'", (re.search(r"videos: \[(.*?)\]", b, re.S) or [0, ''])[1]))
-    trio = all(f'{s}-image-{x}.webp' in bd for x in ('wire', 'clay', 'final')); mod = [m for m in mods if m[:-4] in s or s in m or ALIAS.get(m) == s]
-    M.append(f"| {k} | `{s}` | {g(r'title: .([^\']+).')} | {g(r'category: .([^\']+).')} | {ni} | {nv} | {'yes' if trio else '-'} | {', '.join(mod) or '-'} |")
-M += ['', 'Model file names do not equal slugs (e.g. `asus.glb`): the match above is by containment; confirm before relying on it.', '']
+    trio = all(f'{s}-image-{x}.webp' in bd for x in ('wire', 'clay', 'final')); mod = [m for m in mods if m[:-4] in s or s in m or ALIAS.get(m) == s]; tm = (re.search(r"model: '([^']+)'", b) or [0, '-'])[1]
+    M.append(f"| {k} | `{s}` | {g(r'title: .([^\']+).')} | {g(r'category: .([^\']+).')} | {ni} | {nv} | {'yes' if trio else '-'} | {', '.join(mod) or '-'} | {tm} |")
+M += ['', '"model in source" is a name match against `source/` (file names do not equal slugs, e.g. `asus.glb`: confirm before relying on it). "turntable model" is the explicit `model` field in `content/works.js`: the file `models/<name>.glb`, built from `source/<name>.glb` by `tools/build-turntable-models.py` (geometry only, quantised, one mesh).', '']
 # tunables
 M += ['## Tunables (top of each module)', '']
 for p in ('src/hero/hero-3d.js', 'js/script.js', 'js/extras.js', 'js/polish.js', 'js/premium.js'):

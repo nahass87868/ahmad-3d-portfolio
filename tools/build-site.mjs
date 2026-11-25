@@ -21,7 +21,7 @@ const FILES = ['content/works.js', 'css/style.css', 'css/premium.css', 'js/scrip
 const UNUSED_PNG_MASTERS = new Set(['images/smart-watch-image.png', 'images/vellum-image.png']);
 const skipped = (r) => r === 'vendor/three.min.js' || (r.startsWith('images/') && r.endsWith('.jpg')) || UNUSED_PNG_MASTERS.has(r);
 const rel = (p) => relative(ROOT, p).split('\\').join('/');
-const DIRS = ['vendor', 'fonts', 'images', 'videos', 'og'];
+const DIRS = ['vendor', 'fonts', 'images', 'videos', 'og', 'models'];
 const MODULE_TAG_SOURCE = 'src="src/main.js"'; // as written in index.html, which Vite's dev server serves from the project root
 const MODULE_TAG_DIST = 'src="main.js"'; // the same file, as published next to index.html
 const NOSCRIPT_MARKER = '<!-- NOSCRIPT_PROJECTS -->'; // in index.html: replaced by a plain list of the projects, for visitors and scrapers without JavaScript
@@ -51,6 +51,12 @@ works.forEach((w, i) => {
   if (w.breakdown) { // wire/clay/final trio: [width, height] of the images, and all 3 files must exist
     if (!Array.isArray(w.breakdown) || w.breakdown.length !== 2 || !w.breakdown.every((n) => Number.isInteger(n) && n > 0)) bad('"breakdown" must be [width, height]');
     if (isText(w.slug)) for (const l of ['wire', 'clay', 'final']) if (!existsSync(join(ROOT, `images/projects-breakdown/${w.slug}-image-${l}.webp`))) bad(`missing file images/projects-breakdown/${w.slug}-image-${l}.webp`);
+  }
+  if (w.model !== undefined) { // turntable model: the name of a file in models/ (built from source/ by tools/build-turntable-models.py)
+    const f = `models/${w.model}.glb`;
+    if (!isText(w.model) || !/^[a-z0-9-]+$/.test(w.model)) bad('"model" must be a file name such as "nike-shoe"');
+    else if (!existsSync(join(ROOT, f))) bad(`missing file ${f}`);
+    else if (readFileSync(join(ROOT, f)).subarray(0, 4).toString('latin1') !== 'glTF') bad(`${f} is not a GLB file`);
   }
 });
 if (problems.length) fail(`content/works.js has ${problems.length} problem(s):\n  - ` + problems.join('\n  - '));

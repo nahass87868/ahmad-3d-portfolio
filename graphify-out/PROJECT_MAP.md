@@ -6,12 +6,12 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `README.md` | 10 KB | 137 |
+| `README.md` | 11 KB | 150 |
 | `index.html` | 5 KB | 66 |
 | `package.json` | 1 KB | 24 |
 | `vite.config.js` | 1 KB | 23 |
 | `.github/workflows/deploy.yml` | 1 KB | 43 |
-| `content/works.js` | 11 KB | 241 |
+| `content/works.js` | 11 KB | 245 |
 | `css/premium.css` | 8 KB | 114 |
 | `css/style.css` | 49 KB | 2232 |
 | `js/about-photo.js` | 6 KB | 132 |
@@ -29,12 +29,13 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `src/world/world.js` | 6 KB | 99 |
 | `tests/smoke.mjs` | 16 KB | 158 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
-| `tools/build-site.mjs` | 9 KB | 95 |
+| `tools/build-site.mjs` | 9 KB | 101 |
+| `tools/build-turntable-models.py` | 11 KB | 190 |
 | `tools/graph-map.py` | 11 KB | 142 |
 
 ## Published site = these files copied unchanged + the Vite layer (`tools/build-site.mjs`)
 
-Published folders (copied byte for byte, never graphed): `images/` (141 files, 76.8 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (2 files, 117 KB)
+Published folders (copied byte for byte, never graphed): `images/` (141 files, 76.8 MB), `videos/` (12 files, 70.5 MB), `fonts/` (2 files, 83 KB), `vendor/` (2 files, 117 KB), `models/` (4 files, 1.0 MB)
 Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out/`.
 
 ## Load order in index.html (blocking runs first; defer in order; module last; all before DOMContentLoaded)
@@ -69,26 +70,26 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
 
-| # | slug | title | category | images | videos | breakdown trio | model in source (name match) |
-|---|---|---|---|---|---|---|---|
-| 1 | `realistic-ice` | Realistic Ice Render | Product Visualization | 2 | 0 | yes | - |
-| 2 | `soap-animation` | Soap Animation | Product Visualization | 4 | 1 | - | - |
-| 3 | `yerba-mate-animation` | Yerba Mate Animation | Product Visualization | 2 | 1 | yes | yerba-mate.glb |
-| 4 | `asus-product-animation` | Asus Product Animation | Product Visualization | 1 | 1 | - | asus.glb |
-| 5 | `realistic-water-glass` | Realistic Water Glass Render | Product Visualization | 2 | 0 | - | - |
-| 6 | `smartwatch-animation` | Smartwatch Animation | Product Visualization | 1 | 1 | - | - |
-| 7 | `nike-shoe-modeling` | Nike Shoe Modeling | 3D Modeling | 6 | 0 | - | nike-shoe.glb |
-| 8 | `real-estate-exhibition-booth` | Real Estate Exhibition Booth | Interior design & architecture | 8 | 0 | yes | - |
-| 9 | `interior-room-design` | Interior Room Design | Interior design & architecture | 2 | 0 | - | - |
-| 10 | `booth-design` | Booth Design | Interior design & architecture | 9 | 0 | - | - |
-| 11 | `2026-modes-looks` | 2026 Modes & Looks | 3D Art | 7 | 0 | - | 2026-looks.glb |
-| 12 | `folder-inflation` | Folder Inflation | Simulation | 2 | 2 | yes | - |
-| 13 | `vellum-simulation` | Vellum Simulation | Simulation | 1 | 2 | yes | - |
-| 14 | `date-cookies-animation` | Date Cookies Animation | Product Visualization | 1 | 2 | yes | date-cookies.glb |
-| 15 | `blue-mall-logo-animation` | Blue Mall Logo Animation | Motion Design | 1 | 1 | - | - |
-| 16 | `youth-affairs-logo-animation` | Youth Affairs Logo Animation | Motion Design | 3 | 1 | - | youth-affairs.glb |
+| # | slug | title | category | images | videos | breakdown trio | model in source (name match) | turntable model (works.js) |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `realistic-ice` | Realistic Ice Render | Product Visualization | 2 | 0 | yes | - | - |
+| 2 | `soap-animation` | Soap Animation | Product Visualization | 4 | 1 | - | - | - |
+| 3 | `yerba-mate-animation` | Yerba Mate Animation | Product Visualization | 2 | 1 | yes | yerba-mate.glb | yerba-mate |
+| 4 | `asus-product-animation` | Asus Product Animation | Product Visualization | 1 | 1 | - | asus.glb | - |
+| 5 | `realistic-water-glass` | Realistic Water Glass Render | Product Visualization | 2 | 0 | - | - | - |
+| 6 | `smartwatch-animation` | Smartwatch Animation | Product Visualization | 1 | 1 | - | - | - |
+| 7 | `nike-shoe-modeling` | Nike Shoe Modeling | 3D Modeling | 6 | 0 | - | nike-shoe.glb | nike-shoe |
+| 8 | `real-estate-exhibition-booth` | Real Estate Exhibition Booth | Interior design & architecture | 8 | 0 | yes | - | - |
+| 9 | `interior-room-design` | Interior Room Design | Interior design & architecture | 2 | 0 | - | - | - |
+| 10 | `booth-design` | Booth Design | Interior design & architecture | 9 | 0 | - | - | - |
+| 11 | `2026-modes-looks` | 2026 Modes & Looks | 3D Art | 7 | 0 | - | 2026-looks.glb | - |
+| 12 | `folder-inflation` | Folder Inflation | Simulation | 2 | 2 | yes | - | - |
+| 13 | `vellum-simulation` | Vellum Simulation | Simulation | 1 | 2 | yes | - | - |
+| 14 | `date-cookies-animation` | Date Cookies Animation | Product Visualization | 1 | 2 | yes | date-cookies.glb | date-cookies |
+| 15 | `blue-mall-logo-animation` | Blue Mall Logo Animation | Motion Design | 1 | 1 | - | - | - |
+| 16 | `youth-affairs-logo-animation` | Youth Affairs Logo Animation | Motion Design | 3 | 1 | - | youth-affairs.glb | youth-affairs |
 
-Model file names do not equal slugs (e.g. `asus.glb`): the match above is by containment; confirm before relying on it.
+"model in source" is a name match against `source/` (file names do not equal slugs, e.g. `asus.glb`: confirm before relying on it). "turntable model" is the explicit `model` field in `content/works.js`: the file `models/<name>.glb`, built from `source/<name>.glb` by `tools/build-turntable-models.py` (geometry only, quantised, one mesh).
 
 ## Tunables (top of each module)
 

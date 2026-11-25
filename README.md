@@ -21,8 +21,9 @@ ahmad-3d-portfolio/
 │               world/, scroll/,    world/world.js (the one renderer and loop), scroll/lenis.js,
 │               works/              works/planes.js (the project-grid image layer)
 ├── tests/      smoke.mjs
-├── tools/      build-site.mjs, build-hero-model.py, graph-map.py
+├── tools/      build-site.mjs, build-hero-model.py, build-turntable-models.py, graph-map.py
 ├── source/     portfolio.glb + 6 project .glb files (never published)
+├── models/     nike-shoe, yerba-mate, youth-affairs, date-cookies .glb (lean turntable models, generated from source/)
 ├── images/     webp, jpg masters, 1 png master; thumbs/, projects-breakdown/
 ├── videos/     mp4
 ├── fonts/      archivo.woff2, space-mono.woff2
@@ -31,7 +32,7 @@ ahmad-3d-portfolio/
 └── graphify-out/   code map (generated)
 ```
 
-Published as-is: `images/`, `videos/`, `fonts/`, `vendor/`, `og/`. Never published: `tools/`, `tests/`, `source/`, `.github/`, `graphify-out/`, the `.jpg` masters and the unused `.png` master in `images/`.
+Published as-is: `images/`, `videos/`, `fonts/`, `vendor/`, `og/`, `models/`. Never published: `tools/`, `tests/`, `source/`, `.github/`, `graphify-out/`, the `.jpg` masters and the unused `.png` master in `images/`.
 
 ## Requirements
 
@@ -47,9 +48,9 @@ npm run preview        # serves dist/ (the real published output)
 npm run test:smoke     # run after npm run build; opens dist/ in Chrome at desktop and phone size
 ```
 
-A good build ends with: `OK  130 files identical to source (84.6 MB) + index.html ... + 16 share-card pages + the modern layer (4 files, 802 KB)` (main.js plus the hero, lenis and planes chunks). The build stops with a list of problems if `content/works.js` is wrong (see below) or if a published copy differs from its source.
+A good build ends with: `OK  134 files identical to source (85.7 MB) + index.html ... + 16 share-card pages + the modern layer (4 files, 802 KB)` (main.js plus the hero, lenis and planes chunks). The build stops with a list of problems if `content/works.js` is wrong (see below) or if a published copy differs from its source.
 
-The smoke test prints one PASS/FAIL line per check (35 in total: 18 desktop, 17 phone) and ends with `SMOKE TEST PASSED` or `SMOKE TEST FAILED (n)`. It takes about 100 s (software rendering, no GPU) and uses fixed waits, so re-run once before blaming a change.
+The smoke test prints one PASS/FAIL line per check (36 in total: 18 desktop, 18 phone) and ends with `SMOKE TEST PASSED` or `SMOKE TEST FAILED (n)`. It takes about 100 s (software rendering, no GPU) and uses fixed waits, so re-run once before blaming a change.
 
 ## Deployment
 
@@ -57,7 +58,7 @@ Push to `main`. GitHub Actions ("Deploy site", `.github/workflows/deploy.yml`) r
 
 ## Add or edit a project
 
-Edit `content/works.js` only. Each project has: `slug`, `title`, `category`, `year`, `thumb`, `images` (list), `videos` (list), `description`, `details`, `tools` (list), and optionally `breakdown: [width, height]` (the Wire / Clay / Final slider; 6 projects have it). File names are given without the extension.
+Edit `content/works.js` only. Each project has: `slug`, `title`, `category`, `year`, `thumb`, `images` (list), `videos` (list), `description`, `details`, `tools` (list), and optionally `breakdown: [width, height]` (the Wire / Clay / Final slider; 6 projects have it) and `model: '<name>'` (the 3D model for the project-panel turntable; 4 projects have it; the site does not read it yet: Phase 7b). File names are given without the extension.
 
 | Field | File that must exist |
 |---|---|
@@ -65,9 +66,10 @@ Edit `content/works.js` only. Each project has: `slug`, `title`, `category`, `ye
 | each `images` entry | `images/<name>.webp` |
 | each `videos` entry | `videos/<name>.mp4` |
 | `breakdown` (if set) | `images/projects-breakdown/<slug>-image-wire.webp`, `-clay.webp`, `-final.webp` (all 3 required) |
+| `model` (if set) | `models/<model>.glb` (must be a GLB file; generated, see "Rebuild the turntable models") |
 | `slug` | `og/<slug>.jpg` (only a warning if missing: the share card has no preview image) |
 
-`npm run build` stops with a readable list if a required field is empty, a list is missing, `images` is empty, a slug is duplicated, `breakdown` is malformed, or a file above is missing (`og/` excepted).
+`npm run build` stops with a readable list if a required field is empty, a list is missing, `images` is empty, a slug is duplicated, `breakdown` is malformed, `model` is not a plain file name, or a file above is missing (`og/` excepted).
 Not checked by the build: add each new image's `[width, height]` to the `IMAGE_SIZES` map in `js/script.js` so the gallery reserves space while loading.
 
 ## Asset conventions
@@ -87,6 +89,17 @@ python3 tools/build-hero-model.py
 ```
 
 Needs Python 3 and numpy. Run it only when the model changes; on the unchanged model it reproduces the committed file byte for byte.
+
+## Rebuild the turntable models
+
+`models/<name>.glb` is generated from `source/<name>.glb` (nike-shoe, yerba-mate, youth-affairs, date-cookies). Each output is geometry only: one mesh with the node transforms applied, no textures, centred with a bounding sphere of radius 1, positions int16 and normals int8 (`KHR_mesh_quantization`), `COLOR_0` only if the model has real colours, and no normals for a model that is entirely flat-shaded (glTF reads that as flat shading: youth-affairs). The triangle count is unchanged and checked. They are 0.1 to 0.4 MB each, from 15 MB of sources.
+
+```bash
+pip install numpy
+python3 tools/build-turntable-models.py          # all four, or name some: ... nike-shoe
+```
+
+Needs Python 3 and numpy. Run it only when a source model changes; to add a model, add its name to `MODELS` in the tool and set `model` on its project in `content/works.js`. Rerunning it on unchanged sources gives identical files. Nothing on the site loads these files yet (Phase 7b).
 
 ## 3D layers and safety switches
 

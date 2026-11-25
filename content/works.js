@@ -44,6 +44,7 @@ window.__WORKS__ = [
     details: 'Product-focused beverage visualization with emphasis on materials, condensation, lighting, and motion.',
     tools: ['Blender', 'Cycles', 'Product Visualization'],
     breakdown: [2048, 2048], // wire/clay/final trio in images/projects-breakdown/yerba-mate-animation-image-wire|clay|final.webp; value = pixel size (box ratio)
+    model: 'yerba-mate', // 3D model for the project panel turntable: models/yerba-mate.glb, built from source/yerba-mate.glb by tools/build-turntable-models.py
   },
   {
     slug: 'asus-product-animation',
@@ -100,6 +101,7 @@ window.__WORKS__ = [
     description: 'Detailed footwear modeling and presentation.',
     details: 'A modeling study focused on shape, construction, materials, and product presentation.',
     tools: ['Blender', 'Hard Surface', 'Product Modeling'],
+    model: 'nike-shoe', // 3D model for the project panel turntable: models/nike-shoe.glb, built from source/nike-shoe.glb by tools/build-turntable-models.py
   },
   {
     slug: 'real-estate-exhibition-booth',
@@ -212,6 +214,7 @@ window.__WORKS__ = [
     details: 'A product visualization study focused on food form, materials, lighting, and camera movement.',
     tools: ['Blender', 'Cycles', 'Product Animation'],
     breakdown: [2560, 1440], // wire/clay/final trio in images/projects-breakdown/date-cookies-animation-image-wire|clay|final.webp; value = pixel size (box ratio)
+    model: 'date-cookies', // 3D model for the project panel turntable: models/date-cookies.glb, built from source/date-cookies.glb by tools/build-turntable-models.py
   },
   {
     slug: 'blue-mall-logo-animation',
@@ -237,5 +240,6 @@ window.__WORKS__ = [
     description: '3D logo animation with final renders and making-of material.',
     details: 'A logo motion project developed through modeling, materials, lighting, animation, and final rendering.',
     tools: ['Blender', 'Logo Animation', 'Motion Design'],
+    model: 'youth-affairs', // 3D model for the project panel turntable: models/youth-affairs.glb, built from source/youth-affairs.glb by tools/build-turntable-models.py
   },
 ];
