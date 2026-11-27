@@ -174,19 +174,121 @@ for (const [profile, ctxOpts] of [
     check(profile, 'stage: reserved at its final size before the model loads, nothing shifts when it is drawn', sh.h0 > 150 && sh.canvas0 === 0 && sh.state === 'ready' && sh.canvas1 === 1 && sh.top1 === sh.top0, JSON.stringify(sh));
     const lay = await sg.evaluate(() => { const t = document.querySelector('.x-turn'), c = t && t.querySelector('canvas'); return t && { prev: t.previousElementSibling && t.previousElementSibling.className, next: t.nextElementSibling && t.nextElementSibling.className, role: c && c.getAttribute('role'), label: c && c.getAttribute('aria-label') }; });
     check(profile, 'stage: sits between the Breakdown and the gallery, canvas has a name', !!lay && lay.prev === 'bd' && lay.next === 'gallery' && lay.role === 'img' && /3D model/.test(lay.label || ''), JSON.stringify(lay));
+    // Phase 7c: the stage auto-rotates, so "at rest" is now the reduced-motion state (nothing moves by itself). Switching it on at run time also proves the loop reacts to the change.
+    await sg.emulateMedia({ reducedMotion: 'reduce' });
     await sg.waitForTimeout(800);
     const d0 = await sg.evaluate(() => window.__ttDraws); await sg.waitForTimeout(1500); const d1 = await sg.evaluate(() => window.__ttDraws);
-    check(profile, 'stage: one frame is drawn, then no GL draw call at rest', d0 >= 1 && d0 === d1, `after load ${d0}, 1.5 s later ${d1}`);
+    check(profile, 'stage: one frame is drawn, then no GL draw call at rest (reduced motion)', d0 >= 1 && d0 === d1, `after load ${d0}, 1.5 s later ${d1}`);
+
+    // ── Phase 7c: orbit, inertia, auto-rotate, loop gating (same page, same yerba-mate stage; reduced motion is still on) ──
+    const snap = () => sg.evaluate(() => { const i = window.__turntable.info; return { y: i.yaw, auto: i.auto, ticks: i.ticks, draws: window.__ttDraws, st: i.state }; });
+    const cbox = async () => { // bring the canvas to the middle of the panel and return its centre
+      await sg.evaluate(() => document.querySelector('.x-turn canvas').scrollIntoView({ block: 'center', behavior: 'instant' })); await sg.waitForTimeout(300);
+      return sg.evaluate(() => { const r = document.querySelector('.x-turn canvas').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }; });
+    };
+    const drag = async (c, dx, steps, gap) => { await sg.mouse.move(c.x, c.y); await sg.mouse.down(); for (let k = 1; k <= steps; k++) { await sg.mouse.move(c.x + dx * k / steps, c.y); if (gap) await sg.waitForTimeout(gap); } await sg.mouse.up(); };
+    const near = (a, b, e = 1e-6) => Math.abs(a - b) <= e;
+
+    // reduced motion: no auto-rotate, no inertia; drag and keys still work
+    const q0 = await snap(); await sg.waitForTimeout(1200); const q1 = await snap();
+    const c0 = await cbox();
+    await drag(c0, 150, 8, 16);
+    const q2 = await snap(); await sg.waitForTimeout(700); const q3 = await snap();
+    await sg.locator('.x-turn canvas').focus(); await sg.keyboard.press('ArrowRight'); await sg.waitForTimeout(150); const q4 = await snap();
+    check(profile, 'stage: reduced motion has no auto-rotate and no inertia, drag and arrow keys still work',
+      !q0.auto && !q1.auto && near(q0.y, q1.y) && q2.y > q1.y + 0.1 && near(q3.y, q2.y) && !q3.auto && q4.y > q3.y + 0.1,
+      JSON.stringify({ q0, q1, q2, q3, q4 }));
+
+    if (profile === 'phone') { // touch: a vertical swipe does not orbit (touch-action: pan-y hands it to the browser), a horizontal one does. Headless touch is simulated: real-finger scroll-versus-orbit stays unverified.
+      const cdp = await ctx.newCDPSession(sg);
+      const swipe = async (c, dx, dy, steps) => {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: c.x, y: c.y }] });
+        for (let k = 1; k <= steps; k++) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: c.x + dx * k / steps, y: c.y + dy * k / steps }] }); await sg.waitForTimeout(16); }
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await sg.waitForTimeout(500);
+      };
+      const ta = await sg.evaluate(() => getComputedStyle(document.querySelector('.x-turn canvas')).touchAction);
+      const cs = await cbox(); const t0 = await snap(); const sc0 = await sg.evaluate(() => document.getElementById('panel').scrollTop);
+      await swipe(cs, 0, -150, 6);
+      const t1 = await snap(); const sc1 = await sg.evaluate(() => document.getElementById('panel').scrollTop);
+      const ch = await cbox(); const t2 = await snap();
+      await swipe(ch, 150, 0, 6);
+      const t3 = await snap();
+      check(profile, 'stage: touch-action is pan-y, a vertical swipe does not orbit the model, a horizontal swipe does (simulated touch)',
+        ta === 'pan-y' && near(t1.y, t0.y, 0.02) && t3.y > t2.y + 0.3, JSON.stringify({ ta, t0: t0.y, t1: t1.y, scrollBefore: sc0, scrollAfter: sc1, t2: t2.y, t3: t3.y }));
+    }
+
+    // auto-rotate: it comes back by itself after the idle delay, advances while on screen, stops when a drag begins and resumes after the idle delay
+    await sg.emulateMedia({ reducedMotion: 'no-preference' });
+    const tA = Date.now();
+    const auto1 = await sg.waitForFunction(() => window.__turntable.info.auto, null, { timeout: 8000 }).then(() => Date.now() - tA, () => -1);
+    const b1 = await snap(); await sg.waitForTimeout(1200); const b2 = await snap();
+    const cb = await cbox(); await sg.mouse.move(cb.x, cb.y); await sg.mouse.down(); await sg.waitForTimeout(150);
+    const b3 = await snap(); await sg.waitForTimeout(700); const b4 = await snap();
+    await sg.mouse.up(); const tB = Date.now();
+    const auto2 = await sg.waitForFunction(() => window.__turntable.info.auto, null, { timeout: 8000 }).then(() => Date.now() - tB, () => -1);
+    const b5 = await snap(); await sg.waitForTimeout(1000); const b6 = await snap();
+    check(profile, 'stage: auto-rotate advances on screen, stops when a drag begins, resumes after the idle delay',
+      auto1 >= 2300 && auto1 < 8000 && b2.y > b1.y + 0.03 && b2.draws > b1.draws && !b3.auto && near(b4.y, b3.y) && auto2 >= 2300 && auto2 < 8000 && b6.y > b5.y + 0.03,
+      JSON.stringify({ auto1, auto2, b1: b1.y, b2: b2.y, b3: b3.y, b4: b4.y, b5: b5.y, b6: b6.y, d: [b1.draws, b2.draws] }));
+
+    // a flick: the yaw keeps going after the release, in the drag direction, decays to exactly 0 (yaw and draw count stop moving, no tick pending), THEN the idle delay runs and auto-rotate returns
+    const cf = await cbox();
+    // the flick is dispatched inside the page with 16 ms between moves on the page's own clock (a driven mouse is delivered seconds apart when software GL hogs the thread, which would make it a slow drag, not a flick)
+    await sg.evaluate(({ x, y }) => {
+      const c = document.querySelector('.x-turn canvas'), spin = (ms) => { const e = performance.now() + ms; while (performance.now() < e); };
+      const ev = (t, cx) => c.dispatchEvent(new PointerEvent(t, { pointerId: 7, isPrimary: true, pointerType: 'mouse', button: 0, clientX: cx, clientY: y, bubbles: true, cancelable: true }));
+      ev('pointerdown', x - 100); for (let k = 1; k <= 8; k++) { spin(16); ev('pointermove', x - 100 + 25 * k); } ev('pointerup', x + 100);
+    }, cf);
+    const trace = await sg.evaluate(() => new Promise((res) => { const out = [], t0 = performance.now(); const iv = setInterval(() => { const i = window.__turntable.info; out.push([Math.round(performance.now() - t0), i.yaw, i.ticks, window.__ttDraws, i.auto]); if (performance.now() - t0 > 12000) { clearInterval(iv); res(out); } }, 50); }));
+    let still = -1; // first sample that starts a stable run of 6 (300 ms): same yaw, same ticks, same draws, auto-rotate off
+    for (let k = 0; k + 5 < trace.length; k++) { const w = trace.slice(k, k + 6); if (w.every((r) => r[1] === w[0][1] && r[2] === w[0][2] && r[3] === w[0][3] && !r[4])) { still = k; break; } }
+    const gain = still > 0 ? trace[still][1] - trace[0][1] : 0; // yaw gained between 50 ms after the release and the stop
+    const resumed = still >= 0 && trace.slice(still).some((r, k, a) => r[4] && r[1] > a[0][1]);
+    check(profile, 'stage: a flick keeps turning after release, decays to exactly 0 and the loop stops, then auto-rotate returns',
+      still > 0 && gain > 0.2 && resumed, JSON.stringify({ still, gain, resumed, head: trace.slice(0, 4), at: still >= 0 ? trace[still] : null, tail: trace.slice(-2) }));
+
+    // gating: 0 GL draws and 0 ticks while the stage is off screen, the tab is hidden (mocked) or the panel is closed; it moves again when the condition ends
+    await sg.waitForFunction(() => window.__turntable.info.auto, null, { timeout: 8000 }).catch(() => {});
+    const still0 = async (ms = 1000) => { const a = await snap(); await sg.waitForTimeout(ms); const b = await snap(); return a.draws === b.draws && a.ticks === b.ticks && near(a.y, b.y); };
+    const moves = async () => { const a = await snap(); return sg.waitForFunction((d) => window.__ttDraws > d, a.draws, { timeout: 4000 }).then(() => true, () => false); }; // software GL runs only a few frames a second
+    await cbox(); const g0 = await moves();
+    await sg.evaluate(() => { const p = document.getElementById('panel'); p.scrollTop = p.scrollHeight; }); await sg.waitForTimeout(600);
+    const goff = await sg.evaluate(() => { const r = document.querySelector('.x-turn canvas').getBoundingClientRect(); return r.bottom < 0 || r.top > innerHeight; });
+    const g1 = await still0(); await cbox(); const g2 = await moves();
+    await sg.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); document.dispatchEvent(new Event('visibilitychange')); }); await sg.waitForTimeout(400);
+    const g3 = await still0();
+    await sg.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); }); const g4 = await moves();
+    await sg.evaluate(() => document.documentElement.classList.remove('panel-open')); await sg.waitForTimeout(400);
+    const g5 = await still0();
+    await sg.evaluate(() => document.documentElement.classList.add('panel-open')); const g6 = await moves();
+    check(profile, 'stage: 0 GL draws and 0 ticks off screen, in a hidden tab (mocked) and with the panel closed; it moves again afterwards',
+      g0 && goff && g1 && g2 && g3 && g4 && g5 && g6, JSON.stringify({ g0, goff, g1, g2, g3, g4, g5, g6 }));
+
+    // keys: arrows turn it (and only arrows are taken), the focus ring shows, Tab leaves the canvas
+    await cbox(); await sg.locator('.x-turn canvas').focus();
+    const k0 = await snap(); await sg.keyboard.press('ArrowRight'); await sg.waitForTimeout(150); const k1 = await snap();
+    await sg.keyboard.press('ArrowLeft'); await sg.waitForTimeout(150); const k2 = await snap();
+    const ring = await sg.evaluate(() => { const c = document.querySelector('.x-turn canvas'), cs = getComputedStyle(c); return { vis: c.matches(':focus-visible'), style: cs.outlineStyle, width: cs.outlineWidth, tab: c.tabIndex }; });
+    const prevented = await sg.evaluate(() => { const c = document.querySelector('.x-turn canvas'); const t = (key) => { const e = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }); c.dispatchEvent(e); return e.defaultPrevented; }; return { right: t('ArrowRight'), left: t('ArrowLeft'), tab: t('Tab'), up: t('ArrowUp') }; });
+    await sg.keyboard.press('Tab'); const moved = await sg.evaluate(() => document.activeElement !== document.querySelector('.x-turn canvas'));
+    check(profile, 'stage: arrow keys rotate it, the focus ring is visible, only arrows are handled, Tab is not trapped',
+      k1.y - k0.y > 0.1 && k1.y - k0.y < 0.2 && near(k2.y, k1.y - 0.15, 1e-6) && ring.vis && ring.style !== 'none' && parseFloat(ring.width) > 0 && ring.tab === 0
+        && prevented.right && prevented.left && !prevented.tab && !prevented.up && moved,
+      JSON.stringify({ d1: k1.y - k0.y, d2: k2.y - k1.y, ring, prevented, moved }));
     // ten quick project swaps (models and non-models mixed) on a page of its own (they abort in-flight project videos, which is fine but is not what the check above is about),
     // then close: one stage at most, and once the close timer has run no canvas and no live GL context
     const seq = ['nike-shoe-modeling', 'realistic-water-glass', 'date-cookies-animation', 'yerba-mate-animation', 'youth-affairs-logo-animation', 'nike-shoe-modeling', 'realistic-ice', 'date-cookies-animation', 'yerba-mate-animation', 'nike-shoe-modeling'];
     for (const sl of seq) { await sg.evaluate((x) => { location.hash = '#work/' + x; }, sl); await sg.waitForTimeout(150); }
     const rdy = await sg.waitForFunction(() => window.__turntable.info && window.__turntable.info.model === 'nike-shoe' && window.__turntable.info.state === 'ready', null, { timeout: 25000 }).then(() => true, () => false);
     const one = await sg.evaluate(() => ({ st: document.querySelectorAll('.x-turn').length, cv: document.querySelectorAll('#panel canvas').length }));
+    await sg.evaluate(() => document.querySelector('.x-turn canvas').scrollIntoView({ block: 'center', behavior: 'instant' })); // a new panel opens with the stage below the fold: bring it up so the loop is really running when it is closed
+    const ran = await sg.waitForFunction(() => window.__turntable.info.ticks > 2, null, { timeout: 8000 }).then(() => true, () => false);
     await sg.keyboard.press('Escape');
     const gone = await sg.waitForFunction(() => !document.querySelector('.x-turn') && !document.querySelector('#panel canvas'), null, { timeout: 5000 }).then(() => true, () => false); // cleanup runs after the 600 ms close timer
     const leak = await sg.evaluate(() => ({ made: window.__ttGl.length, alive: window.__ttGl.filter((g) => !g.isContextLost()).length, state: window.__turntable.info.state }));
     check(profile, 'stage: 10 quick swaps leave one stage; after close no canvas and every GL context is released', rdy && one.st === 1 && one.cv === 1 && gone && leak.made >= 3 && leak.alive === 0 && leak.state === 'closed' && sgEr.length === 0, JSON.stringify({ rdy, one, gone, leak, sgEr }));
+    const tk0 = await sg.evaluate(() => ({ t: window.__turntable.info.ticks, d: window.__ttDraws })); await sg.waitForTimeout(700); const tk1 = await sg.evaluate(() => ({ t: window.__turntable.info.ticks, d: window.__ttDraws }));
+    check(profile, 'stage: no tick and no GL draw runs after close (it was running)', ran && gone && tk0.t > 2 && tk0.t === tk1.t && tk0.d === tk1.d, JSON.stringify({ tk0, tk1 }));
     await sg.close();
     check(profile, 'stage: a project without a model has none', ttNone === 0, String(ttNone));
 
@@ -217,9 +319,14 @@ for (const [profile, ctxOpts] of [
       // forced context loss while open
       const a4 = await open(base + '#work/nike-shoe-modeling');
       await stageState(a4.pg, 'ready');
+      await a4.pg.evaluate(() => document.querySelector('.x-turn canvas').scrollIntoView({ block: 'center', behavior: 'instant' }));
+      await a4.pg.waitForFunction(() => window.__turntable.info.ticks > 2, null, { timeout: 8000 }).catch(() => {});
+      const tg0 = await a4.pg.evaluate(() => window.__turntable.info.ticks); // 7c: it is turning (ticks are running) when the context is lost
       await a4.pg.evaluate(() => document.querySelector('.x-turn canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
       const l4 = await stageState(a4.pg, 'lost'); await a4.pg.waitForTimeout(300);
       const n4 = await a4.pg.locator('.x-turn').count();
+      const tg1 = await a4.pg.evaluate(() => window.__turntable.info.ticks); await a4.pg.waitForTimeout(600); const tg2 = await a4.pg.evaluate(() => window.__turntable.info.ticks);
+      check(profile, 'stage: after a forced context loss the loop is stopped (no tick runs)', tg0 > 2 && tg1 === tg2, JSON.stringify({ tg0, tg1, tg2 }));
       check(profile, 'stage: forced context loss removes the stage (state lost)', l4 && n4 === 0 && !a4.er.some((e) => /script error/.test(e)), JSON.stringify({ l4, n4, er: a4.er }));
       await a4.pg.close();
     }

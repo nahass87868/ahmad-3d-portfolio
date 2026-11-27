@@ -25,10 +25,10 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `src/hero/hero-3d.js` | 50 KB | 756 |
 | `src/hero/hero-fallback.js` | 9 KB | 227 |
 | `src/scroll/lenis.js` | 2 KB | 41 |
-| `src/turntable/turntable.js` | 10 KB | 161 |
+| `src/turntable/turntable.js` | 18 KB | 252 |
 | `src/works/planes.js` | 24 KB | 351 |
 | `src/world/world.js` | 6 KB | 99 |
-| `tests/smoke.mjs` | 25 KB | 241 |
+| `tests/smoke.mjs` | 37 KB | 348 |
 | `tools/build-hero-model.py` | 6 KB | 108 |
 | `tools/build-site.mjs` | 9 KB | 101 |
 | `tools/build-turntable-models.py` | 11 KB | 190 |
@@ -67,9 +67,9 @@ Never published: `tools/`, `source/`, `.github/`, `node_modules/`, `graphify-out
 | `window.__hero3dReady` | src/main.js:11 | js/premium.js:107, js/premium.js:110, src/hero/hero-3d.js:23 |
 | `window.__hero3dResolve` | src/main.js:12 | src/hero/hero-3d.js:25 |
 | `window.__planes` | src/works/planes.js:95 | src/works/planes.js:13, tests/smoke.mjs:100, tests/smoke.mjs:106, tests/smoke.mjs:70, tests/smoke.mjs:73 |
-| `window.__ttDraws` | tests/smoke.mjs:149 | tests/smoke.mjs:153, tests/smoke.mjs:178 |
-| `window.__ttGl` | tests/smoke.mjs:149 | tests/smoke.mjs:151, tests/smoke.mjs:188 |
-| `window.__turntable` | src/main.js:90 | js/script.js:1914, src/turntable/turntable.js:2, src/turntable/turntable.js:7, src/turntable/turntable.js:81, tests/smoke.mjs:168, tests/smoke.mjs:184, tests/smoke.mjs:188, tests/smoke.mjs:195 |
+| `window.__ttDraws` | tests/smoke.mjs:149 | tests/smoke.mjs:153, tests/smoke.mjs:180, tests/smoke.mjs:184, tests/smoke.mjs:242, tests/smoke.mjs:253, tests/smoke.mjs:290 |
+| `window.__ttGl` | tests/smoke.mjs:149 | tests/smoke.mjs:151, tests/smoke.mjs:288 |
+| `window.__turntable` | src/main.js:90 | js/script.js:1914, src/turntable/turntable.js:2, src/turntable/turntable.js:8, src/turntable/turntable.js:98, tests/smoke.mjs:168, tests/smoke.mjs:184, tests/smoke.mjs:223, tests/smoke.mjs:228, tests/smoke.mjs:242, tests/smoke.mjs:251, tests/smoke.mjs:282, tests/smoke.mjs:285, tests/smoke.mjs:288, tests/smoke.mjs:290, tests/smoke.mjs:297, tests/smoke.mjs:323, tests/smoke.mjs:324, tests/smoke.mjs:328 |
 | `window.__vtN` | tests/smoke.mjs:89 | tests/smoke.mjs:95 |
 
 ## Projects (source of truth: `content/works.js`, read by script.js and by the build)
