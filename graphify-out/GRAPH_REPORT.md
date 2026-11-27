@@ -1,19 +1,19 @@
-# Graph Report - repo  (2026-11-25)
+# Graph Report - ahmad-3d-portfolio  (2026-11-27)
 
 ## Corpus Check
-- 25 files · ~0 words
+- 26 files · ~0 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 444 nodes · 655 edges · 21 communities (17 shown, 4 thin omitted)
+- 464 nodes · 679 edges · 23 communities (18 shown, 5 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
 - script.js
+- build-site.mjs + smoke.mjs
 -  + graph-map.py
 - hero-3d.js + world.js
-- build-site.mjs + smoke.mjs
 - breakdown.js + fixes.js
 - deploy.yml
 - package.json + lenis.js
@@ -25,6 +25,7 @@
 - script.js
 - script.js + build-site.mjs
 - hero-fallback.js
+- turntable.js + main.js
 - script.js
 - script.js
 - script.js
@@ -54,19 +55,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (21 total, 4 thin omitted)
+## Communities (23 total, 5 thin omitted)
 
-### Community 1 - " + graph-map.py"
+### Community 1 - "build-site.mjs + smoke.mjs"
+Cohesion: 0.05
+Nodes (18): DIST, server, TYPES, ctx, DIRS, DIST, FILES, html (+10 more)
+
+### Community 2 - " + graph-map.py"
 Cohesion: 0.09
 Nodes (15): accessor(), main(), pad4(), read_glb(), accessor(), convert(), instances(), local_matrix() (+7 more)
 
-### Community 2 - "hero-3d.js + world.js"
+### Community 3 - "hero-3d.js + world.js"
 Cohesion: 0.06
-Nodes (10): fitName(), watchName(), motionParam, createWorld(), QUALITY, window.__BUILD__, window.__hero3d, window.__HERO3D_GLB__ (+2 more)
-
-### Community 3 - "build-site.mjs + smoke.mjs"
-Cohesion: 0.06
-Nodes (16): DIST, server, TYPES, ctx, DIRS, DIST, FILES, html (+8 more)
+Nodes (11): fitName(), watchName(), motionParam, ttQ, createWorld(), QUALITY, window.__BUILD__, window.__hero3d (+3 more)
 
 ### Community 5 - "deploy.yml"
 Cohesion: 0.06
@@ -104,45 +105,49 @@ Nodes (13): closeFromUi(), closePanel(), disposeHeadings(), go(), initPanel(), o
 Cohesion: 0.35
 Nodes (9): ensureFallbackStyle(), fitName(), mountHeroFallback(), mountIntoHero(), observeHero(), queueSizeFallback(), sizeFallback(), sizeGhost() (+1 more)
 
-### Community 15 - "script.js"
-Cohesion: 0.22
-Nodes (10): bindHeadingMeasure(), buildWidthTable(), enableEngineB(), frame(), initCursor(), initHeadings(), initPointer(), measureHeadings() (+2 more)
+### Community 15 - "turntable.js + main.js"
+Cohesion: 0.18
+Nodes (4): mountTurntable(), parseGLB(), T, window.__turntable
 
 ### Community 16 - "script.js"
 Cohesion: 0.22
-Nodes (9): boot(), categories(), render(), renderHome(), renderShellBottom(), renderShellTop(), runIntro(), tile() (+1 more)
+Nodes (10): bindHeadingMeasure(), buildWidthTable(), enableEngineB(), frame(), initCursor(), initHeadings(), initPointer(), measureHeadings() (+2 more)
 
 ### Community 17 - "script.js"
-Cohesion: 0.40
-Nodes (6): initCards(), initViewport(), apply(), releaseCard(), stepCards(), viewportOff()
+Cohesion: 0.22
+Nodes (9): boot(), categories(), render(), renderHome(), renderShellBottom(), renderShellTop(), runIntro(), tile() (+1 more)
 
 ### Community 18 - "script.js"
 Cohesion: 0.40
-Nodes (5): layoutLines(), stepEngineA(), stepEngineB(), stepHeadings(), widthAt()
+Nodes (6): initCards(), initViewport(), apply(), releaseCard(), stepCards(), viewportOff()
 
 ### Community 19 - "script.js"
+Cohesion: 0.40
+Nodes (5): layoutLines(), stepEngineA(), stepEngineB(), stepHeadings(), widthAt()
+
+### Community 20 - "script.js"
 Cohesion: 0.50
 Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
-- **3 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`, `window.__vtN`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 243 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`, `window.__ttDraws`, `window.__ttGl`, `window.__vtN`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 259 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `window.__WORKS__` connect `build-site.mjs + smoke.mjs` to `script.js`?**
-  _High betweenness centrality (0.109) - this node is a cross-community bridge._
+- **Why does `window.__turntable` connect `turntable.js + main.js` to `script.js`, `build-site.mjs + smoke.mjs`, `hero-3d.js + world.js`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `start()` (e.g. with `boot()` and `stepCards()`) actually correct?**
   _`start()` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `window.__BUILD__`, `window.__HERO3D_GLB__`, `window.__vtN` to the rest of the system?**
-  _3 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `window.__BUILD__`, `window.__HERO3D_GLB__`, `window.__ttDraws` to the rest of the system?**
+  _5 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `script.js` be split into smaller, more focused modules?**
   _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._
-- **Why does `run()` connect `hero-3d.js + script.js` to `hero-3d.js + world.js`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `window.__WORKS__` connect `build-site.mjs + smoke.mjs` to `script.js`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `run()` (e.g. with `frame()` and `onScroll()`) actually correct?**
   _`run()` has 4 INFERRED edges - model-reasoned connections that need verification._
-- **Should ` + graph-map.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.09230769230769231 - nodes in this community are weakly interconnected._
+- **Should `build-site.mjs + smoke.mjs` be split into smaller, more focused modules?**
+  _Cohesion score 0.05121951219512195 - nodes in this community are weakly interconnected._

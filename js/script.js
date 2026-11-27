@@ -1911,6 +1911,7 @@
     unmountPanelContent(body);
     body.innerHTML = html;
     if (work && window.__breakdown) window.__breakdown(body, work); // js/breakdown.js: wire/clay/final slider above the gallery
+    if (work && work.model && window.__turntable) panelState.cleanups.push(window.__turntable(body, work)); // src/turntable (7b): 3D stage, after the Breakdown
     panel.scrollTop = 0;
     mountPanelContent(body, panel);
     setPageMeta(title, description);

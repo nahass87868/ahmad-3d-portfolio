@@ -76,3 +76,23 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches && !reducedMotion) 
     mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 }
+
+// Phase 7b: the project-panel turntable (src/turntable/turntable.js, a lazy chunk). js/script.js calls this right after the Breakdown hook and keeps the returned cleanup.
+// The empty stage goes in NOW at its final size, so nothing shifts while the chunk and the model load. Off: Data Saver / slow link / no WebGL 2 (skipReason),
+// html.vp-off, and ?turntable=off (remembered in pf_turntable; ?turntable=on clears it).
+const ttQ = new URLSearchParams(location.search).get('turntable');
+let ttOff = ttQ === 'off';
+try {
+  if (ttQ === 'off') localStorage.setItem('pf_turntable', 'off');
+  else if (ttQ === 'on') localStorage.removeItem('pf_turntable');
+  else ttOff = localStorage.getItem('pf_turntable') === 'off';
+} catch (e) { /* storage blocked: ?turntable still works for this page */ }
+window.__turntable = (body, work) => {
+  const host = body.querySelector('.gallery') || body.querySelector('.pn');
+  if (!host || skipReason || ttOff || document.documentElement.classList.contains('vp-off')) return () => {};
+  host.insertAdjacentHTML('beforebegin', '<section class="x-turn" style="aspect-ratio:4/3;width:min(100%,106svh);margin:0 auto 48px;background:var(--surface)"></section>');
+  const el = host.previousElementSibling;
+  let stop, dead;
+  import('./turntable/turntable.js').then((m) => { if (!dead) stop = m.mountTurntable(el, work); }).catch(() => el.remove());
+  return () => { dead = 1; if (stop) stop(); el.remove(); };
+};
