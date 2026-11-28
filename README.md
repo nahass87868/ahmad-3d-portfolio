@@ -2,6 +2,7 @@
 
 Portfolio site with 16 projects, a dark/light theme, project panels with galleries and video, and a 3D hero (the letters PORT / FOLIO with physics).
 Live: https://nahass87868.github.io/ahmad-3d-portfolio/
+AI coders: read `docs/ai/CONTEXT.md` first (rules, state, plan), then the top of `docs/ai/LOG.md` and `graphify-out/PROJECT_MAP.md`.
 
 Stack: Vite 8.3.5 and three 0.186.1 (both pinned exactly) for the 3D layer; the rest of the site is plain scripts and CSS. GSAP and ScrollTrigger are vendored in `vendor/`. Hosted on GitHub Pages.
 
@@ -22,6 +23,7 @@ ahmad-3d-portfolio/
 │               works/, turntable/  works/planes.js (the project-grid image layer),
 │                                   turntable/turntable.js (the project-panel 3D stage)
 ├── tests/      smoke.mjs
+├── docs/ai/    CONTEXT.md, LOG.md, BACKLOG.md   project context for coding AIs (never published)
 ├── tools/      build-site.mjs, build-hero-model.py, build-turntable-models.py, graph-map.py
 ├── source/     portfolio.glb + 6 project .glb files (never published)
 ├── models/     nike-shoe, yerba-mate, youth-affairs, date-cookies .glb (lean turntable models, generated from source/)
@@ -33,7 +35,7 @@ ahmad-3d-portfolio/
 └── graphify-out/   code map (generated)
 ```
 
-Published as-is: `images/`, `videos/`, `fonts/`, `vendor/`, `og/`, `models/`. Never published: `tools/`, `tests/`, `source/`, `.github/`, `graphify-out/`, the `.jpg` masters and the unused `.png` master in `images/`.
+Published as-is: `images/`, `videos/`, `fonts/`, `vendor/`, `og/`, `models/`. Never published: `docs/`, `tools/`, `tests/`, `source/`, `.github/`, `graphify-out/`, the `.jpg` masters and the unused `.png` master in `images/`.
 
 ## Requirements
 

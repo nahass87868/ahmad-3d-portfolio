@@ -6,7 +6,7 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 
 | file | size | lines |
 |---|---|---|
-| `README.md` | 18 KB | 201 |
+| `README.md` | 18 KB | 203 |
 | `index.html` | 5 KB | 66 |
 | `package.json` | 1 KB | 24 |
 | `vite.config.js` | 1 KB | 23 |
@@ -14,6 +14,9 @@ Read this first, then query `graphify-out/graph.json` (nodes carry file + line),
 | `content/works.js` | 11 KB | 245 |
 | `css/premium.css` | 8 KB | 114 |
 | `css/style.css` | 49 KB | 2232 |
+| `docs/ai/BACKLOG.md` | 6 KB | 74 |
+| `docs/ai/CONTEXT.md` | 22 KB | 155 |
+| `docs/ai/LOG.md` | 8 KB | 63 |
 | `js/about-photo.js` | 6 KB | 132 |
 | `js/breakdown.js` | 15 KB | 276 |
 | `js/extras.js` | 19 KB | 390 |

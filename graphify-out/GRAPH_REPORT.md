@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 484 nodes · 700 edges · 23 communities (18 shown, 5 thin omitted)
+- 487 nodes · 700 edges · 26 communities (18 shown, 8 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -54,7 +54,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (23 total, 5 thin omitted)
+## Communities (26 total, 8 thin omitted)
 
 ### Community 0 - "smoke.mjs + build-site.mjs"
 Cohesion: 0.04
@@ -130,14 +130,14 @@ Nodes (4): hudReport(), hudSweepStep(), initHudTriggers(), openHud()
 
 ## Knowledge Gaps
 - **5 isolated node(s):** `window.__BUILD__`, `window.__HERO3D_GLB__`, `window.__ttDraws`, `window.__ttGl`, `window.__vtN`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 277 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 280 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `window.__turntable` connect `hero-3d.js + main.js` to `smoke.mjs + build-site.mjs`, `script.js`, `turntable.js`?**
-  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+  _High betweenness centrality (0.103) - this node is a cross-community bridge._
 - **Are the 5 inferred relationships involving `start()` (e.g. with `boot()` and `stepCards()`) actually correct?**
   _`start()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `window.__BUILD__`, `window.__HERO3D_GLB__`, `window.__ttDraws` to the rest of the system?**
@@ -145,7 +145,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `smoke.mjs + build-site.mjs` be split into smaller, more focused modules?**
   _Cohesion score 0.04251700680272109 - nodes in this community are weakly interconnected._
 - **Why does `window.__WORKS__` connect `smoke.mjs + build-site.mjs` to `script.js`?**
-  _High betweenness centrality (0.087) - this node is a cross-community bridge._
+  _High betweenness centrality (0.086) - this node is a cross-community bridge._
 - **Are the 4 inferred relationships involving `run()` (e.g. with `frame()` and `onScroll()`) actually correct?**
   _`run()` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **Should `script.js` be split into smaller, more focused modules?**
