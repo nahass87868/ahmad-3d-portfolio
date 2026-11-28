@@ -2,11 +2,11 @@
  * Project-panel turntable stage. A lazy chunk: the stub at the end of src/main.js (window.__turntable) inserts the empty, final-size stage and imports this
  * only when a project has a `model` (models/<name>.glb, built by tools/build-turntable-models.py).
  *
- * Phase 7b: mount, parse, draw ONE Clay frame, dispose. Phase 7c (this file): yaw orbit by drag, inertia, arrow keys, slow auto-rotate, ONE rAF loop. (7d styles + accent + Pause, 7e polish.)
+ * Phase 7b: mount, parse, draw ONE Clay frame, dispose. Phase 7c (this file): yaw orbit by drag, inertia, arrow keys, slow auto-rotate, ONE rAF loop. Phase 7 closed at 7c: Solid/Wire styles, a Pause control and the ASUS model were dropped by the owner (2026-11-28).
  * One GL context per open stage; it is released on close, on a project swap, on any failure and on context loss. Failure removes the stage silently.
  * The loop runs ONLY while the stage is on screen AND html.panel-open AND the tab is visible AND something changes (drag, inertia, auto-rotate); otherwise no rAF is pending and nothing is drawn.
  * State for tests and the console: window.__turntable.info = { state: loading | ready | closed | failed | lost, reason, draws, ticks, yaw (radians), auto (auto-rotate active), model }.
- * Known gap (fixed by the Pause control in 7d): auto-rotate runs longer than 5 s with no pause button (WCAG 2.2.2). Reduced motion turns it off.
+ * Known gap, accepted by the owner (the Pause control was dropped): auto-rotate runs longer than 5 s with no pause button (WCAG 2.2.2). Reduced motion turns it off.
  */
 import { ACESFilmicToneMapping, BufferAttribute, BufferGeometry, ColorManagement, DirectionalLight, HemisphereLight, Mesh, MeshStandardMaterial, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three';
 
@@ -43,7 +43,7 @@ const CSS = '.x-turn canvas{display:block;width:100%;height:100%;opacity:0;trans
 
 // ── GLB reader for the quantized files from tools/build-turntable-models.py (POSITION int16, NORMAL int8, both normalised; indices u16/u32) ──
 // One mesh, one triangle list, no transforms. Positions and normals are widened to Float32 (the biggest model is ~0.4 MB that way),
-// so no driver ever has to read normalised integer attributes. COLOR_0 is not read yet (Clay does not use it; 7d does).
+// so no driver ever has to read normalised integer attributes. COLOR_0 is not read (the stage is Clay only, so it does not use it).
 function parseGLB(buf) {
   const dv = new DataView(buf);
   if (dv.getUint32(0, true) !== 0x46546c67 || dv.getUint32(4, true) !== 2) throw new Error('not a GLB 2 file');

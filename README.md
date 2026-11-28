@@ -19,7 +19,8 @@ ahmad-3d-portfolio/
 ├── content/    works.js            the project list (single source of truth)
 ├── src/        main.js, hero/,     the Vite layer: hero/ (hero-3d.js, hero-fallback.js),
 │               world/, scroll/,    world/world.js (the one renderer and loop), scroll/lenis.js,
-│               works/              works/planes.js (the project-grid image layer)
+│               works/, turntable/  works/planes.js (the project-grid image layer),
+│                                   turntable/turntable.js (the project-panel 3D stage)
 ├── tests/      smoke.mjs
 ├── tools/      build-site.mjs, build-hero-model.py, build-turntable-models.py, graph-map.py
 ├── source/     portfolio.glb + 6 project .glb files (never published)
@@ -48,9 +49,9 @@ npm run preview        # serves dist/ (the real published output)
 npm run test:smoke     # run after npm run build; opens dist/ in Chrome at desktop and phone size
 ```
 
-A good build ends with: `OK  134 files identical to source (85.7 MB) + index.html ... + 16 share-card pages + the modern layer (4 files, 802 KB)` (main.js plus the hero, lenis and planes chunks). The build stops with a list of problems if `content/works.js` is wrong (see below) or if a published copy differs from its source.
+A good build ends with: `OK  134 files identical to source (85.7 MB) + index.html ... + 16 share-card pages + the modern layer (6 files, 811 KB)` (main.js plus the hero, three, lenis, planes and turntable chunks). The build stops with a list of problems if `content/works.js` is wrong (see below) or if a published copy differs from its source.
 
-The smoke test prints one PASS/FAIL line per check (36 in total: 18 desktop, 18 phone) and ends with `SMOKE TEST PASSED` or `SMOKE TEST FAILED (n)`. It takes about 100 s (software rendering, no GPU) and uses fixed waits, so re-run once before blaming a change.
+The smoke test prints one PASS/FAIL line per check (64 in total: 34 desktop, 30 phone) and ends with `SMOKE TEST PASSED` or `SMOKE TEST FAILED (n)`. It takes about 100 s (software rendering, no GPU) and uses fixed waits, so re-run once before blaming a change.
 
 ## Deployment
 
@@ -58,7 +59,7 @@ Push to `main`. GitHub Actions ("Deploy site", `.github/workflows/deploy.yml`) r
 
 ## Add or edit a project
 
-Edit `content/works.js` only. Each project has: `slug`, `title`, `category`, `year`, `thumb`, `images` (list), `videos` (list), `description`, `details`, `tools` (list), and optionally `breakdown: [width, height]` (the Wire / Clay / Final slider; 6 projects have it) and `model: '<name>'` (the 3D model for the project-panel turntable; 4 projects have it; the site does not read it yet: Phase 7b). File names are given without the extension.
+Edit `content/works.js` only. Each project has: `slug`, `title`, `category`, `year`, `thumb`, `images` (list), `videos` (list), `description`, `details`, `tools` (list), and optionally `breakdown: [width, height]` (the Wire / Clay / Final slider; 6 projects have it) and `model: '<name>'` (the 3D model for the project-panel turntable; 4 projects have it; see "Add a 3D model"). File names are given without the extension.
 
 | Field | File that must exist |
 |---|---|
@@ -99,7 +100,46 @@ pip install numpy
 python3 tools/build-turntable-models.py          # all four, or name some: ... nike-shoe
 ```
 
-Needs Python 3 and numpy. Run it only when a source model changes; to add a model, add its name to `MODELS` in the tool and set `model` on its project in `content/works.js`. Rerunning it on unchanged sources gives identical files. Nothing on the site loads these files yet (Phase 7b).
+Needs Python 3 and numpy. Run it only when a source model changes (to add one, see "Add a 3D model"). Rerunning it on unchanged sources gives identical files.
+
+## Add a 3D model
+
+No code change is needed: the turntable stage appears for any project that has a `model` field, and no model name is written anywhere in `src/` or `js/`.
+
+1. Export the model as a GLB 2.0 and save it as `source/<name>.glb`. `<name>` is lowercase letters, digits and hyphens (the build rejects anything else). `source/` is never published.
+2. Add `<name>` to `MODELS` in `tools/build-turntable-models.py` (so "rebuild all" includes it), then run `python3 tools/build-turntable-models.py <name>`. It prints the triangle count and the output size; the triangle count must equal the source's (the tool stops if it does not).
+3. In `content/works.js`, set `model: '<name>'` on the project.
+4. `npm run build`. It stops if `models/<name>.glb` is missing or not a GLB, and it publishes `models/` byte for byte (the file count in the OK line goes up by one).
+5. `npm run preview`, open the project and look: the model is centred and not clipped, faces the viewer sensibly, and a drag turns it. This step is by eye: the smoke test only exercises the existing models.
+6. `npm run test:smoke`, then `python3 tools/graph-map.py`, then commit `source/<name>.glb`, `models/<name>.glb`, `content/works.js`, the tool and `graphify-out/`.
+
+What the source file must be:
+
+- Uncompressed glTF 2.0 binary. Draco, meshopt or quantized sources are refused; sparse accessors are refused.
+- Every mesh primitive is a triangle list with `POSITION` and `NORMAL` (the tool stops with a message otherwise, and also if a mesh is inside out). Textures, UVs, animation and skins are dropped; all meshes of the default scene are merged into one.
+- Colours (material base colour times vertex colour) are kept in the output only if the model has any, but the stage does not read them: every model is drawn in the same clay grey.
+
+Size: the tool does not decimate. On the four existing models the output is about 12 KB per 1,000 triangles (8,628 triangles: 102 KB; 31,346: 377 KB; 37,114 flat-shaded: 425 KB; 9,696: 114 KB). The Phase 7 limit was about 500 KB per model, so about 40,000 triangles; decimate bigger models in Blender before they go into `source/`. Nothing above 37,114 triangles has been tried on a phone. The ASUS model (208,956 triangles, about 2.5 MB by the same rate: an estimate) was left out for this reason.
+
+There is no per-model setting: the start angle is chosen from the model's proportions (`YAW` for a model wider than deep, `YAW_LONG` for a longer-than-wide one such as a shoe), and the look is the `T` block in `src/turntable/turntable.js` for every model. If a model fails to load or parse, the stage removes itself silently and the project simply has no turntable; nothing else breaks.
+
+## 3D turntable (project panel)
+
+A project with a `model` field gets an orbit view of its model in the project panel, in a section just above the gallery (after the Breakdown when a project has both). It is a lazy chunk (`src/turntable/turntable.js`); `src/main.js` holds a small stub, `window.__turntable(body, work)`, that `openPanel` in `js/script.js` calls. The stub inserts the empty stage at its final size (aspect 4/3) so nothing shifts, then imports the chunk, which fetches `models/<name>.glb` (a document-relative URL, so it works under a sub-path), reads it with its own short GLB parser, and draws it with its own renderer and canvas (the home world is frozen while a panel is open). The model is drawn in clay grey with a hero-style light rig; nothing but the geometry is used.
+
+- Controls: drag (yaw only, no pitch, zoom or pan), ArrowLeft / ArrowRight on the focused canvas, inertia after a flick, and a slow auto-rotate that stops on any input and returns after a short idle time. `touch-action: pan-y` lets a vertical swipe scroll the panel; the wheel is never captured.
+- One rAF loop, only while the stage is on screen, `html.panel-open` is set, the tab is visible and something changes (a drag, inertia or auto-rotate). Otherwise nothing is pending and nothing is drawn. Touch devices draw at most 30 frames per second when not dragging.
+- Close, a project swap, any failure, context loss and a 20 s timeout all abort the fetch, release geometry, material, renderer and the GL context, and remove the section. Failure is silent.
+- Off for Data Saver, a very slow link, no WebGL 2 (the hero's skip rules), `html.vp-off` and `?turntable=off`. Reduced motion: no auto-rotate and no inertia; drag and keys still work.
+- State for tests and the console: `window.__turntable.info` = `{ state: 'loading' | 'ready' | 'closed' | 'failed' | 'lost', reason, draws, ticks, yaw, auto, model }`.
+
+| Query | Remembered as | Effect |
+|---|---|---|
+| `?turntable=off` / `?turntable=on` | `pf_turntable` | no turntable stage / back to the stage |
+
+Owner-tunable values are the `T` block at the top of `src/turntable/turntable.js`: framing (`FOV`, `TILT`, `FIT`, `YAW`, `YAW_LONG`), the clay and light values, `DPR_MAX` 2, and the motion values `AUTO_SPEED` 0.3, `IDLE_MS` 2500, `INERTIA_TAU` 0.35, `DRAG_TURN` 5, `KEY_STEP` 0.15, `TOUCH_FPS` 30.
+
+Not built, by owner decision (2026-11-28): Solid / Wire modes, a Pause control, and the ASUS model (it needs decimation). Known gap, accepted: auto-rotate runs for longer than 5 s with no Pause button (WCAG 2.2.2); reduced motion turns it off. Adding more models is the section above.
 
 ## 3D layers and safety switches
 
@@ -133,6 +173,17 @@ Measured in 6f against the end of Phase 5 (`6e914d5`, built in a second clone), 
 | Console errors, page errors, failed requests, HTTP 4xx/5xx over 27 scenarios | 0 | 0 | none |
 
 Eager growth comes from `js/polish.js` (+1,006 B, the close transition; the file ships unminified), partly offset by `js/script.js` (-373 B).
+
+Phase 7 (turntable), measured at its close against the 7a base `a995a25` (built in a worktree, same method; the 7a base is itself +842 B eager over the Phase 5 end, mostly the Phase 6 close transition and the `model` fields in `content/works.js`):
+
+| Budget | 7a base | Now | Change |
+|---|---|---|---|
+| Eager gzip | 126,204 B | 126,542 B | +338 B (budget was at most +400 B: met) |
+| Lazy gzip | 277,608 B | 282,065 B | +4,457 B: turntable chunk 3,979 B; three.js is now its own shared chunk (hero and turntable both import it), so the hero chunk fell from 193,810 B to 10,630 B and the three chunk is 183,658 B |
+| Models (4, published only when a project opens) | 1.0 MB | 1.0 MB | none |
+| Turntable rAF ticks and GL draws at rest, off screen, hidden tab, panel closed | | 0 | measured in the smoke test (the stage's own counters; page-wide rAF not measured) |
+
+Not measured for Phase 7: CLS inside the panel at 1440 and 390, errors over a scenario list, GL contexts alive on a real phone, PageSpeed, any GPU or device figure.
 
 ## Code map
 
